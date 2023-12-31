@@ -1,6 +1,6 @@
 // import 'package:extremo/ui/page/favorite.dart';
-// import 'package:extremo/ui/page/pokemon.dart';
-// import 'package:extremo/ui/page/pokemon_detail.dart';
+// import 'package:extremo/ui/page/extremo.dart';
+// import 'package:extremo/ui/page/extremo_detail.dart';
 import 'package:extremo/ui/page/home.dart';
 
 import 'package:flutter/widgets.dart';
@@ -14,7 +14,7 @@ part 'route.g.dart';
 //
 class Route {
   static const homePage = '/';
-  // static const pokemonPage = "/pokemons";
+  // static const extremoPage = "/extremos";
   // static const favoritePage = "/favorites";
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";

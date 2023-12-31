@@ -1,3 +1,4 @@
+import 'package:extremo/io/entity/extremo.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/scaffold_navbar.dart';
@@ -14,7 +15,7 @@ void main() async {
   usePathUrlStrategy();
 
   await Hive.initFlutter();
-  // Hive.registerAdapter(PokemonEntityAdapter());
+  Hive.registerAdapter(ExtremoUserEntityAdapter());
 
   WidgetsFlutterBinding.ensureInitialized();
 

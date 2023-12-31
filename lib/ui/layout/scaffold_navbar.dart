@@ -13,7 +13,7 @@ class ScaffoldNavbar extends StatelessWidget {
 
   final routes = () {
     final homeRoute = HomeRoute();
-    // final pokemonRoute = PokemonRoute();
+    // final extremoRoute = ExtremoRoute();
     // final favoriteRoute = FavoritesRoute();
 
     return [
@@ -34,8 +34,8 @@ class ScaffoldNavbar extends StatelessWidget {
         ),
       ),
       // _NavigationItem(
-      //   go: pokemonRoute.go,
-      //   location: pokemonRoute.location,
+      //   go: extremoRoute.go,
+      //   location: extremoRoute.location,
       //   item: BottomNavigationBarItem(
       //     icon: const Icon(Icons.list),
       //     label: t.index,
