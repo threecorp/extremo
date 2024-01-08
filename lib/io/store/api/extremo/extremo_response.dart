@@ -5,27 +5,53 @@ import '../converter.dart';
 part 'extremo_response.g.dart';
 part 'extremo_response.freezed.dart';
 
-@freezed
-class ExtremoGetResponse with _$ExtremoGetResponse {
+@Freezed(genericArgumentFactories: true)
+class ExtremoGetResponse<T> with _$ExtremoGetResponse<T> {
   const factory ExtremoGetResponse({
-    required ExtremoUser user,
-  }) = _ExtremoGetResponse;
+    required T element,
+  }) = _ExtremoGetResponse<T>;
 
-  factory ExtremoGetResponse.fromJson(Map<String, dynamic> json) =>
-      _$ExtremoGetResponseFromJson(json);
+  factory ExtremoGetResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Object? json) fromJsonT,
+  ) =>
+      _$ExtremoGetResponseFromJson<T>(json, fromJsonT);
 }
 
-@freezed
-class ExtremoListResponse with _$ExtremoListResponse {
+@Freezed(genericArgumentFactories: true)
+class ExtremoListResponse<T> with _$ExtremoListResponse<T> {
   const factory ExtremoListResponse({
     required int totalSize,
     // TODO(next): String? next,
     // TODO(previous): String? previous,
-    required List<ExtremoUser> users,
-  }) = _ExtremoListResponse;
+    required List<T> elements,
+  }) = _ExtremoListResponse<T>;
 
-  factory ExtremoListResponse.fromJson(Map<String, dynamic> json) =>
-      _$ExtremoListResponseFromJson(json);
+  factory ExtremoListResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Object? json) fromJsonT,
+  ) =>
+      _$ExtremoListResponseFromJson<T>(json, fromJsonT);
+}
+
+@freezed
+class ExtremoArtifact with _$ExtremoArtifact {
+  const factory ExtremoArtifact({
+    required int pk,
+    required int userFk,
+    required ExtremoUser user,
+    required String title,
+    required String content,
+    required String summary,
+    required String status, // TODO: Enum Type
+    @DateTimeConverter() DateTime? publishFrom,
+    @DateTimeConverter() DateTime? publishUntil,
+    @DateTimeConverter() required DateTime createdAt,
+    @DateTimeConverter() required DateTime updatedAt,
+  }) = _ExtremoArtifact;
+
+  factory ExtremoArtifact.fromJson(Map<String, dynamic> json) =>
+      _$ExtremoArtifactFromJson(json);
 }
 
 @freezed

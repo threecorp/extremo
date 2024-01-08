@@ -14,34 +14,35 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
-ExtremoGetResponse _$ExtremoGetResponseFromJson(Map<String, dynamic> json) {
-  return _ExtremoGetResponse.fromJson(json);
+ExtremoGetResponse<T> _$ExtremoGetResponseFromJson<T>(
+    Map<String, dynamic> json, T Function(Object?) fromJsonT) {
+  return _ExtremoGetResponse<T>.fromJson(json, fromJsonT);
 }
 
 /// @nodoc
-mixin _$ExtremoGetResponse {
-  ExtremoUser get user => throw _privateConstructorUsedError;
+mixin _$ExtremoGetResponse<T> {
+  T get element => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) =>
+      throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ExtremoGetResponseCopyWith<ExtremoGetResponse> get copyWith =>
+  $ExtremoGetResponseCopyWith<T, ExtremoGetResponse<T>> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ExtremoGetResponseCopyWith<$Res> {
-  factory $ExtremoGetResponseCopyWith(
-          ExtremoGetResponse value, $Res Function(ExtremoGetResponse) then) =
-      _$ExtremoGetResponseCopyWithImpl<$Res, ExtremoGetResponse>;
+abstract class $ExtremoGetResponseCopyWith<T, $Res> {
+  factory $ExtremoGetResponseCopyWith(ExtremoGetResponse<T> value,
+          $Res Function(ExtremoGetResponse<T>) then) =
+      _$ExtremoGetResponseCopyWithImpl<T, $Res, ExtremoGetResponse<T>>;
   @useResult
-  $Res call({ExtremoUser user});
-
-  $ExtremoUserCopyWith<$Res> get user;
+  $Res call({T element});
 }
 
 /// @nodoc
-class _$ExtremoGetResponseCopyWithImpl<$Res, $Val extends ExtremoGetResponse>
-    implements $ExtremoGetResponseCopyWith<$Res> {
+class _$ExtremoGetResponseCopyWithImpl<T, $Res,
+        $Val extends ExtremoGetResponse<T>>
+    implements $ExtremoGetResponseCopyWith<T, $Res> {
   _$ExtremoGetResponseCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -52,13 +53,405 @@ class _$ExtremoGetResponseCopyWithImpl<$Res, $Val extends ExtremoGetResponse>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? user = null,
+    Object? element = freezed,
   }) {
     return _then(_value.copyWith(
+      element: freezed == element
+          ? _value.element
+          : element // ignore: cast_nullable_to_non_nullable
+              as T,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ExtremoGetResponseImplCopyWith<T, $Res>
+    implements $ExtremoGetResponseCopyWith<T, $Res> {
+  factory _$$ExtremoGetResponseImplCopyWith(_$ExtremoGetResponseImpl<T> value,
+          $Res Function(_$ExtremoGetResponseImpl<T>) then) =
+      __$$ExtremoGetResponseImplCopyWithImpl<T, $Res>;
+  @override
+  @useResult
+  $Res call({T element});
+}
+
+/// @nodoc
+class __$$ExtremoGetResponseImplCopyWithImpl<T, $Res>
+    extends _$ExtremoGetResponseCopyWithImpl<T, $Res,
+        _$ExtremoGetResponseImpl<T>>
+    implements _$$ExtremoGetResponseImplCopyWith<T, $Res> {
+  __$$ExtremoGetResponseImplCopyWithImpl(_$ExtremoGetResponseImpl<T> _value,
+      $Res Function(_$ExtremoGetResponseImpl<T>) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? element = freezed,
+  }) {
+    return _then(_$ExtremoGetResponseImpl<T>(
+      element: freezed == element
+          ? _value.element
+          : element // ignore: cast_nullable_to_non_nullable
+              as T,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable(genericArgumentFactories: true)
+class _$ExtremoGetResponseImpl<T> implements _ExtremoGetResponse<T> {
+  const _$ExtremoGetResponseImpl({required this.element});
+
+  factory _$ExtremoGetResponseImpl.fromJson(
+          Map<String, dynamic> json, T Function(Object?) fromJsonT) =>
+      _$$ExtremoGetResponseImplFromJson(json, fromJsonT);
+
+  @override
+  final T element;
+
+  @override
+  String toString() {
+    return 'ExtremoGetResponse<$T>(element: $element)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ExtremoGetResponseImpl<T> &&
+            const DeepCollectionEquality().equals(other.element, element));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(element));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ExtremoGetResponseImplCopyWith<T, _$ExtremoGetResponseImpl<T>>
+      get copyWith => __$$ExtremoGetResponseImplCopyWithImpl<T,
+          _$ExtremoGetResponseImpl<T>>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
+    return _$$ExtremoGetResponseImplToJson<T>(this, toJsonT);
+  }
+}
+
+abstract class _ExtremoGetResponse<T> implements ExtremoGetResponse<T> {
+  const factory _ExtremoGetResponse({required final T element}) =
+      _$ExtremoGetResponseImpl<T>;
+
+  factory _ExtremoGetResponse.fromJson(
+          Map<String, dynamic> json, T Function(Object?) fromJsonT) =
+      _$ExtremoGetResponseImpl<T>.fromJson;
+
+  @override
+  T get element;
+  @override
+  @JsonKey(ignore: true)
+  _$$ExtremoGetResponseImplCopyWith<T, _$ExtremoGetResponseImpl<T>>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+ExtremoListResponse<T> _$ExtremoListResponseFromJson<T>(
+    Map<String, dynamic> json, T Function(Object?) fromJsonT) {
+  return _ExtremoListResponse<T>.fromJson(json, fromJsonT);
+}
+
+/// @nodoc
+mixin _$ExtremoListResponse<T> {
+  int get totalSize =>
+      throw _privateConstructorUsedError; // TODO(next): String? next,
+// TODO(previous): String? previous,
+  List<T> get elements => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) =>
+      throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ExtremoListResponseCopyWith<T, ExtremoListResponse<T>> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ExtremoListResponseCopyWith<T, $Res> {
+  factory $ExtremoListResponseCopyWith(ExtremoListResponse<T> value,
+          $Res Function(ExtremoListResponse<T>) then) =
+      _$ExtremoListResponseCopyWithImpl<T, $Res, ExtremoListResponse<T>>;
+  @useResult
+  $Res call({int totalSize, List<T> elements});
+}
+
+/// @nodoc
+class _$ExtremoListResponseCopyWithImpl<T, $Res,
+        $Val extends ExtremoListResponse<T>>
+    implements $ExtremoListResponseCopyWith<T, $Res> {
+  _$ExtremoListResponseCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? totalSize = null,
+    Object? elements = null,
+  }) {
+    return _then(_value.copyWith(
+      totalSize: null == totalSize
+          ? _value.totalSize
+          : totalSize // ignore: cast_nullable_to_non_nullable
+              as int,
+      elements: null == elements
+          ? _value.elements
+          : elements // ignore: cast_nullable_to_non_nullable
+              as List<T>,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ExtremoListResponseImplCopyWith<T, $Res>
+    implements $ExtremoListResponseCopyWith<T, $Res> {
+  factory _$$ExtremoListResponseImplCopyWith(_$ExtremoListResponseImpl<T> value,
+          $Res Function(_$ExtremoListResponseImpl<T>) then) =
+      __$$ExtremoListResponseImplCopyWithImpl<T, $Res>;
+  @override
+  @useResult
+  $Res call({int totalSize, List<T> elements});
+}
+
+/// @nodoc
+class __$$ExtremoListResponseImplCopyWithImpl<T, $Res>
+    extends _$ExtremoListResponseCopyWithImpl<T, $Res,
+        _$ExtremoListResponseImpl<T>>
+    implements _$$ExtremoListResponseImplCopyWith<T, $Res> {
+  __$$ExtremoListResponseImplCopyWithImpl(_$ExtremoListResponseImpl<T> _value,
+      $Res Function(_$ExtremoListResponseImpl<T>) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? totalSize = null,
+    Object? elements = null,
+  }) {
+    return _then(_$ExtremoListResponseImpl<T>(
+      totalSize: null == totalSize
+          ? _value.totalSize
+          : totalSize // ignore: cast_nullable_to_non_nullable
+              as int,
+      elements: null == elements
+          ? _value._elements
+          : elements // ignore: cast_nullable_to_non_nullable
+              as List<T>,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable(genericArgumentFactories: true)
+class _$ExtremoListResponseImpl<T> implements _ExtremoListResponse<T> {
+  const _$ExtremoListResponseImpl(
+      {required this.totalSize, required final List<T> elements})
+      : _elements = elements;
+
+  factory _$ExtremoListResponseImpl.fromJson(
+          Map<String, dynamic> json, T Function(Object?) fromJsonT) =>
+      _$$ExtremoListResponseImplFromJson(json, fromJsonT);
+
+  @override
+  final int totalSize;
+// TODO(next): String? next,
+// TODO(previous): String? previous,
+  final List<T> _elements;
+// TODO(next): String? next,
+// TODO(previous): String? previous,
+  @override
+  List<T> get elements {
+    if (_elements is EqualUnmodifiableListView) return _elements;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_elements);
+  }
+
+  @override
+  String toString() {
+    return 'ExtremoListResponse<$T>(totalSize: $totalSize, elements: $elements)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ExtremoListResponseImpl<T> &&
+            (identical(other.totalSize, totalSize) ||
+                other.totalSize == totalSize) &&
+            const DeepCollectionEquality().equals(other._elements, _elements));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, totalSize, const DeepCollectionEquality().hash(_elements));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ExtremoListResponseImplCopyWith<T, _$ExtremoListResponseImpl<T>>
+      get copyWith => __$$ExtremoListResponseImplCopyWithImpl<T,
+          _$ExtremoListResponseImpl<T>>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
+    return _$$ExtremoListResponseImplToJson<T>(this, toJsonT);
+  }
+}
+
+abstract class _ExtremoListResponse<T> implements ExtremoListResponse<T> {
+  const factory _ExtremoListResponse(
+      {required final int totalSize,
+      required final List<T> elements}) = _$ExtremoListResponseImpl<T>;
+
+  factory _ExtremoListResponse.fromJson(
+          Map<String, dynamic> json, T Function(Object?) fromJsonT) =
+      _$ExtremoListResponseImpl<T>.fromJson;
+
+  @override
+  int get totalSize;
+  @override // TODO(next): String? next,
+// TODO(previous): String? previous,
+  List<T> get elements;
+  @override
+  @JsonKey(ignore: true)
+  _$$ExtremoListResponseImplCopyWith<T, _$ExtremoListResponseImpl<T>>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+ExtremoArtifact _$ExtremoArtifactFromJson(Map<String, dynamic> json) {
+  return _ExtremoArtifact.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ExtremoArtifact {
+  int get pk => throw _privateConstructorUsedError;
+  int get userFk => throw _privateConstructorUsedError;
+  ExtremoUser get user => throw _privateConstructorUsedError;
+  String get title => throw _privateConstructorUsedError;
+  String get content => throw _privateConstructorUsedError;
+  String get summary => throw _privateConstructorUsedError;
+  String get status => throw _privateConstructorUsedError; // TODO: Enum Type
+  @DateTimeConverter()
+  DateTime? get publishFrom => throw _privateConstructorUsedError;
+  @DateTimeConverter()
+  DateTime? get publishUntil => throw _privateConstructorUsedError;
+  @DateTimeConverter()
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  @DateTimeConverter()
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ExtremoArtifactCopyWith<ExtremoArtifact> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ExtremoArtifactCopyWith<$Res> {
+  factory $ExtremoArtifactCopyWith(
+          ExtremoArtifact value, $Res Function(ExtremoArtifact) then) =
+      _$ExtremoArtifactCopyWithImpl<$Res, ExtremoArtifact>;
+  @useResult
+  $Res call(
+      {int pk,
+      int userFk,
+      ExtremoUser user,
+      String title,
+      String content,
+      String summary,
+      String status,
+      @DateTimeConverter() DateTime? publishFrom,
+      @DateTimeConverter() DateTime? publishUntil,
+      @DateTimeConverter() DateTime createdAt,
+      @DateTimeConverter() DateTime updatedAt});
+
+  $ExtremoUserCopyWith<$Res> get user;
+}
+
+/// @nodoc
+class _$ExtremoArtifactCopyWithImpl<$Res, $Val extends ExtremoArtifact>
+    implements $ExtremoArtifactCopyWith<$Res> {
+  _$ExtremoArtifactCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? pk = null,
+    Object? userFk = null,
+    Object? user = null,
+    Object? title = null,
+    Object? content = null,
+    Object? summary = null,
+    Object? status = null,
+    Object? publishFrom = freezed,
+    Object? publishUntil = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+  }) {
+    return _then(_value.copyWith(
+      pk: null == pk
+          ? _value.pk
+          : pk // ignore: cast_nullable_to_non_nullable
+              as int,
+      userFk: null == userFk
+          ? _value.userFk
+          : userFk // ignore: cast_nullable_to_non_nullable
+              as int,
       user: null == user
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
               as ExtremoUser,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      summary: null == summary
+          ? _value.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
+      publishFrom: freezed == publishFrom
+          ? _value.publishFrom
+          : publishFrom // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      publishUntil: freezed == publishUntil
+          ? _value.publishUntil
+          : publishUntil // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 
@@ -72,267 +465,243 @@ class _$ExtremoGetResponseCopyWithImpl<$Res, $Val extends ExtremoGetResponse>
 }
 
 /// @nodoc
-abstract class _$$ExtremoGetResponseImplCopyWith<$Res>
-    implements $ExtremoGetResponseCopyWith<$Res> {
-  factory _$$ExtremoGetResponseImplCopyWith(_$ExtremoGetResponseImpl value,
-          $Res Function(_$ExtremoGetResponseImpl) then) =
-      __$$ExtremoGetResponseImplCopyWithImpl<$Res>;
+abstract class _$$ExtremoArtifactImplCopyWith<$Res>
+    implements $ExtremoArtifactCopyWith<$Res> {
+  factory _$$ExtremoArtifactImplCopyWith(_$ExtremoArtifactImpl value,
+          $Res Function(_$ExtremoArtifactImpl) then) =
+      __$$ExtremoArtifactImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({ExtremoUser user});
+  $Res call(
+      {int pk,
+      int userFk,
+      ExtremoUser user,
+      String title,
+      String content,
+      String summary,
+      String status,
+      @DateTimeConverter() DateTime? publishFrom,
+      @DateTimeConverter() DateTime? publishUntil,
+      @DateTimeConverter() DateTime createdAt,
+      @DateTimeConverter() DateTime updatedAt});
 
   @override
   $ExtremoUserCopyWith<$Res> get user;
 }
 
 /// @nodoc
-class __$$ExtremoGetResponseImplCopyWithImpl<$Res>
-    extends _$ExtremoGetResponseCopyWithImpl<$Res, _$ExtremoGetResponseImpl>
-    implements _$$ExtremoGetResponseImplCopyWith<$Res> {
-  __$$ExtremoGetResponseImplCopyWithImpl(_$ExtremoGetResponseImpl _value,
-      $Res Function(_$ExtremoGetResponseImpl) _then)
+class __$$ExtremoArtifactImplCopyWithImpl<$Res>
+    extends _$ExtremoArtifactCopyWithImpl<$Res, _$ExtremoArtifactImpl>
+    implements _$$ExtremoArtifactImplCopyWith<$Res> {
+  __$$ExtremoArtifactImplCopyWithImpl(
+      _$ExtremoArtifactImpl _value, $Res Function(_$ExtremoArtifactImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? pk = null,
+    Object? userFk = null,
     Object? user = null,
+    Object? title = null,
+    Object? content = null,
+    Object? summary = null,
+    Object? status = null,
+    Object? publishFrom = freezed,
+    Object? publishUntil = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
   }) {
-    return _then(_$ExtremoGetResponseImpl(
+    return _then(_$ExtremoArtifactImpl(
+      pk: null == pk
+          ? _value.pk
+          : pk // ignore: cast_nullable_to_non_nullable
+              as int,
+      userFk: null == userFk
+          ? _value.userFk
+          : userFk // ignore: cast_nullable_to_non_nullable
+              as int,
       user: null == user
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
               as ExtremoUser,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      summary: null == summary
+          ? _value.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
+      publishFrom: freezed == publishFrom
+          ? _value.publishFrom
+          : publishFrom // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      publishUntil: freezed == publishUntil
+          ? _value.publishUntil
+          : publishUntil // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$ExtremoGetResponseImpl implements _ExtremoGetResponse {
-  const _$ExtremoGetResponseImpl({required this.user});
+class _$ExtremoArtifactImpl implements _ExtremoArtifact {
+  const _$ExtremoArtifactImpl(
+      {required this.pk,
+      required this.userFk,
+      required this.user,
+      required this.title,
+      required this.content,
+      required this.summary,
+      required this.status,
+      @DateTimeConverter() this.publishFrom,
+      @DateTimeConverter() this.publishUntil,
+      @DateTimeConverter() required this.createdAt,
+      @DateTimeConverter() required this.updatedAt});
 
-  factory _$ExtremoGetResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ExtremoGetResponseImplFromJson(json);
+  factory _$ExtremoArtifactImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ExtremoArtifactImplFromJson(json);
 
   @override
+  final int pk;
+  @override
+  final int userFk;
+  @override
   final ExtremoUser user;
+  @override
+  final String title;
+  @override
+  final String content;
+  @override
+  final String summary;
+  @override
+  final String status;
+// TODO: Enum Type
+  @override
+  @DateTimeConverter()
+  final DateTime? publishFrom;
+  @override
+  @DateTimeConverter()
+  final DateTime? publishUntil;
+  @override
+  @DateTimeConverter()
+  final DateTime createdAt;
+  @override
+  @DateTimeConverter()
+  final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'ExtremoGetResponse(user: $user)';
+    return 'ExtremoArtifact(pk: $pk, userFk: $userFk, user: $user, title: $title, content: $content, summary: $summary, status: $status, publishFrom: $publishFrom, publishUntil: $publishUntil, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$ExtremoGetResponseImpl &&
-            (identical(other.user, user) || other.user == user));
+            other is _$ExtremoArtifactImpl &&
+            (identical(other.pk, pk) || other.pk == pk) &&
+            (identical(other.userFk, userFk) || other.userFk == userFk) &&
+            (identical(other.user, user) || other.user == user) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.content, content) || other.content == content) &&
+            (identical(other.summary, summary) || other.summary == summary) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.publishFrom, publishFrom) ||
+                other.publishFrom == publishFrom) &&
+            (identical(other.publishUntil, publishUntil) ||
+                other.publishUntil == publishUntil) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, user);
+  int get hashCode => Object.hash(runtimeType, pk, userFk, user, title, content,
+      summary, status, publishFrom, publishUntil, createdAt, updatedAt);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$ExtremoGetResponseImplCopyWith<_$ExtremoGetResponseImpl> get copyWith =>
-      __$$ExtremoGetResponseImplCopyWithImpl<_$ExtremoGetResponseImpl>(
+  _$$ExtremoArtifactImplCopyWith<_$ExtremoArtifactImpl> get copyWith =>
+      __$$ExtremoArtifactImplCopyWithImpl<_$ExtremoArtifactImpl>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ExtremoGetResponseImplToJson(
+    return _$$ExtremoArtifactImplToJson(
       this,
     );
   }
 }
 
-abstract class _ExtremoGetResponse implements ExtremoGetResponse {
-  const factory _ExtremoGetResponse({required final ExtremoUser user}) =
-      _$ExtremoGetResponseImpl;
+abstract class _ExtremoArtifact implements ExtremoArtifact {
+  const factory _ExtremoArtifact(
+          {required final int pk,
+          required final int userFk,
+          required final ExtremoUser user,
+          required final String title,
+          required final String content,
+          required final String summary,
+          required final String status,
+          @DateTimeConverter() final DateTime? publishFrom,
+          @DateTimeConverter() final DateTime? publishUntil,
+          @DateTimeConverter() required final DateTime createdAt,
+          @DateTimeConverter() required final DateTime updatedAt}) =
+      _$ExtremoArtifactImpl;
 
-  factory _ExtremoGetResponse.fromJson(Map<String, dynamic> json) =
-      _$ExtremoGetResponseImpl.fromJson;
+  factory _ExtremoArtifact.fromJson(Map<String, dynamic> json) =
+      _$ExtremoArtifactImpl.fromJson;
 
+  @override
+  int get pk;
+  @override
+  int get userFk;
   @override
   ExtremoUser get user;
   @override
-  @JsonKey(ignore: true)
-  _$$ExtremoGetResponseImplCopyWith<_$ExtremoGetResponseImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-ExtremoListResponse _$ExtremoListResponseFromJson(Map<String, dynamic> json) {
-  return _ExtremoListResponse.fromJson(json);
-}
-
-/// @nodoc
-mixin _$ExtremoListResponse {
-  int get totalSize =>
-      throw _privateConstructorUsedError; // TODO(next): String? next,
-// TODO(previous): String? previous,
-  List<ExtremoUser> get users => throw _privateConstructorUsedError;
-
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $ExtremoListResponseCopyWith<ExtremoListResponse> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $ExtremoListResponseCopyWith<$Res> {
-  factory $ExtremoListResponseCopyWith(
-          ExtremoListResponse value, $Res Function(ExtremoListResponse) then) =
-      _$ExtremoListResponseCopyWithImpl<$Res, ExtremoListResponse>;
-  @useResult
-  $Res call({int totalSize, List<ExtremoUser> users});
-}
-
-/// @nodoc
-class _$ExtremoListResponseCopyWithImpl<$Res, $Val extends ExtremoListResponse>
-    implements $ExtremoListResponseCopyWith<$Res> {
-  _$ExtremoListResponseCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  @pragma('vm:prefer-inline')
+  String get title;
   @override
-  $Res call({
-    Object? totalSize = null,
-    Object? users = null,
-  }) {
-    return _then(_value.copyWith(
-      totalSize: null == totalSize
-          ? _value.totalSize
-          : totalSize // ignore: cast_nullable_to_non_nullable
-              as int,
-      users: null == users
-          ? _value.users
-          : users // ignore: cast_nullable_to_non_nullable
-              as List<ExtremoUser>,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$ExtremoListResponseImplCopyWith<$Res>
-    implements $ExtremoListResponseCopyWith<$Res> {
-  factory _$$ExtremoListResponseImplCopyWith(_$ExtremoListResponseImpl value,
-          $Res Function(_$ExtremoListResponseImpl) then) =
-      __$$ExtremoListResponseImplCopyWithImpl<$Res>;
+  String get content;
   @override
-  @useResult
-  $Res call({int totalSize, List<ExtremoUser> users});
-}
-
-/// @nodoc
-class __$$ExtremoListResponseImplCopyWithImpl<$Res>
-    extends _$ExtremoListResponseCopyWithImpl<$Res, _$ExtremoListResponseImpl>
-    implements _$$ExtremoListResponseImplCopyWith<$Res> {
-  __$$ExtremoListResponseImplCopyWithImpl(_$ExtremoListResponseImpl _value,
-      $Res Function(_$ExtremoListResponseImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
+  String get summary;
   @override
-  $Res call({
-    Object? totalSize = null,
-    Object? users = null,
-  }) {
-    return _then(_$ExtremoListResponseImpl(
-      totalSize: null == totalSize
-          ? _value.totalSize
-          : totalSize // ignore: cast_nullable_to_non_nullable
-              as int,
-      users: null == users
-          ? _value._users
-          : users // ignore: cast_nullable_to_non_nullable
-              as List<ExtremoUser>,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$ExtremoListResponseImpl implements _ExtremoListResponse {
-  const _$ExtremoListResponseImpl(
-      {required this.totalSize, required final List<ExtremoUser> users})
-      : _users = users;
-
-  factory _$ExtremoListResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ExtremoListResponseImplFromJson(json);
-
+  String get status;
+  @override // TODO: Enum Type
+  @DateTimeConverter()
+  DateTime? get publishFrom;
   @override
-  final int totalSize;
-// TODO(next): String? next,
-// TODO(previous): String? previous,
-  final List<ExtremoUser> _users;
-// TODO(next): String? next,
-// TODO(previous): String? previous,
+  @DateTimeConverter()
+  DateTime? get publishUntil;
   @override
-  List<ExtremoUser> get users {
-    if (_users is EqualUnmodifiableListView) return _users;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_users);
-  }
-
+  @DateTimeConverter()
+  DateTime get createdAt;
   @override
-  String toString() {
-    return 'ExtremoListResponse(totalSize: $totalSize, users: $users)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ExtremoListResponseImpl &&
-            (identical(other.totalSize, totalSize) ||
-                other.totalSize == totalSize) &&
-            const DeepCollectionEquality().equals(other._users, _users));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, totalSize, const DeepCollectionEquality().hash(_users));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ExtremoListResponseImplCopyWith<_$ExtremoListResponseImpl> get copyWith =>
-      __$$ExtremoListResponseImplCopyWithImpl<_$ExtremoListResponseImpl>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$ExtremoListResponseImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _ExtremoListResponse implements ExtremoListResponse {
-  const factory _ExtremoListResponse(
-      {required final int totalSize,
-      required final List<ExtremoUser> users}) = _$ExtremoListResponseImpl;
-
-  factory _ExtremoListResponse.fromJson(Map<String, dynamic> json) =
-      _$ExtremoListResponseImpl.fromJson;
-
-  @override
-  int get totalSize;
-  @override // TODO(next): String? next,
-// TODO(previous): String? previous,
-  List<ExtremoUser> get users;
+  @DateTimeConverter()
+  DateTime get updatedAt;
   @override
   @JsonKey(ignore: true)
-  _$$ExtremoListResponseImplCopyWith<_$ExtremoListResponseImpl> get copyWith =>
+  _$$ExtremoArtifactImplCopyWith<_$ExtremoArtifactImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

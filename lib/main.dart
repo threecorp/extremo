@@ -15,7 +15,9 @@ void main() async {
   usePathUrlStrategy();
 
   await Hive.initFlutter();
-  Hive.registerAdapter(ExtremoUserEntityAdapter());
+  Hive
+    ..registerAdapter(ExtremoUserEntityAdapter())
+    ..registerAdapter(ExtremoArtifactEntityAdapter());
 
   WidgetsFlutterBinding.ensureInitialized();
 
