@@ -163,7 +163,7 @@ class _DbListExtremoUsersByIdsProviderElement
 }
 
 String _$dbListPagerExtremoArtifactsHash() =>
-    r'beda6e279ad53b1db2223ee4bbdbdcff51295845';
+    r'c4a01793122121869d07a1fc6f9812f384eed330';
 
 /// See also [dbListPagerExtremoArtifacts].
 @ProviderFor(dbListPagerExtremoArtifacts)
@@ -176,13 +176,13 @@ class DbListPagerExtremoArtifactsFamily
   const DbListPagerExtremoArtifactsFamily();
 
   /// See also [dbListPagerExtremoArtifacts].
-  DbListPagerExtremoArtifactsProvider call({
-    int page = 1,
-    int pageSize = 25,
-  }) {
+  DbListPagerExtremoArtifactsProvider call(
+    int page,
+    int pageSize,
+  ) {
     return DbListPagerExtremoArtifactsProvider(
-      page: page,
-      pageSize: pageSize,
+      page,
+      pageSize,
     );
   }
 
@@ -191,8 +191,8 @@ class DbListPagerExtremoArtifactsFamily
     covariant DbListPagerExtremoArtifactsProvider provider,
   ) {
     return call(
-      page: provider.page,
-      pageSize: provider.pageSize,
+      provider.page,
+      provider.pageSize,
     );
   }
 
@@ -215,14 +215,14 @@ class DbListPagerExtremoArtifactsFamily
 class DbListPagerExtremoArtifactsProvider
     extends AutoDisposeFutureProvider<List<ExtremoArtifactEntity>> {
   /// See also [dbListPagerExtremoArtifacts].
-  DbListPagerExtremoArtifactsProvider({
-    int page = 1,
-    int pageSize = 25,
-  }) : this._internal(
+  DbListPagerExtremoArtifactsProvider(
+    int page,
+    int pageSize,
+  ) : this._internal(
           (ref) => dbListPagerExtremoArtifacts(
             ref as DbListPagerExtremoArtifactsRef,
-            page: page,
-            pageSize: pageSize,
+            page,
+            pageSize,
           ),
           from: dbListPagerExtremoArtifactsProvider,
           name: r'dbListPagerExtremoArtifactsProvider',

@@ -36,10 +36,10 @@ Future<List<ExtremoUserEntity>> dbListExtremoUsersByIds(
 
 @riverpod
 Future<List<ExtremoArtifactEntity>> dbListPagerExtremoArtifacts(
-  DbListPagerExtremoArtifactsRef ref, {
-  int page = 1,
-  int pageSize = 25,
-}) async {
+  DbListPagerExtremoArtifactsRef ref,
+  int page,
+  int pageSize,
+) async {
   final box = await ref.read(extremoArtifactBoxProvider.future);
   final api = ref.read(extremoMypageApiProvider);
 
