@@ -163,7 +163,7 @@ class _DbListExtremoUsersByIdsProviderElement
 }
 
 String _$dbListPagerExtremoArtifactsHash() =>
-    r'c4a01793122121869d07a1fc6f9812f384eed330';
+    r'1e1a7f3e27554b31285b05cb8b582e9275e81bae';
 
 /// See also [dbListPagerExtremoArtifacts].
 @ProviderFor(dbListPagerExtremoArtifacts)
@@ -171,7 +171,7 @@ const dbListPagerExtremoArtifactsProvider = DbListPagerExtremoArtifactsFamily();
 
 /// See also [dbListPagerExtremoArtifacts].
 class DbListPagerExtremoArtifactsFamily
-    extends Family<AsyncValue<List<ExtremoArtifactEntity>>> {
+    extends Family<AsyncValue<PagingEntity<ExtremoArtifactEntity>>> {
   /// See also [dbListPagerExtremoArtifacts].
   const DbListPagerExtremoArtifactsFamily();
 
@@ -213,7 +213,7 @@ class DbListPagerExtremoArtifactsFamily
 
 /// See also [dbListPagerExtremoArtifacts].
 class DbListPagerExtremoArtifactsProvider
-    extends AutoDisposeFutureProvider<List<ExtremoArtifactEntity>> {
+    extends AutoDisposeFutureProvider<PagingEntity<ExtremoArtifactEntity>> {
   /// See also [dbListPagerExtremoArtifacts].
   DbListPagerExtremoArtifactsProvider(
     int page,
@@ -253,7 +253,7 @@ class DbListPagerExtremoArtifactsProvider
 
   @override
   Override overrideWith(
-    FutureOr<List<ExtremoArtifactEntity>> Function(
+    FutureOr<PagingEntity<ExtremoArtifactEntity>> Function(
             DbListPagerExtremoArtifactsRef provider)
         create,
   ) {
@@ -273,7 +273,7 @@ class DbListPagerExtremoArtifactsProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<ExtremoArtifactEntity>>
+  AutoDisposeFutureProviderElement<PagingEntity<ExtremoArtifactEntity>>
       createElement() {
     return _DbListPagerExtremoArtifactsProviderElement(this);
   }
@@ -296,7 +296,7 @@ class DbListPagerExtremoArtifactsProvider
 }
 
 mixin DbListPagerExtremoArtifactsRef
-    on AutoDisposeFutureProviderRef<List<ExtremoArtifactEntity>> {
+    on AutoDisposeFutureProviderRef<PagingEntity<ExtremoArtifactEntity>> {
   /// The parameter `page` of this provider.
   int get page;
 
@@ -305,7 +305,8 @@ mixin DbListPagerExtremoArtifactsRef
 }
 
 class _DbListPagerExtremoArtifactsProviderElement
-    extends AutoDisposeFutureProviderElement<List<ExtremoArtifactEntity>>
+    extends AutoDisposeFutureProviderElement<
+        PagingEntity<ExtremoArtifactEntity>>
     with DbListPagerExtremoArtifactsRef {
   _DbListPagerExtremoArtifactsProviderElement(super.provider);
 

@@ -13,7 +13,7 @@ class _ExtremoMypageApi implements ExtremoMypageApi {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'http://localhost:8888/api/mypage/v1/';
+    baseUrl ??= 'http://localhost:8888/api/mypage/v1';
   }
 
   final Dio _dio;
@@ -124,7 +124,7 @@ class _ExtremoPublicApi implements ExtremoPublicApi {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'http://localhost:8888/api/public/v1/';
+    baseUrl ??= 'http://localhost:8888/api/public/v1';
   }
 
   final Dio _dio;

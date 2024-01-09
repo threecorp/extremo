@@ -6,7 +6,7 @@ part of 'artifact.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$listArtifactsHash() => r'54f362724e5b4145c36b636b7162d81add5d396a';
+String _$listArtifactsHash() => r'689fb35b4d40f86faaa2f7be24d308f35231dbb2';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -174,7 +174,7 @@ class _ListArtifactsProviderElement
   int get pageSize => (origin as ListArtifactsProvider).pageSize;
 }
 
-String _$artifactMapHash() => r'be9ddcc8c7d82b9f64a6f6bff14eabd5fb176360';
+String _$artifactMapHash() => r'f87fe3d3a35dbed99a602d734280e49e3b3dae6d';
 
 /// See also [artifactMap].
 @ProviderFor(artifactMap)

@@ -1,5 +1,6 @@
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:extremo/io/entity/extremo.dart';
+import 'package:extremo/io/entity/paging.dart';
 import 'package:extremo/io/store/api/extremo/extremo.dart';
 import 'package:extremo/io/store/db/extremo/extremo_box.dart';
 import 'package:extremo/misc/result.dart';
@@ -35,7 +36,7 @@ Future<List<ExtremoUserEntity>> dbListExtremoUsersByIds(
 }
 
 @riverpod
-Future<List<ExtremoArtifactEntity>> dbListPagerExtremoArtifacts(
+Future<PagingEntity<ExtremoArtifactEntity>> dbListPagerExtremoArtifacts(
   DbListPagerExtremoArtifactsRef ref,
   int page,
   int pageSize,
@@ -54,7 +55,10 @@ Future<List<ExtremoArtifactEntity>> dbListPagerExtremoArtifacts(
     return entity;
   });
 
-  return elements.toList();
+  return PagingEntity<ExtremoArtifactEntity>(
+    elements: elements.toList(),
+    totalSize: response.totalSize,
+  );
 }
 
 //

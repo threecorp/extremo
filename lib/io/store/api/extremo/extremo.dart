@@ -14,7 +14,7 @@ Dio extremoApiClient(_) {
   return dio;
 }
 
-@RestApi(baseUrl: 'http://localhost:8888/api/mypage/v1/')
+@RestApi(baseUrl: 'http://localhost:8888/api/mypage/v1')
 abstract class ExtremoMypageApi {
   factory ExtremoMypageApi(Dio dio, {String baseUrl}) = _ExtremoMypageApi;
 
@@ -31,7 +31,7 @@ abstract class ExtremoMypageApi {
   // Future<ExtremoSpeciesResponse> getExtremoSpecies(@Path("id") int id);
 }
 
-@RestApi(baseUrl: 'http://localhost:8888/api/public/v1/')
+@RestApi(baseUrl: 'http://localhost:8888/api/public/v1')
 abstract class ExtremoPublicApi {
   factory ExtremoPublicApi(Dio dio, {String baseUrl}) = _ExtremoPublicApi;
 
