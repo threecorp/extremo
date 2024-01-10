@@ -6,9 +6,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'extremo_box.g.dart';
 
 @riverpod
-Future<Box<ExtremoArtifactEntity>> extremoArtifactBox(_) async =>
+Future<Box<ExtremoArtifactEntity>> extremoArtifactBox(
+  ExtremoArtifactBoxRef ref,
+) async =>
     Hive.openBox<ExtremoArtifactEntity>('extremoArtifactBox');
 
 @riverpod
-Future<Box<ExtremoUserEntity>> extremoUserBox(_) async =>
+Future<Box<ExtremoUserEntity>> extremoUserBox(
+  ExtremoUserBoxRef ref,
+) async =>
     Hive.openBox<ExtremoUserEntity>('extremoUserBox');

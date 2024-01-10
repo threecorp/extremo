@@ -10,8 +10,8 @@ class ExtremoUserEntity {
     required this.id,
     this.email = '',
     this.dateJoined,
-    required this.isDeleted,
     this.deletedAt,
+    required this.isDeleted,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -60,6 +60,7 @@ class ExtremoArtifactEntity {
   ExtremoArtifactEntity({
     required this.id,
     required this.userFk,
+    this.user,
     this.title = '',
     this.content = '',
     this.summary = '',
@@ -73,9 +74,14 @@ class ExtremoArtifactEntity {
   factory ExtremoArtifactEntity.from({
     required ExtremoArtifact element,
   }) {
+    final user = element.user != null
+        ? ExtremoUserEntity.from(element: element.user!)
+        : null;
+
     return ExtremoArtifactEntity(
       id: element.pk,
       userFk: element.userFk,
+      user: user,
       title: element.title,
       content: element.content,
       summary: element.summary,
@@ -87,9 +93,7 @@ class ExtremoArtifactEntity {
     );
   }
 
-  Future<ExtremoUserEntity?> user(Box<ExtremoUserEntity> box) async {
-    return box.get(userFk);
-  }
+  ExtremoUserEntity? user;
 
   @HiveField(0)
   int id;

@@ -29,7 +29,7 @@ class HomeRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) =>
       CustomTransitionPage(
         key: state.pageKey,
-        child: const HomePage(title: Route.homePage),
+        child: const HomePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
       );

@@ -39,7 +39,7 @@ class ExtremoArtifact with _$ExtremoArtifact {
   const factory ExtremoArtifact({
     required int pk,
     required int userFk,
-    required ExtremoUser user,
+    ExtremoUser? user,
     required String title,
     required String content,
     required String summary,

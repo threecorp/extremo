@@ -8,11 +8,10 @@ class LoggerInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final options = err.requestOptions;
-    final requestPath = '${options.baseUrl}${options.path}';
 
-    logger.e('[ERROR]\t'
+    logger.e('\t[ERROR]\t'
         'method:${options.method}\t'
-        'path:$requestPath\t'
+        'uri:${options.uri}\t'
         'error:${err.error}\t'
         'message: ${err.message}');
 
@@ -21,9 +20,7 @@ class LoggerInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final requestPath = '${options.baseUrl}${options.path}';
-
-    logger.d('[REQUEST]\tmethod:${options.method}\tpath:$requestPath');
+    logger.d('\t[REQUEST]\tmethod:${options.method}\turi:${options.uri}');
 
     handler.next(options); // Continue with the Request
   }
@@ -31,11 +28,10 @@ class LoggerInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final options = response.requestOptions;
-    final requestPath = '${options.baseUrl}${options.path}';
 
-    logger.d('[RESPONSE]\t'
+    logger.d('\t[RESPONSE]\t'
         'method:${options.method}\t'
-        'path:$requestPath\t'
+        'uri:${options.uri}\t'
         'code:${response.statusCode}\t'
         'message:${response.statusMessage}\t'
         // 'headers:${response.headers}\t'

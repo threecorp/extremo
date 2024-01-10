@@ -24,11 +24,11 @@ Future<List<ArtifactModel>> listArtifacts(
   int page = 1,
   int pageSize = 25,
 }) async {
-  final entities = await ref.read(
+  final pager = await ref.read(
     dbListPagerExtremoArtifactsProvider(page, pageSize).future,
   );
 
-  final models = entities.map(
+  final models = pager.elements.map(
     (entity) => ArtifactModel.fromEntity(entity: entity),
   );
 
@@ -57,14 +57,14 @@ Future<Map<int, ArtifactModel>> artifactMap(
   int page,
   int pageSize,
 ) async {
-  final entities = await ref.read(
+  final pager = await ref.read(
     dbListPagerExtremoArtifactsProvider(page, pageSize).future,
   );
   // final favoriteMap =
   // await ref.watch(dbStreamFavoriteArtifactProvider.future);
 
   final artifactMap = Map.fromEntries(
-    entities.map((entity) {
+    pager.elements.map((entity) {
       final artifact = ArtifactModel.fromEntity(
         entity: entity,
         // isFavorite: favoriteMap[entity.id] ?? false,
