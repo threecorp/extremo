@@ -4,17 +4,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/artifact.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
 import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-class HomePage extends HookConsumerWidget {
-  const HomePage({super.key});
+class ArtifactPage extends HookConsumerWidget {
+  const ArtifactPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,6 +42,124 @@ class HomePage extends HookConsumerWidget {
             null, // ref.read(toggleFavoriteArtifactByIdProvider(item.id)),
         refresh: () => ref.refresh(listPagerArtifactsProvider),
         emptyErrorMessage: t.emptyError,
+      ),
+      floatingActionButton: SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        animatedIconTheme: const IconThemeData(size: 22),
+        curve: Curves.bounceIn,
+        children: [
+          // SpeedDialChild(
+          //   child: const Icon(Icons.create),
+          //   backgroundColor: Colors.blue,
+          //   label: 'add something',
+          //   onTap: () {
+          //     PostRoute().go(context);
+          //   },
+          //   labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          // ),
+          SpeedDialChild(
+            child: const Icon(Icons.person_add),
+            backgroundColor: Colors.lightBlueAccent,
+            label: t.newPost,
+            onTap: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (BuildContext context) => const PostWindow(),
+            ),
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// TODO(Refactoring): Unuse to Scaffold to change another widget for AppBar.
+class PostWindow extends HookConsumerWidget {
+  const PostWindow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Post'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: const PostForm(),
+    );
+  }
+}
+
+// TODO(Refactoring): An onPressed will be able to be set from outside.
+class PostForm extends HookConsumerWidget {
+  const PostForm({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useMemoized(GlobalKey<FormBuilderState>.new);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: FormBuilder(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FormBuilderTextField(
+              name: 'title',
+              decoration: InputDecoration(labelText: t.title),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.maxWordsCount(255),
+              ]),
+            ),
+            FormBuilderTextField(
+              name: 'summary',
+              decoration: InputDecoration(labelText: t.summary),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.maxWordsCount(2048),
+              ]),
+            ),
+            FormBuilderTextField(
+              name: 'content',
+              decoration: InputDecoration(labelText: t.content),
+              minLines: 3,
+              maxLines: 10,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.maxWordsCount(2048 * 100),
+              ]),
+            ),
+            // FormBuilderTextField(
+            //   name: 'status',
+            //   decoration: InputDecoration(labelText: t.status),
+            //   validator: FormBuilderValidators.compose([
+            //     FormBuilderValidators.required(),
+            //     FormBuilderValidators.maxWordsCount(255),
+            //   ]),
+            // ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Validate and save the form values
+                  if (formKey.currentState?.saveAndValidate() ?? false) {
+                    debugPrint(formKey.currentState?.value.toString());
+
+                    // TODO(creation): ArtifactModel
+                  }
+
+                  // On another side, can access all field values
+                  // without saving form with instantValues
+                  debugPrint(formKey.currentState?.instantValue.toString());
+                },
+                child: const Text('Submit'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

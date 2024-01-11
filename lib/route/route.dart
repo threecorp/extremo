@@ -1,7 +1,7 @@
 // import 'package:extremo/ui/page/favorite.dart';
 // import 'package:extremo/ui/page/extremo.dart';
 // import 'package:extremo/ui/page/extremo_detail.dart';
-import 'package:extremo/ui/page/home.dart';
+import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/post.dart';
 
 import 'package:flutter/widgets.dart';
@@ -14,7 +14,7 @@ part 'route.g.dart';
 // Keep paths together as constants.
 //
 class Route {
-  static const homePage = '/';
+  static const artifactPage = '/';
   static const postPage = '/post';
   // static const extremoPage = "/extremos";
   // static const favoritePage = "/favorites";
@@ -22,16 +22,16 @@ class Route {
   // static const userPage = "users/:uid";
 }
 
-@TypedGoRoute<HomeRoute>(
-  path: Route.homePage,
+@TypedGoRoute<ArtifactRoute>(
+  path: Route.artifactPage,
 )
 @immutable
-class HomeRoute extends GoRouteData {
+class ArtifactRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) =>
       CustomTransitionPage(
         key: state.pageKey,
-        child: const HomePage(),
+        child: const ArtifactPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
       );

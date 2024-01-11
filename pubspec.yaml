@@ -61,6 +61,7 @@ dependencies:
   slang: ^3.28.0
   slang_flutter: ^3.28.0
   form_builder_validators: ^9.1.0
+  flutter_speed_dial: ^7.0.0
   # intl_utils: ^2.8.7
 
 dev_dependencies:

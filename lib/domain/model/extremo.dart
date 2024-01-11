@@ -77,6 +77,21 @@ class ArtifactModel with _$ArtifactModel {
       user: user,
     );
   }
+
+  ArtifactEntity toEntity() {
+    return ArtifactEntity(
+      id: id,
+      userFk: userFk,
+      title: title,
+      content: content,
+      summary: summary,
+      status: status,
+      publishFrom: publishFrom,
+      publishUntil: publishUntil,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
 }
 
 // enum ArtifactType {

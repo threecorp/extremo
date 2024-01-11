@@ -12,14 +12,14 @@ class ScaffoldNavbar extends StatelessWidget {
   final Widget child;
 
   final routes = () {
-    final homeRoute = HomeRoute();
+    final artifactRoute = ArtifactRoute();
     final postRoute = PostRoute();
     // final favoriteRoute = FavoritesRoute();
 
     return [
       _NavigationItem(
-        go: homeRoute.go,
-        location: homeRoute.location,
+        go: artifactRoute.go,
+        location: artifactRoute.location,
         item: BottomNavigationBarItem(
           icon: const Icon(Icons.list),
           label: t.index,
