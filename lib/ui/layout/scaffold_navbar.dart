@@ -13,7 +13,7 @@ class ScaffoldNavbar extends StatelessWidget {
 
   final routes = () {
     final homeRoute = HomeRoute();
-    // final extremoRoute = ExtremoRoute();
+    final postRoute = PostRoute();
     // final favoriteRoute = FavoritesRoute();
 
     return [
@@ -26,11 +26,11 @@ class ScaffoldNavbar extends StatelessWidget {
         ),
       ),
       _NavigationItem(
-        go: homeRoute.go,
-        location: homeRoute.location,
+        go: postRoute.go,
+        location: postRoute.location,
         item: BottomNavigationBarItem(
-          icon: const Icon(Icons.list),
-          label: t.index,
+          icon: const Icon(Icons.post_add),
+          label: t.post,
         ),
       ),
       // _NavigationItem(
