@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/collection.dart';
 
 import '../converter.dart';
 
@@ -6,40 +7,39 @@ part 'extremo_response.g.dart';
 part 'extremo_response.freezed.dart';
 
 @Freezed(genericArgumentFactories: true)
-class ExtremoGetResponse<T> with _$ExtremoGetResponse<T> {
-  const factory ExtremoGetResponse({
+class GetResponse<T> with _$GetResponse<T> {
+  const factory GetResponse({
     required T element,
-  }) = _ExtremoGetResponse<T>;
+  }) = _GetResponse<T>;
 
-  factory ExtremoGetResponse.fromJson(
+  factory GetResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) =>
-      _$ExtremoGetResponseFromJson<T>(json, fromJsonT);
+      _$GetResponseFromJson<T>(json, fromJsonT);
 }
 
 @Freezed(genericArgumentFactories: true)
-class ExtremoListResponse<T> with _$ExtremoListResponse<T> {
-  const factory ExtremoListResponse({
+class ListResponse<T> with _$ListResponse<T> {
+  const factory ListResponse({
     required int totalSize,
     // TODO(next): String? next,
     // TODO(previous): String? previous,
     required List<T> elements,
-  }) = _ExtremoListResponse<T>;
+  }) = _ListResponse<T>;
 
-  factory ExtremoListResponse.fromJson(
+  factory ListResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) =>
-      _$ExtremoListResponseFromJson<T>(json, fromJsonT);
+      _$ListResponseFromJson<T>(json, fromJsonT);
 }
 
 @freezed
-class ExtremoArtifact with _$ExtremoArtifact {
-  const factory ExtremoArtifact({
+class ArtifactResponse with _$ArtifactResponse {
+  const factory ArtifactResponse({
     required int pk,
     required int userFk,
-    ExtremoUser? user,
     required String title,
     required String content,
     required String summary,
@@ -48,15 +48,17 @@ class ExtremoArtifact with _$ExtremoArtifact {
     @DateTimeConverter() DateTime? publishUntil,
     @DateTimeConverter() required DateTime createdAt,
     @DateTimeConverter() required DateTime updatedAt,
-  }) = _ExtremoArtifact;
+    // Relationship
+    UserResponse? user,
+  }) = _ArtifactResponse;
 
-  factory ExtremoArtifact.fromJson(Map<String, dynamic> json) =>
-      _$ExtremoArtifactFromJson(json);
+  factory ArtifactResponse.fromJson(Map<String, dynamic> json) =>
+      _$ArtifactResponseFromJson(json);
 }
 
 @freezed
-class ExtremoUser with _$ExtremoUser {
-  const factory ExtremoUser({
+class UserResponse with _$UserResponse {
+  const factory UserResponse({
     required int pk,
     String? email,
     String? password,
@@ -65,8 +67,10 @@ class ExtremoUser with _$ExtremoUser {
     @DateTimeConverter() DateTime? dateJoined,
     @DateTimeConverter() required DateTime createdAt,
     @DateTimeConverter() required DateTime updatedAt,
-  }) = _ExtremoUser;
+    // Relationship
+    @Default([]) List<ArtifactResponse> artifacts,
+  }) = _UserResponse;
 
-  factory ExtremoUser.fromJson(Map<String, dynamic> json) =>
-      _$ExtremoUserFromJson(json);
+  factory UserResponse.fromJson(Map<String, dynamic> json) =>
+      _$UserResponseFromJson(json);
 }

@@ -1,4 +1,4 @@
-import 'package:extremo/io/entity/extremo.dart';
+import 'package:extremo/io/entity/extremo/extremo.dart' as extremo_entity;
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/scaffold_navbar.dart';
@@ -16,8 +16,8 @@ void main() async {
 
   await Hive.initFlutter();
   Hive
-    ..registerAdapter(ExtremoUserEntityAdapter())
-    ..registerAdapter(ExtremoArtifactEntityAdapter());
+    ..registerAdapter(extremo_entity.UserEntityAdapter())
+    ..registerAdapter(extremo_entity.ArtifactEntityAdapter());
 
   WidgetsFlutterBinding.ensureInitialized();
 

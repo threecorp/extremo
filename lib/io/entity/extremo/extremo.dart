@@ -1,12 +1,12 @@
-// import 'package:collection/collection.dart';
+import 'package:collection/collection.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 import 'package:hive/hive.dart';
 
 part 'extremo.g.dart';
 
 @HiveType(typeId: 1)
-class ExtremoUserEntity {
-  ExtremoUserEntity({
+class UserEntity {
+  UserEntity({
     required this.id,
     this.email = '',
     this.dateJoined,
@@ -14,15 +14,17 @@ class ExtremoUserEntity {
     required this.isDeleted,
     required this.createdAt,
     required this.updatedAt,
+    // Relationships
+    this.artifacts = const [],
   });
 
-  factory ExtremoUserEntity.from({
-    required ExtremoUser element,
+  factory UserEntity.from({
+    required UserResponse element,
   }) {
-    // final flavor = species.flavorTextEntries.lastWhereOrNull((element) {
-    //   return element.language.name.startsWith("ja");
-    // });
-    return ExtremoUserEntity(
+    final artifacts = element.artifacts
+        .map((element) => ArtifactEntity.from(element: element))
+        .toList();
+    return UserEntity(
       id: element.pk,
       email: element.email ?? '',
       dateJoined: element.dateJoined,
@@ -30,6 +32,8 @@ class ExtremoUserEntity {
       deletedAt: element.deletedAt,
       createdAt: element.createdAt,
       updatedAt: element.updatedAt,
+      // Relationships
+      artifacts: artifacts,
     );
   }
 
@@ -53,14 +57,16 @@ class ExtremoUserEntity {
 
   @HiveField(6)
   DateTime updatedAt;
+
+  // Relationships
+  List<ArtifactEntity> artifacts;
 }
 
 @HiveType(typeId: 2)
-class ExtremoArtifactEntity {
-  ExtremoArtifactEntity({
+class ArtifactEntity {
+  ArtifactEntity({
     required this.id,
     required this.userFk,
-    this.user,
     this.title = '',
     this.content = '',
     this.summary = '',
@@ -69,19 +75,19 @@ class ExtremoArtifactEntity {
     this.publishUntil,
     required this.createdAt,
     required this.updatedAt,
+    // Relationships
+    this.user,
   });
 
-  factory ExtremoArtifactEntity.from({
-    required ExtremoArtifact element,
+  factory ArtifactEntity.from({
+    required ArtifactResponse element,
   }) {
-    final user = element.user != null
-        ? ExtremoUserEntity.from(element: element.user!)
-        : null;
+    final user =
+        element.user != null ? UserEntity.from(element: element.user!) : null;
 
-    return ExtremoArtifactEntity(
+    return ArtifactEntity(
       id: element.pk,
       userFk: element.userFk,
-      user: user,
       title: element.title,
       content: element.content,
       summary: element.summary,
@@ -90,10 +96,10 @@ class ExtremoArtifactEntity {
       publishUntil: element.publishUntil,
       createdAt: element.createdAt,
       updatedAt: element.updatedAt,
+      // Relationships
+      user: user,
     );
   }
-
-  ExtremoUserEntity? user;
 
   @HiveField(0)
   int id;
@@ -124,4 +130,7 @@ class ExtremoArtifactEntity {
 
   @HiveField(9)
   DateTime updatedAt;
+
+  // Relationships
+  UserEntity? user;
 }

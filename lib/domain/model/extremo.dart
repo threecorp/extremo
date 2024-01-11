@@ -1,7 +1,43 @@
-import 'package:extremo/io/entity/extremo.dart';
+import 'package:collection/collection.dart';
+import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'extremo.freezed.dart';
+
+@freezed
+class UserModel with _$UserModel {
+  const factory UserModel({
+    required int id,
+    required String email,
+    DateTime? dateJoined,
+    DateTime? deletedAt,
+    required bool isDeleted,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    // Relationships
+    @Default([]) List<ArtifactModel> artifacts,
+  }) = _UserModel;
+
+  factory UserModel.fromEntity({
+    required UserEntity entity,
+  }) {
+    final artifacts = entity.artifacts
+        .map((e) => ArtifactModel.fromEntity(entity: e))
+        .toList();
+
+    return UserModel(
+      id: entity.id,
+      email: entity.email,
+      dateJoined: entity.dateJoined,
+      isDeleted: entity.isDeleted,
+      deletedAt: entity.deletedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      // Relationships
+      artifacts: artifacts,
+    );
+  }
+}
 
 @freezed
 class ArtifactModel with _$ArtifactModel {
@@ -16,13 +52,16 @@ class ArtifactModel with _$ArtifactModel {
     DateTime? publishUntil,
     required DateTime createdAt,
     required DateTime updatedAt,
+    // Relationships
+    UserModel? user,
   }) = _ArtifactModel;
 
   factory ArtifactModel.fromEntity({
-    required ExtremoArtifactEntity entity,
+    required ArtifactEntity entity,
   }) {
-    // XXX: types: entity.types.map((type)
-    //      => ArtifactType.getOrNull(type)).whereType<ArtifactType>().toList(),
+    final user =
+        entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
+
     return ArtifactModel(
       id: entity.id,
       userFk: entity.userFk,
@@ -34,6 +73,8 @@ class ArtifactModel with _$ArtifactModel {
       publishUntil: entity.publishUntil,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      // Relationships
+      user: user,
     );
   }
 }

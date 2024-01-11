@@ -18,23 +18,25 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final artifacts = ref.watch(listArtifactsProvider());
-    // final isLast = ref.watch(isArtifactsLastProvider);
+    final artifacts = ref.watch(listPagerArtifactsProvider);
+    final notifier = ref.watch(listPagerArtifactsProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: Text(t.appName)),
-      // body: const Placeholder(),
       body: ArtifactView(
         list: artifacts.valueOrNull,
-        isLast: true, // isLast,
+        isLast: notifier.isLast(),
         error: artifacts.error,
-        loadMore: () =>
-            null, // WidgetsBinding.instance.addPostFrameCallback(((_) => ref.read(loadListNextPageProvider)())),
+        loadMore: () {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (callback) => notifier.loadListNextPage(),
+          );
+        },
         onTapListItem: (item) =>
             null, // ArtifactDetailRoute(id: item.id).go(context),
         onPressedFavorite: (item) =>
             null, // ref.read(toggleFavoriteArtifactByIdProvider(item.id)),
-        refresh: () => ref.refresh(listArtifactsProvider()),
+        refresh: () => ref.refresh(listPagerArtifactsProvider),
         emptyErrorMessage: t.emptyError,
       ),
     );
@@ -87,13 +89,13 @@ class ArtifactView extends HookConsumerWidget {
             onTapListItem: onTapListItem,
             onPressedFavorite: onPressedFavorite,
           ),
-          firstPageErrorIndicatorBuilder: (_) => ErrorView(
+          firstPageErrorIndicatorBuilder: (context) => ErrorView(
             text: t.networkError,
             retry: refresh,
             error: error,
           ),
-          newPageProgressIndicatorBuilder: (_) => const ProgressView(),
-          noItemsFoundIndicatorBuilder: (_) => ErrorView(
+          newPageProgressIndicatorBuilder: (context) => const ProgressView(),
+          noItemsFoundIndicatorBuilder: (context) => ErrorView(
             text: emptyErrorMessage,
             retry: refresh,
             enableRetryButton: enableRetryButton,
