@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../interceptor.dart';
 
+import 'extremo_request.dart';
 import 'extremo_response.dart';
 
 part 'extremo.g.dart';
@@ -29,8 +30,10 @@ abstract class MypageApi {
     @Query('page_size') int pageSize,
   );
 
-  // @GET("/-species/{id}")
-  // Future<SpeciesResponse> getSpecies(@Path("id") int id);
+  @POST('/artifacts')
+  Future<GetResponse<ArtifactResponse>> createArtifact(
+    @Body() ArtifactRequest request,
+  );
 }
 
 @RestApi(baseUrl: 'http://localhost:8888/api/public/v1')

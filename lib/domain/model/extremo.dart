@@ -39,6 +39,21 @@ class UserModel with _$UserModel {
   }
 }
 
+extension UserModelX on UserModel {
+  UserEntity toEntity() {
+    return UserEntity(
+      id: id,
+      email: email,
+      dateJoined: dateJoined,
+      isDeleted: isDeleted,
+      deletedAt: deletedAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      artifacts: artifacts.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
 @freezed
 class ArtifactModel with _$ArtifactModel {
   const factory ArtifactModel({
@@ -75,6 +90,24 @@ class ArtifactModel with _$ArtifactModel {
       updatedAt: entity.updatedAt,
       // Relationships
       user: user,
+    );
+  }
+}
+
+extension ArtifactModelX on ArtifactModel {
+  ArtifactEntity toEntity() {
+    return ArtifactEntity(
+      id: id,
+      userFk: userFk,
+      title: title,
+      content: content,
+      summary: summary,
+      status: status,
+      publishFrom: publishFrom,
+      publishUntil: publishUntil,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      user: user?.toEntity(),
     );
   }
 }

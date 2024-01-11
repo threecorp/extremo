@@ -46,8 +46,23 @@ class ListPagerArtifacts extends _$ListPagerArtifacts {
       (entity) => ArtifactModel.fromEntity(entity: entity),
     );
 
-    // TODO: pager.totalSize
+    // TODO(Unuse): pager.totalSize
     _isLast = pager.elements.length < _pageSize;
     return models.toList();
   }
 }
+
+@riverpod
+Future<ArtifactModel> createArtifact(
+  CreateArtifactRef ref,
+  ArtifactModel model,
+) async {
+  final entity = await ref.watch(
+    dbCreateArtifactProvider(model.toEntity()).future,
+  );
+
+  return ArtifactModel.fromEntity(entity: entity);
+}
+//
+//
+//
