@@ -12,8 +12,8 @@ class UserEntity {
     this.dateJoined,
     this.deletedAt,
     required this.isDeleted,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     // Relationships
     this.artifacts = const [],
   });
@@ -53,10 +53,10 @@ class UserEntity {
   DateTime? deletedAt;
 
   @HiveField(5)
-  DateTime createdAt;
+  DateTime? createdAt;
 
   @HiveField(6)
-  DateTime updatedAt;
+  DateTime? updatedAt;
 
   // Relationships
   List<ArtifactEntity> artifacts;
@@ -73,8 +73,8 @@ class ArtifactEntity {
     this.status = '', // TODO: Enum Type
     this.publishFrom,
     this.publishUntil,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     // Relationships
     this.user,
   });
@@ -126,10 +126,10 @@ class ArtifactEntity {
   DateTime? publishUntil;
 
   @HiveField(8)
-  DateTime createdAt;
+  DateTime? createdAt;
 
   @HiveField(9)
-  DateTime updatedAt;
+  DateTime? updatedAt;
 
   // Relationships
   UserEntity? user;

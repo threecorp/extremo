@@ -2,8 +2,10 @@
 // import 'package:extremo/ui/layout/favorite_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/domain/model/extremo.dart';
+import 'package:dio/dio.dart';
 import 'package:extremo/domain/usecase/artifact.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/misc/result.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
@@ -64,7 +66,24 @@ class ArtifactPage extends HookConsumerWidget {
             onTap: () => showModalBottomSheet<void>(
               context: context,
               isScrollControlled: true,
-              builder: (BuildContext context) => const PostWindow(),
+              builder: (context) => PostWindow(
+                onSubmitted: (ArtifactModel model) async {
+                  try {
+                    // TODO(Refactoring): Unuse to ref.watch.
+                    // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
+                    final newModel = await ref.read(
+                      createArtifactProvider(model).future,
+                    );
+
+                    debugPrint('model: $newModel');
+                  } on DioException catch (error) {
+                    debugPrint('error: ${error.message}');
+                    return;
+                  }
+
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
             labelStyle: const TextStyle(fontWeight: FontWeight.w500),
           ),
@@ -76,7 +95,12 @@ class ArtifactPage extends HookConsumerWidget {
 
 // TODO(Refactoring): Unuse to Scaffold to change another widget for AppBar.
 class PostWindow extends HookConsumerWidget {
-  const PostWindow({super.key});
+  const PostWindow({
+    super.key,
+    required this.onSubmitted,
+  });
+
+  final void Function(ArtifactModel model) onSubmitted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,14 +112,19 @@ class PostWindow extends HookConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: const PostForm(),
+      body: PostForm(onSubmitted: onSubmitted),
     );
   }
 }
 
 // TODO(Refactoring): An onPressed will be able to be set from outside.
 class PostForm extends HookConsumerWidget {
-  const PostForm({super.key});
+  const PostForm({
+    super.key,
+    required this.onSubmitted,
+  });
+
+  final void Function(ArtifactModel model) onSubmitted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,15 +174,29 @@ class PostForm extends HookConsumerWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Validate and save the form values
-                  if (formKey.currentState?.saveAndValidate() ?? false) {
-                    debugPrint(formKey.currentState?.value.toString());
-
-                    // TODO(creation): ArtifactModel
+                  if (!(formKey.currentState?.saveAndValidate() ?? false)) {
+                    return;
+                  }
+                  final value = formKey.currentState?.value;
+                  debugPrint(value?.toString());
+                  if (value == null) {
+                    return;
                   }
 
-                  // On another side, can access all field values
-                  // without saving form with instantValues
-                  debugPrint(formKey.currentState?.instantValue.toString());
+                  // TODO(Refactoring): Marshal,Unmarshal Library(serializable)
+                  onSubmitted(
+                    ArtifactModel(
+                      userFk: 1,
+                      title: value['title'] as String,
+                      summary: value['summary'] as String,
+                      content: value['content'] as String,
+                      status: 'DRAFT',
+                      // status: value['status'],
+                      // types: value['types'],
+                      // imageUrl: value['imageUrl'],
+                      // isFavorite: false,
+                    ),
+                  );
                 },
                 child: const Text('Submit'),
               ),

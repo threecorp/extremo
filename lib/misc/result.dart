@@ -75,8 +75,6 @@ extension DioFuture<T> on Future<T> {
       ).thenNullable();
 }
 
-// future.onError バグっているかもしれない
-// https://github.com/flutter/flutter/issues/114031
 extension FutureResultToFuture<T> on Future<Result<T>> {
   Future<T?> thenNullable() => then((result) => result.getOrNull);
 }

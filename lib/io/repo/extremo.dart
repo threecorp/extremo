@@ -13,6 +13,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'extremo.g.dart';
 
 // TODO(ClassBase): Transform to Class base
+// TODO(offline): DBCache to use offline or error
 
 @riverpod
 Future<List<UserEntity>> dbListUsersByIds(
@@ -67,7 +68,6 @@ Future<ArtifactEntity> dbCreateArtifact(
   ArtifactEntity request,
 ) async {
   final mypageApi = ref.read(mypageApiProvider);
-
   final response = await mypageApi.createArtifact(
     ArtifactRequest(
       title: request.title,

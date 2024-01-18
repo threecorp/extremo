@@ -9,6 +9,7 @@ import 'package:extremo/io/store/db/extremo/extremo_box.dart';
 import 'package:extremo/misc/result.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+// Cache save & return
 Future<ArtifactEntity> xFormArtifactEntity(
   Ref ref,
   ArtifactResponse element,

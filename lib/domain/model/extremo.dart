@@ -7,13 +7,13 @@ part 'extremo.freezed.dart';
 @freezed
 class UserModel with _$UserModel {
   const factory UserModel({
-    required int id,
+    int? id,
     required String email,
     DateTime? dateJoined,
     DateTime? deletedAt,
     required bool isDeleted,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     // Relationships
     @Default([]) List<ArtifactModel> artifacts,
   }) = _UserModel;
@@ -42,7 +42,7 @@ class UserModel with _$UserModel {
 extension UserModelX on UserModel {
   UserEntity toEntity() {
     return UserEntity(
-      id: id,
+      id: id ?? 0,
       email: email,
       dateJoined: dateJoined,
       isDeleted: isDeleted,
@@ -57,7 +57,7 @@ extension UserModelX on UserModel {
 @freezed
 class ArtifactModel with _$ArtifactModel {
   const factory ArtifactModel({
-    required int id,
+    int? id,
     required int userFk,
     required String title,
     required String content,
@@ -65,8 +65,8 @@ class ArtifactModel with _$ArtifactModel {
     required String status, // XXX: required ArtifactType status,
     DateTime? publishFrom,
     DateTime? publishUntil,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     // Relationships
     UserModel? user,
   }) = _ArtifactModel;
@@ -97,7 +97,7 @@ class ArtifactModel with _$ArtifactModel {
 extension ArtifactModelX on ArtifactModel {
   ArtifactEntity toEntity() {
     return ArtifactEntity(
-      id: id,
+      id: id ?? 0,
       userFk: userFk,
       title: title,
       content: content,

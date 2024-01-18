@@ -9,18 +9,21 @@ class LoggerInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final options = err.requestOptions;
 
-    logger.e('\t[ERROR]\t'
+    logger.e('\t[ERROR]\t\t'
         'method:${options.method}\t'
         'uri:${options.uri}\t'
-        'error:${err.error}\t'
-        'message: ${err.message}');
+        'code:${err.response?.statusCode}\t'
+        'message: ${err.message}\t'
+        'length:${err.response?.toString().length}');
 
     handler.next(err); // Continue with the Error
   }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    logger.d('\t[REQUEST]\tmethod:${options.method}\turi:${options.uri}');
+    logger.d('\t[REQUEST]\t'
+        'method:${options.method}\t'
+        'uri:${options.uri}');
 
     handler.next(options); // Continue with the Request
   }
