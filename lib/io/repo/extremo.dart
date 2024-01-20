@@ -1,6 +1,7 @@
 // import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/entity/paging.dart';
 import 'package:extremo/io/store/api/extremo/extremo.dart';
@@ -8,6 +9,7 @@ import 'package:extremo/io/store/api/extremo/extremo_request.dart';
 import 'package:extremo/io/store/db/extremo/extremo_box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/result.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'extremo.g.dart';
@@ -63,22 +65,52 @@ Future<PagingEntity<ArtifactEntity>> dbListPagerArtifacts(
 }
 
 @riverpod
-Future<ArtifactEntity> dbCreateArtifact(
+Future<Result<ArtifactEntity>> dbCreateArtifact(
   DbCreateArtifactRef ref,
   ArtifactEntity request,
 ) async {
   final mypageApi = ref.read(mypageApiProvider);
-  final response = await mypageApi.createArtifact(
-    ArtifactRequest(
-      title: request.title,
-      summary: request.summary,
-      content: request.content,
-      publishFrom: request.publishFrom,
-      publishUntil: request.publishUntil,
-    ),
-  );
 
-  return xFormArtifactEntity(ref, response.element);
+  // print('aaaaaaaaaaa');
+  // print(request.title);
+  // print(request.summary);
+  // print(request.content);
+  // print(request.publishFrom);
+  // print(request.publishUntil);
+
+  try {
+    final entity = await mypageApi
+        .createArtifact(
+          ArtifactRequest(
+            title: request.title,
+            summary: request.summary,
+            content: request.content,
+            publishFrom: request.publishFrom,
+            publishUntil: request.publishUntil,
+          ),
+        )
+        .then(
+          (r) => xFormArtifactEntity(ref, r.element),
+        );
+
+    return Success(entity);
+  } on DioException catch (ex, stack) {
+    if (ex.response?.statusCode == 400) {
+      //
+      // TODO(Refactoring): Parse response validation message
+      //
+      // ex.response!.data.map(
+      //   (e) => e as Map<String, dynamic>,
+      // ).forEach(
+      //   (e) => print(e),
+      // );
+      debugPrint(ex.response!.data.toString());
+      const message = 'TODO: Validation Message here';
+      return Failure(message, stack);
+    }
+
+    rethrow;
+  }
 }
 //
 //

@@ -68,20 +68,18 @@ class ArtifactPage extends HookConsumerWidget {
               isScrollControlled: true,
               builder: (context) => PostWindow(
                 onSubmitted: (ArtifactModel model) async {
-                  try {
-                    // TODO(Refactoring): Unuse to ref.watch.
-                    // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
-                    final newModel = await ref.read(
-                      createArtifactProvider(model).future,
-                    );
+                  // TODO(Refactoring): Use to ref.watch.
+                  // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
+                  final newModel = await ref.read(
+                    createArtifactProvider(model).future,
+                  );
 
-                    debugPrint('model: $newModel');
-                  } on DioException catch (error) {
-                    debugPrint('error: ${error.message}');
-                    return;
-                  }
-
-                  Navigator.of(context).pop();
+                  newModel.onSuccess((model) {
+                    Navigator.of(context).pop();
+                  }).onFailure((error, _) {
+                    final sb = SnackBar(content: Text(error.toString()));
+                    ScaffoldMessenger.of(context).showSnackBar(sb);
+                  });
                 },
               ),
             ),

@@ -55,15 +55,18 @@ class ListPagerArtifacts extends _$ListPagerArtifacts {
 }
 
 @riverpod
-Future<ArtifactModel> createArtifact(
+Future<Result<ArtifactModel>> createArtifact(
   CreateArtifactRef ref,
   ArtifactModel model,
 ) async {
-  final entity = await ref.read(
+  final result = await ref.read(
     dbCreateArtifactProvider(model.toEntity()).future,
   );
 
-  return ArtifactModel.fromEntity(entity: entity);
+  return result.map(
+    success: (e) => Success(ArtifactModel.fromEntity(entity: e.value)),
+    failure: (e) => Failure(e.error, e.stackTrace),
+  );
 }
 //
 //
