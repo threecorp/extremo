@@ -21,7 +21,7 @@ part 'artifact.g.dart';
 @riverpod
 class ListPagerArtifacts extends _$ListPagerArtifacts {
   int _page = 1;
-  int _pageSize = 25;
+  int _pageSize = 10;
   bool _isLast = false;
 
   void loadListNextPage() {

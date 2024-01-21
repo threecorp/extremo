@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/retrofit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -31,6 +31,7 @@ abstract class MypageApi {
   );
 
   @POST('/artifacts')
+  @Headers({'Content-Type': 'application/json'})
   Future<GetResponse<ArtifactResponse>> createArtifact(
     @Body() ArtifactRequest request,
   );

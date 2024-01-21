@@ -76,6 +76,7 @@ class ArtifactPage extends HookConsumerWidget {
 
                   newModel.onSuccess((model) {
                     Navigator.of(context).pop();
+                    return ref.refresh(listPagerArtifactsProvider);
                   }).onFailure((error, _) {
                     final sb = SnackBar(content: Text(error.toString()));
                     ScaffoldMessenger.of(context).showSnackBar(sb);
@@ -186,8 +187,8 @@ class PostForm extends HookConsumerWidget {
                     ArtifactModel(
                       userFk: 1,
                       title: value['title'] as String,
-                      summary: value['summary'] as String,
-                      content: value['content'] as String,
+                      summary: (value['summary'] ?? '') as String,
+                      content: (value['content'] ?? '') as String,
                       status: 'DRAFT',
                       // status: value['status'],
                       // types: value['types'],
