@@ -21,12 +21,12 @@ part 'artifact.g.dart';
 @riverpod
 class ListPagerArtifacts extends _$ListPagerArtifacts {
   int _page = 1;
-  int _pageSize = 10;
+  int _pageSize = 25;
   bool _isLast = false;
 
   void loadListNextPage() {
     _page++;
-    build();
+    build(); // TODO(Refactoring): Remove build
   }
 
   // ignore: use_setters_to_change_properties
@@ -50,7 +50,10 @@ class ListPagerArtifacts extends _$ListPagerArtifacts {
 
     // TODO(Unuse): pager.totalSize
     _isLast = pager.elements.length < _pageSize;
-    return models.toList();
+
+    final rr = models.toList();
+    state = AsyncValue.data([...state.value ?? [], ...rr]);
+    return rr;
   }
 }
 
