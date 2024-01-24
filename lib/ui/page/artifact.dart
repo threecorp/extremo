@@ -38,8 +38,18 @@ class ArtifactPage extends HookConsumerWidget {
             (callback) => notifier.loadListNextPage(),
           );
         },
-        onTapListItem: (item) =>
-            null, // ArtifactDetailRoute(id: item.id).go(context),
+        onTapListItem: (item) {
+          print(1);
+          final id = item.id;
+          print(2);
+          if (id == null) {
+            print(3);
+            return;
+          }
+          print(4);
+          print(id);
+          ArtifactDetailRoute(id: id).go(context);
+        },
         onPressedFavorite: (item) =>
             null, // ref.read(toggleFavoriteArtifactByIdProvider(item.id)),
         refresh: () => ref.refresh(listPagerArtifactsProvider),

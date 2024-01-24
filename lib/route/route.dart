@@ -2,6 +2,7 @@
 // import 'package:extremo/ui/page/extremo.dart';
 // import 'package:extremo/ui/page/extremo_detail.dart';
 import 'package:extremo/ui/page/artifact.dart';
+import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/post.dart';
 
 import 'package:flutter/widgets.dart';
@@ -14,8 +15,8 @@ part 'route.g.dart';
 // Keep paths together as constants.
 //
 class Route {
-  static const artifactPage = '/';
-  static const postPage = '/post';
+  static const postPage = '/';
+  static const artifactPage = '/artifacts';
   // static const extremoPage = "/extremos";
   // static const favoritePage = "/favorites";
   // static const splashPage = "/splash";
@@ -24,6 +25,7 @@ class Route {
 
 @TypedGoRoute<ArtifactRoute>(
   path: Route.artifactPage,
+  routes: [TypedGoRoute<ArtifactDetailRoute>(path: ':id')],
 )
 @immutable
 class ArtifactRoute extends GoRouteData {
@@ -37,9 +39,23 @@ class ArtifactRoute extends GoRouteData {
       );
 }
 
+@immutable
+class ArtifactDetailRoute extends GoRouteData {
+  const ArtifactDetailRoute({required this.id});
+  final int id;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      CustomTransitionPage(
+        key: state.pageKey,
+        child: ArtifactDetailPage(id: id),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      );
+}
+
 @TypedGoRoute<PostRoute>(
   path: Route.postPage,
-  // routes: [TypedGoRoute<PostDetailRoute>(path: ':id')]
 )
 @immutable
 class PostRoute extends GoRouteData {
@@ -52,16 +68,3 @@ class PostRoute extends GoRouteData {
             FadeTransition(opacity: animation, child: child),
       );
 }
-
-// @immutable
-// class PostDetailRoute extends GoRouteData {
-//   const PostDetailRoute({required this.id});
-//   final int id;
-//   @override
-//   Page<void> buildPage(BuildContext context, GoRouterState state) =>
-//       CustomTransitionPage(
-//           key: state.pageKey,
-//           child: PokemonDetailPage(id: id),
-//           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-//               FadeTransition(opacity: animation, child: child));
-// }

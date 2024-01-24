@@ -65,6 +65,21 @@ Future<PagingEntity<ArtifactEntity>> dbListPagerArtifacts(
 }
 
 @riverpod
+Future<Result<ArtifactEntity>> dbGetArtifact(
+  DbGetArtifactRef ref,
+  int id,
+) async {
+  final mypageApi = ref.read(mypageApiProvider);
+
+  // TODO(offline): Use DBCache when offlined or error
+  final entity = await mypageApi.getArtifact(id).then(
+        (r) => xFormArtifactEntity(ref, r.element),
+      );
+
+  return Success(entity);
+}
+
+@riverpod
 Future<Result<ArtifactEntity>> dbCreateArtifact(
   DbCreateArtifactRef ref,
   ArtifactEntity request,
