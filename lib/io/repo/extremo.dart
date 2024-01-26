@@ -1,16 +1,18 @@
+// import 'package:dio/dio.dart';
+// import 'package:extremo/io/store/api/extremo/extremo_request.dart';
 // import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/entity/paging.dart';
 import 'package:extremo/io/store/api/extremo/extremo.dart';
-import 'package:extremo/io/store/api/extremo/extremo_request.dart';
 import 'package:extremo/io/store/db/extremo/extremo_box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/result.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
+import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:grpc/grpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'extremo.g.dart';
@@ -89,7 +91,7 @@ Future<Result<ArtifactEntity>> dbCreateArtifact(
   DbCreateArtifactRef ref,
   ArtifactEntity request,
 ) async {
-  final mypageApi = ref.read(mypageApiProvider);
+  final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // print('aaaaaaaaaaa');
   // print(request.title);
@@ -99,23 +101,27 @@ Future<Result<ArtifactEntity>> dbCreateArtifact(
   // print(request.publishUntil);
 
   try {
-    final entity = await mypageApi
-        .createArtifact(
-          ArtifactRequest(
+    final entity = await rpc
+        .create(
+          CreateRequest(
             title: request.title,
             summary: request.summary,
             content: request.content,
-            publishFrom: request.publishFrom,
-            publishUntil: request.publishUntil,
+            publishFrom: request.publishFrom != null
+                ? Timestamp.fromDateTime(request.publishFrom!)
+                : null,
+            publishUntil: request.publishUntil != null
+                ? Timestamp.fromDateTime(request.publishUntil!)
+                : null,
           ),
         )
         .then(
-          (r) => xFormResponseArtifactEntity(ref, r.element),
+          (r) => xFormRpcArtifactEntity(ref, r.element),
         );
 
     return Success(entity);
-  } on DioException catch (ex, stack) {
-    if (ex.response?.statusCode == 400) {
+  } on GrpcError catch (ex, stack) {
+    if (ex.code == StatusCode.invalidArgument) {
       //
       // TODO(Refactoring): Parse response validation message
       //
@@ -124,9 +130,8 @@ Future<Result<ArtifactEntity>> dbCreateArtifact(
       // ).forEach(
       //   (e) => print(e),
       // );
-      debugPrint(ex.response!.data.toString());
-      const message = 'TODO: Validation Message here';
-      return Failure(message, stack);
+      debugPrint(ex.message);
+      return Failure(ex.message ?? '', stack);
     }
 
     rethrow;
