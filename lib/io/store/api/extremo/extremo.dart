@@ -1,8 +1,15 @@
+// import 'package:extremodart/extremo/api/public/users/v1/user_service.pb.dart';
+// import 'package:extremodart/extremo/msg/db/v1/enum.pb.dart';
+// import 'package:protobuf/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' hide Headers;
+import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pbgrpc.dart'
+    as pbartifact;
+import 'package:extremodart/extremo/api/public/users/v1/user_service.pbgrpc.dart'
+    as pbuser;
+import 'package:grpc/grpc.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-// import 'package:extremodart/extremo/msg/db/v1/enum.pb.dart';
 
 import '../interceptor.dart';
 
@@ -60,7 +67,29 @@ MypageApi mypageApi(MypageApiRef ref) => MypageApi(ref.read(apiClientProvider));
 
 @riverpod
 PublicApi publicApi(PublicApiRef ref) => PublicApi(ref.read(apiClientProvider));
-// Same above
-// final Api = Provider<Api>((ref) =>
-//  Api(ref.read(ApiClientProvider)));
-//
+
+@riverpod
+pbuser.UserServiceClient publicUserServiceClient(
+  PublicUserServiceClientRef ref,
+) {
+  final channel = ClientChannel(
+    'localhost',
+    port: 50100,
+    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  );
+
+  return pbuser.UserServiceClient(channel);
+}
+
+@riverpod
+pbartifact.ArtifactServiceClient mypageArtifactServiceClient(
+  MypageArtifactServiceClientRef ref,
+) {
+  final channel = ClientChannel(
+    'localhost',
+    port: 50100,
+    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  );
+
+  return pbartifact.ArtifactServiceClient(channel);
+}

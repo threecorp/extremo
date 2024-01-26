@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
+import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
 import 'package:hive/hive.dart';
 
 part 'extremo.g.dart';
@@ -18,11 +19,11 @@ class UserEntity {
     this.artifacts = const [],
   });
 
-  factory UserEntity.from({
+  factory UserEntity.fromResponse({
     required UserResponse element,
   }) {
     final artifacts = element.artifacts
-        .map((element) => ArtifactEntity.from(element: element))
+        .map((element) => ArtifactEntity.fromResponse(element: element))
         .toList();
     return UserEntity(
       id: element.pk,
@@ -32,6 +33,25 @@ class UserEntity {
       deletedAt: element.deletedAt,
       createdAt: element.createdAt,
       updatedAt: element.updatedAt,
+      // Relationships
+      artifacts: artifacts,
+    );
+  }
+
+  factory UserEntity.fromRpc({
+    required pbdb.User element,
+  }) {
+    final artifacts = element.artifacts
+        .map((element) => ArtifactEntity.fromRpc(element: element))
+        .toList();
+    return UserEntity(
+      id: element.pk,
+      email: element.email,
+      dateJoined: element.dateJoined.toDateTime(),
+      isDeleted: element.isDeleted,
+      deletedAt: element.deletedAt.toDateTime(),
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
       // Relationships
       artifacts: artifacts,
     );
@@ -79,11 +99,12 @@ class ArtifactEntity {
     this.user,
   });
 
-  factory ArtifactEntity.from({
+  factory ArtifactEntity.fromResponse({
     required ArtifactResponse element,
   }) {
-    final user =
-        element.user != null ? UserEntity.from(element: element.user!) : null;
+    final user = element.user != null
+        ? UserEntity.fromResponse(element: element.user!)
+        : null;
 
     return ArtifactEntity(
       id: element.pk,
@@ -96,6 +117,28 @@ class ArtifactEntity {
       publishUntil: element.publishUntil,
       createdAt: element.createdAt,
       updatedAt: element.updatedAt,
+      // Relationships
+      user: user,
+    );
+  }
+
+  factory ArtifactEntity.fromRpc({
+    required pbdb.Artifact element,
+  }) {
+    final user =
+        element.hasUser() ? UserEntity.fromRpc(element: element.user) : null;
+
+    return ArtifactEntity(
+      id: element.pk,
+      userFk: element.userFk,
+      title: element.title,
+      content: element.content,
+      summary: element.summary,
+      status: element.status.name,
+      publishFrom: element.publishFrom.toDateTime(),
+      publishUntil: element.publishUntil.toDateTime(),
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
       // Relationships
       user: user,
     );

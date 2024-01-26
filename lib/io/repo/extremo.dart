@@ -9,6 +9,7 @@ import 'package:extremo/io/store/api/extremo/extremo_request.dart';
 import 'package:extremo/io/store/db/extremo/extremo_box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/result.dart';
+import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -32,7 +33,7 @@ Future<List<UserEntity>> dbListUsersByIds(
     }
 
     final response = await publicApi.getUser(id);
-    final result = UserEntity.from(element: response.element);
+    final result = UserEntity.fromResponse(element: response.element);
 
     await userBox.put(id, result);
     return result;
@@ -48,13 +49,17 @@ Future<PagingEntity<ArtifactEntity>> dbListPagerArtifacts(
   int page,
   int pageSize,
 ) async {
-  final mypageApi = ref.read(mypageApiProvider);
+  final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final response = await mypageApi.listArtifacts(page, pageSize);
+  final response = await rpc.list(
+    ListRequest()
+      ..page = page
+      ..pageSize = pageSize,
+  );
   final elements = await Future.wait(
     response.elements.map(
-      (element) => xFormArtifactEntity(ref, element),
+      (element) => xFormRpcArtifactEntity(ref, element),
     ),
   );
 
@@ -69,11 +74,11 @@ Future<Result<ArtifactEntity>> dbGetArtifact(
   DbGetArtifactRef ref,
   int id,
 ) async {
-  final mypageApi = ref.read(mypageApiProvider);
+  final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final entity = await mypageApi.getArtifact(id).then(
-        (r) => xFormArtifactEntity(ref, r.element),
+  final entity = await rpc.get(GetRequest()..pk = id).then(
+        (r) => xFormRpcArtifactEntity(ref, r.element),
       );
 
   return Success(entity);
@@ -105,7 +110,7 @@ Future<Result<ArtifactEntity>> dbCreateArtifact(
           ),
         )
         .then(
-          (r) => xFormArtifactEntity(ref, r.element),
+          (r) => xFormResponseArtifactEntity(ref, r.element),
         );
 
     return Success(entity);

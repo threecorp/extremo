@@ -278,7 +278,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "52c0f0505bc53288f48c3652a2a2d01da0f92fc9"
+      resolved-ref: cce686a577fd1b88b21598a8d78f6582075c39ef
       url: "https://github.com/threecorp/extremo-proto.git"
     source: git
     version: "0.1.0"
@@ -479,7 +479,7 @@ packages:
     source: hosted
     version: "2.3.1"
   grpc:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: grpc
       sha256: e93ee3bce45c134bf44e9728119102358c7cd69de7832d9a874e2e74eb8cab40
@@ -783,7 +783,7 @@ packages:
     source: hosted
     version: "1.5.1"
   protobuf:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: protobuf
       sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
