@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/retrofit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+// import 'package:extremodart/extremo/msg/db/v1/enum.pb.dart';
 
 import '../interceptor.dart';
 
