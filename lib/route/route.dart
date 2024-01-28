@@ -4,6 +4,7 @@
 import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/post.dart';
+import 'package:extremo/ui/page/login.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -14,17 +15,17 @@ part 'route.g.dart';
 // Entrypoints
 // Keep paths together as constants.
 //
-class Route {
-  static const postPage = '/';
+class Routes {
+  static const rootPage = '/';
   static const artifactPage = '/artifacts';
-  // static const extremoPage = "/extremos";
+  static const loginPage = '/login';
   // static const favoritePage = "/favorites";
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";
 }
 
 @TypedGoRoute<ArtifactRoute>(
-  path: Route.artifactPage,
+  path: Routes.artifactPage,
   routes: [TypedGoRoute<ArtifactDetailRoute>(path: ':id')],
 )
 @immutable
@@ -54,8 +55,23 @@ class ArtifactDetailRoute extends GoRouteData {
       );
 }
 
+@TypedGoRoute<LoginRoute>(
+  path: Routes.loginPage,
+)
+@immutable
+class LoginRoute extends GoRouteData {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      CustomTransitionPage(
+        key: state.pageKey,
+        child: const LoginPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      );
+}
+
 @TypedGoRoute<PostRoute>(
-  path: Route.postPage,
+  path: Routes.rootPage,
 )
 @immutable
 class PostRoute extends GoRouteData {

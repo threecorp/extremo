@@ -1,3 +1,4 @@
+import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart' as extremo_entity;
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
@@ -23,25 +24,39 @@ void main() async {
 
   LocaleSettings.useDeviceLocale();
 
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final _router = GoRouter(
-    routes: [
-      ShellRoute(
-        routes: $appRoutes,
-        builder: (context, state, child) => ScaffoldNavbar(child: child),
-      ),
-    ],
-  );
+class MyApp extends HookConsumerWidget {
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = GoRouter(
+      redirect: (context, state) {
+        // final account = ref.watch(accountProvider);
+        final notifier = ref.watch(accountProvider.notifier);
+        final loggingIn = state.path == Routes.loginPage;
+
+        if (!notifier.isLoggedIn() && !loggingIn) {
+          return Routes.loginPage;
+        }
+        if (notifier.isLoggedIn() && loggingIn) {
+          return Routes.rootPage;
+        }
+
+        return null;
+      },
+      routes: [
+        ShellRoute(
+          routes: $appRoutes,
+          builder: (context, state, child) => ScaffoldNavbar(child: child),
+        ),
+      ],
+    );
+
+   return MaterialApp.router(
       title: t.appName,
       theme: ThemeData(
         // primarySwatch: Colors.blueGrey,
@@ -59,7 +74,7 @@ class MyApp extends StatelessWidget {
         // GlobalWidgetsLocalizations.delegate,
       ],
       // localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }
