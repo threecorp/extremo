@@ -13,7 +13,7 @@ AccountServiceClient authAccountServiceClient(
   AuthAccountServiceClientRef ref,
 ) {
   final channel = ClientChannel(
-    'localhost',
+    'localhost', // TODO(Environment): Change a value for each an environment.
     port: 50100,
     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
   );

@@ -7,7 +7,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'account.g.dart';
 
-
 @riverpod
 class Account extends _$Account {
   @override

@@ -56,7 +56,7 @@ class MyApp extends HookConsumerWidget {
       ],
     );
 
-   return MaterialApp.router(
+    return MaterialApp.router(
       title: t.appName,
       theme: ThemeData(
         // primarySwatch: Colors.blueGrey,
