@@ -5,8 +5,10 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/entity/paging.dart';
-import 'package:extremo/io/store/api/extremo/extremo.dart';
-import 'package:extremo/io/store/db/extremo/extremo_box.dart';
+import 'package:extremo/io/store/api/extremo/auth.dart';
+import 'package:extremo/io/store/api/extremo/mypage.dart';
+import 'package:extremo/io/store/api/extremo/public.dart';
+import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/result.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
@@ -15,35 +17,35 @@ import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'extremo.g.dart';
+part 'mypage.g.dart';
 
 // TODO(ClassBase): Transform to Class base
 // TODO(offline): DBCache to use offline or error
 
-@riverpod
-Future<List<UserEntity>> dbListUsersByIds(
-  DbListUsersByIdsRef ref,
-  List<int> ids,
-) async {
-  final userBox = await ref.read(userBoxProvider.future);
-  final publicApi = ref.read(publicApiProvider);
-
-  Future<UserEntity?> getter(int id) async {
-    final entity = userBox.get(id);
-    if (entity != null) {
-      return entity;
-    }
-
-    final response = await publicApi.getUser(id);
-    final result = UserEntity.fromResponse(element: response.element);
-
-    await userBox.put(id, result);
-    return result;
-  }
-
-  return Future.wait(ids.map((id) => getter(id).onNotFoundErrorToNull()))
-      .then((list) => list.whereType<UserEntity>().toList());
-}
+// @riverpod
+// Future<List<UserEntity>> dbListUsersByIds(
+//   DbListUsersByIdsRef ref,
+//   List<int> ids,
+// ) async {
+//   final userBox = await ref.read(userBoxProvider.future);
+//   final publicApi = ref.read(publicApiProvider);
+//
+//   Future<UserEntity?> getter(int id) async {
+//     final entity = userBox.get(id);
+//     if (entity != null) {
+//       return entity;
+//     }
+//
+//     final response = await publicApi.getUser(id);
+//     final result = UserEntity.fromResponse(element: response.element);
+//
+//     await userBox.put(id, result);
+//     return result;
+//   }
+//
+//   return Future.wait(ids.map((id) => getter(id).onNotFoundErrorToNull()))
+//       .then((list) => list.whereType<UserEntity>().toList());
+// }
 
 @riverpod
 Future<PagingEntity<ArtifactEntity>> dbListPagerArtifacts(

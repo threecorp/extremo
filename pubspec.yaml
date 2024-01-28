@@ -71,6 +71,7 @@ dependencies:
     git:
       url: https://github.com/threecorp/extremo-proto.git
       ref: master
+  flutter_secure_storage: ^4.2.1
 
 
 dev_dependencies:

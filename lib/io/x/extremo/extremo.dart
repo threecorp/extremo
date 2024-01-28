@@ -5,7 +5,7 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
-import 'package:extremo/io/store/db/extremo/extremo_box.dart';
+import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/misc/result.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
 import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;

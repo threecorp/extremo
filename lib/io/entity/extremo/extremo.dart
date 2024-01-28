@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 
 part 'extremo.g.dart';

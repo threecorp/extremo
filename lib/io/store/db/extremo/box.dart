@@ -3,7 +3,7 @@ import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'extremo_box.g.dart';
+part 'box.g.dart';
 
 @riverpod
 Future<Box<ArtifactEntity>> artifactBox(
