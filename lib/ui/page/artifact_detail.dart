@@ -1,22 +1,19 @@
-import 'package:flutter/material.dart';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:gap/gap.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-
 import 'package:extremo/domain/usecase/artifact.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
-import 'package:extremo/misc/result.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
 import 'package:extremo/ui/layout/progress_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
+import 'package:gap/gap.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -46,7 +43,7 @@ class _ArtifactDetailView extends HookConsumerWidget {
     if (value == null) {
       return const ProgressView();
     }
-    final data = value.getOrNull;
+    final data = value.getOrNull();
     if (data == null) {
       return const ProgressView();
     }

@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/io/repo/extremo/mypage.dart';
-import 'package:extremo/misc/result.dart';
+import 'package:result_dart/functions.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -35,7 +36,7 @@ class ListPagerArtifacts extends _$ListPagerArtifacts {
   @override
   Future<List<ArtifactModel>> build() async {
     final pager = await ref.read(
-      dbListPagerArtifactsProvider(_page, _pageSize).future,
+      repoListPagerArtifactsProvider(_page, _pageSize).future,
     );
 
     final models = pager.elements.map(
@@ -52,27 +53,24 @@ class ListPagerArtifacts extends _$ListPagerArtifacts {
 }
 
 @riverpod
-Future<Result<ArtifactModel>> getArtifact(GetArtifactRef ref, int id) async {
-  final result = await ref.read(dbGetArtifactProvider(id).future);
-  return result.map(
-    success: (e) => Success(ArtifactModel.fromEntity(entity: e.value)),
-    failure: (e) => Failure(e.error, e.stackTrace),
-  );
+Future<Result<ArtifactModel, Exception>> getArtifact(
+  GetArtifactRef ref,
+  int id,
+) async {
+  final result = await ref.read(repoGetArtifactProvider(id).future);
+  return result.map((e) => ArtifactModel.fromEntity(entity: e));
 }
 
 @riverpod
-Future<Result<ArtifactModel>> createArtifact(
+Future<Result<ArtifactModel, Exception>> createArtifact(
   CreateArtifactRef ref,
   ArtifactModel model,
 ) async {
   final result = await ref.read(
-    dbCreateArtifactProvider(model.toEntity()).future,
+    repoCreateArtifactProvider(model.toEntity()).future,
   );
 
-  return result.map(
-    success: (e) => Success(ArtifactModel.fromEntity(entity: e.value)),
-    failure: (e) => Failure(e.error, e.stackTrace),
-  );
+  return result.map((e) => ArtifactModel.fromEntity(entity: e));
 }
 //
 //

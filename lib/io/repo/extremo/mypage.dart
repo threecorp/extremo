@@ -10,7 +10,8 @@ import 'package:extremo/io/store/api/extremo/mypage.dart';
 import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
-import 'package:extremo/misc/result.dart';
+import 'package:result_dart/functions.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
@@ -22,34 +23,9 @@ part 'mypage.g.dart';
 // TODO(ClassBase): Transform to Class base
 // TODO(offline): DBCache to use offline or error
 
-// @riverpod
-// Future<List<UserEntity>> dbListUsersByIds(
-//   DbListUsersByIdsRef ref,
-//   List<int> ids,
-// ) async {
-//   final userBox = await ref.read(userBoxProvider.future);
-//   final publicApi = ref.read(publicApiProvider);
-//
-//   Future<UserEntity?> getter(int id) async {
-//     final entity = userBox.get(id);
-//     if (entity != null) {
-//       return entity;
-//     }
-//
-//     final response = await publicApi.getUser(id);
-//     final result = UserEntity.fromResponse(element: response.element);
-//
-//     await userBox.put(id, result);
-//     return result;
-//   }
-//
-//   return Future.wait(ids.map((id) => getter(id).onNotFoundErrorToNull()))
-//       .then((list) => list.whereType<UserEntity>().toList());
-// }
-
 @riverpod
-Future<PagingEntity<ArtifactEntity>> dbListPagerArtifacts(
-  DbListPagerArtifactsRef ref,
+Future<PagingEntity<ArtifactEntity>> repoListPagerArtifacts(
+  RepoListPagerArtifactsRef ref,
   int page,
   int pageSize,
 ) async {
@@ -74,8 +50,8 @@ Future<PagingEntity<ArtifactEntity>> dbListPagerArtifacts(
 }
 
 @riverpod
-Future<Result<ArtifactEntity>> dbGetArtifact(
-  DbGetArtifactRef ref,
+Future<Result<ArtifactEntity, Exception>> repoGetArtifact(
+  RepoGetArtifactRef ref,
   int id,
 ) async {
   final rpc = ref.read(mypageArtifactServiceClientProvider);
@@ -89,8 +65,8 @@ Future<Result<ArtifactEntity>> dbGetArtifact(
 }
 
 @riverpod
-Future<Result<ArtifactEntity>> dbCreateArtifact(
-  DbCreateArtifactRef ref,
+Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
+  RepoCreateArtifactRef ref,
   ArtifactEntity request,
 ) async {
   final rpc = ref.read(mypageArtifactServiceClientProvider);
@@ -122,7 +98,7 @@ Future<Result<ArtifactEntity>> dbCreateArtifact(
         );
 
     return Success(entity);
-  } on GrpcError catch (ex, stack) {
+  } on GrpcError catch (ex, _) {
     if (ex.code == StatusCode.invalidArgument) {
       //
       // TODO(Refactoring): Parse response validation message
@@ -133,7 +109,7 @@ Future<Result<ArtifactEntity>> dbCreateArtifact(
       //   (e) => print(e),
       // );
       debugPrint(ex.message);
-      return Failure(ex.message ?? '', stack);
+      return Failure(ex);
     }
 
     rethrow;

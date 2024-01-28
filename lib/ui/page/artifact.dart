@@ -5,7 +5,6 @@ import 'package:extremo/domain/model/extremo.dart';
 import 'package:dio/dio.dart';
 import 'package:extremo/domain/usecase/artifact.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
-import 'package:extremo/misc/result.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
@@ -79,10 +78,10 @@ class ArtifactPage extends HookConsumerWidget {
                     createArtifactProvider(model).future,
                   );
 
-                  newModel.onSuccess((model) {
+                  newModel.onSuccess<ArtifactModel>((model) {
                     Navigator.of(context).pop();
                     return ref.refresh(listPagerArtifactsProvider);
-                  }).onFailure((error, _) {
+                  }).onFailure<Exception>((error) {
                     final sb = SnackBar(content: Text(error.toString()));
                     ScaffoldMessenger.of(context).showSnackBar(sb);
                   });
