@@ -33,9 +33,10 @@ Future<PagingEntity<ArtifactEntity>> repoListPagerArtifacts(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    ListRequest()
-      ..page = page
-      ..pageSize = pageSize,
+    ListRequest(
+      page: page,
+      pageSize: pageSize,
+    ),
   );
   final elements = await Future.wait(
     response.elements.map(
@@ -57,7 +58,7 @@ Future<Result<ArtifactEntity, Exception>> repoGetArtifact(
   final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final entity = await rpc.get(GetRequest()..pk = id).then(
+  final entity = await rpc.get(GetRequest(pk: id)).then(
         (r) => xFormRpcArtifactEntity(ref, r.element),
       );
 
@@ -70,13 +71,6 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
   ArtifactEntity request,
 ) async {
   final rpc = ref.read(mypageArtifactServiceClientProvider);
-
-  // print('aaaaaaaaaaa');
-  // print(request.title);
-  // print(request.summary);
-  // print(request.content);
-  // print(request.publishFrom);
-  // print(request.publishUntil);
 
   try {
     final entity = await rpc

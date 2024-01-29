@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/io/repo/extremo/auth.dart';
-import 'package:result_dart/functions.dart';
-import 'package:result_dart/result_dart.dart';
+import 'package:extremodart/extremo/api/auth/accounts/v1/account_service.pb.dart';
 import 'package:extremodart/extremo/msg/api/v1/api.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:result_dart/functions.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,40 +16,52 @@ part 'account.g.dart';
 // TODO(ClassBase): Transform to Class base
 
 @riverpod
-Future<Result<Account>> login(
-  LoginRef ref,
-  String email,
-  String password,
+Future<Result<Account, Exception>> loginCase(
+  LoginCaseRef ref,
+  LoginRequest request,
 ) async {
   final result = await ref.read(
-    repoLoginProvider(email, password).future,
+    repoLoginProvider(request).future,
   );
-  // if (result is Failure) {
-  //   return result;
+
+  return result.map((e) {
+    // final account = ref.read(
+    //   repoGetAccountByTokenProvider(e.token),
+    // );
+    //
+    // account.value
+    return Account();
+  });
+  // final token = result.getOrNull();
+  // if (token == null) {
+  //   return result.to;
   // }
-  //
-  // result.getOrThrow
-  //
-  // final token = result.getOrNull;
   // if (token != null) {
-  //   return Failure(e.error, e.stackTrace);
+  //   return ref.read(
+  //     repoGetAccountByTokenProvider(token.token).future,
+  //   );
   // }
+  // //
+  // // final token = result.getOrNull;
+  // // if (token != null) {
+  // //   return Failure(e.error, e.stackTrace);
+  // // }
+  // //
+  // //     final account = await ref.read(
+  // //       repoGetAccountByTokenProvider(e.value.token).future,
+  // //     );
   //
+  // return result.map(
+  //   success: (e) async {
   //     final account = await ref.read(
   //       repoGetAccountByTokenProvider(e.value.token).future,
   //     );
-
-  return result.map(
-    success: (e) async {
-      final account = await ref.read(
-        repoGetAccountByTokenProvider(e.value.token).future,
-      );
-
-      final value = account.getOrNull!;
-      return Success(value);
-    },
-    failure: (e) => Failure(e.error, e.stackTrace),
-  );
+  //
+  //     final value = account.getOrNull!;
+  //     return Success(value);
+  //   },
+  //   failure: (e) => Failure(e.error, e.stackTrace),
+  // );
 }
 //
 //
