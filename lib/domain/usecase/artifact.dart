@@ -14,7 +14,7 @@ part 'artifact.g.dart';
 // TODO(ClassBase): Transform to Class base
 
 @riverpod
-class ListPagerArtifacts extends _$ListPagerArtifacts {
+class ListPagerArtifactsCase extends _$ListPagerArtifactsCase {
   int _page = 1; // TODO(Refactoring): Remove build by using state
   int _pageSize = 25;
   bool _isLast = false;
@@ -53,8 +53,8 @@ class ListPagerArtifacts extends _$ListPagerArtifacts {
 }
 
 @riverpod
-Future<Result<ArtifactModel, Exception>> getArtifact(
-  GetArtifactRef ref,
+Future<Result<ArtifactModel, Exception>> getArtifactCase(
+  GetArtifactCaseRef ref,
   int id,
 ) async {
   final result = await ref.read(repoGetArtifactProvider(id).future);
@@ -62,8 +62,8 @@ Future<Result<ArtifactModel, Exception>> getArtifact(
 }
 
 @riverpod
-Future<Result<ArtifactModel, Exception>> createArtifact(
-  CreateArtifactRef ref,
+Future<Result<ArtifactModel, Exception>> createArtifactCase(
+  CreateArtifactCaseRef ref,
   ArtifactModel model,
 ) async {
   final result = await ref.read(

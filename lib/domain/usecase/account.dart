@@ -16,52 +16,31 @@ part 'account.g.dart';
 // TODO(ClassBase): Transform to Class base
 
 @riverpod
-Future<Result<Account, Exception>> loginCase(
-  LoginCaseRef ref,
+Future<Result<Account, Exception>> loginAccountCase(
+  LoginAccountCaseRef ref,
+  LoginRequest request,
+) async {
+  final result = ref.read(
+    repoLoginProvider(request).future,
+  );
+
+  return result.flatMap(
+    (AccountToken e) async => await ref.read(
+      repoGetAccountByTokenProvider(e.token).future,
+    ),
+  );
+}
+
+@riverpod
+Future<Result<AccountToken, Exception>> loginTokenCase(
+  LoginTokenCaseRef ref,
   LoginRequest request,
 ) async {
   final result = await ref.read(
     repoLoginProvider(request).future,
   );
 
-  return result.map((e) {
-    // final account = ref.read(
-    //   repoGetAccountByTokenProvider(e.token),
-    // );
-    //
-    // account.value
-    return Account();
-  });
-  // final token = result.getOrNull();
-  // if (token == null) {
-  //   return result.to;
-  // }
-  // if (token != null) {
-  //   return ref.read(
-  //     repoGetAccountByTokenProvider(token.token).future,
-  //   );
-  // }
-  // //
-  // // final token = result.getOrNull;
-  // // if (token != null) {
-  // //   return Failure(e.error, e.stackTrace);
-  // // }
-  // //
-  // //     final account = await ref.read(
-  // //       repoGetAccountByTokenProvider(e.value.token).future,
-  // //     );
-  //
-  // return result.map(
-  //   success: (e) async {
-  //     final account = await ref.read(
-  //       repoGetAccountByTokenProvider(e.value.token).future,
-  //     );
-  //
-  //     final value = account.getOrNull!;
-  //     return Success(value);
-  //   },
-  //   failure: (e) => Failure(e.error, e.stackTrace),
-  // );
+  return result;
 }
 //
 //

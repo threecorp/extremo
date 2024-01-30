@@ -34,7 +34,7 @@ class _ArtifactDetailView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detail = ref.watch(getArtifactProvider(id));
+    final detail = ref.watch(getArtifactCaseProvider(id));
     final value = detail.valueOrNull;
 
     if (detail.error != null) {
@@ -89,7 +89,7 @@ class _ArtifactDetailView extends HookConsumerWidget {
               // FavoriteButton(
               //   isFavorite: data.isFavorite,
               //   onPressedFavorite: () {
-              //     ref.read(ToggleFavoriteArtifactByIdProvider(id));
+              //     ref.read(ToggleFavoriteArtifactByIdCaseProvider(id));
               //   },
               // )
             ],

@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/account.dart';
+import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
 import 'package:extremo/ui/layout/progress_view.dart';
-import 'package:extremodart/extremo/api/auth/accounts/v1/account_service.pb.dart'
-    as pbapi;
+import 'package:extremodart/extremo/api/auth/accounts/v1/account_service.pb.dart';
+import 'package:extremodart/extremo/msg/api/v1/api.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,22 +23,23 @@ class LoginPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.watch(accountProvider.notifier);
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
-    Future<void> submit(pbapi.LoginRequest model) async {
+    Future<void> submit(LoginRequest model) async {
       // TODO(Refactoring): Use to ref.watch.
       // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
-      final newAccount = await ref.read(
-        loginCaseProvider(model).future,
+      final loggedAccount = await ref.read(
+        loginTokenCaseProvider(model).future,
       );
 
-      // newModel.onSuccess<ArtifactModel>((model) {
-      //   Navigator.of(context).pop();
-      //   return ref.refresh(listPagerArtifactsProvider);
-      // }).onFailure<Exception>((error) {
-      //   final sb = SnackBar(content: Text(error.toString()));
-      //   ScaffoldMessenger.of(context).showSnackBar(sb);
-      // });
+      loggedAccount.onSuccess<AccountToken>((model) {
+        notifier.login(model); // TODO(Refactoring): Use await
+        PostRoute().go(context);
+      }).onFailure<Exception>((error) {
+        final sb = SnackBar(content: Text(error.toString()));
+        ScaffoldMessenger.of(context).showSnackBar(sb);
+      });
     }
 
     return Scaffold(
@@ -103,7 +106,7 @@ class FormContent extends HookConsumerWidget {
     required this.onSubmitted,
   });
 
-  final void Function(pbapi.LoginRequest model) onSubmitted;
+  final void Function(LoginRequest model) onSubmitted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -198,7 +201,7 @@ class FormContent extends HookConsumerWidget {
 
                   // TODO(Refactoring): Marshal,Unmarshal Library(serializable)
                   onSubmitted(
-                    pbapi.LoginRequest(
+                    LoginRequest(
                       email: (value['email'] ?? '') as String,
                       password: (value['password'] ?? '') as String,
                     ),

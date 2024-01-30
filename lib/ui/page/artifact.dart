@@ -23,8 +23,8 @@ class ArtifactPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final artifacts = ref.watch(listPagerArtifactsProvider);
-    final notifier = ref.watch(listPagerArtifactsProvider.notifier);
+    final artifacts = ref.watch(listPagerArtifactsCaseProvider);
+    final notifier = ref.watch(listPagerArtifactsCaseProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: Text(t.appName)),
@@ -45,8 +45,8 @@ class ArtifactPage extends HookConsumerWidget {
           ArtifactDetailRoute(id: id).go(context);
         },
         onPressedFavorite: (item) =>
-            null, // ref.read(toggleFavoriteArtifactByIdProvider(item.id)),
-        refresh: () => ref.refresh(listPagerArtifactsProvider),
+            null, // ref.read(toggleFavoriteArtifactByIdCaseProvider(item.id)),
+        refresh: () => ref.refresh(listPagerArtifactsCaseProvider),
         emptyErrorMessage: t.emptyError,
       ),
       floatingActionButton: SpeedDial(
@@ -75,12 +75,12 @@ class ArtifactPage extends HookConsumerWidget {
                   // TODO(Refactoring): Use to ref.watch.
                   // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
                   final newModel = await ref.read(
-                    createArtifactProvider(model).future,
+                    createArtifactCaseProvider(model).future,
                   );
 
                   newModel.onSuccess<ArtifactModel>((model) {
                     Navigator.of(context).pop();
-                    return ref.refresh(listPagerArtifactsProvider);
+                    return ref.refresh(listPagerArtifactsCaseProvider);
                   }).onFailure<Exception>((error) {
                     final sb = SnackBar(content: Text(error.toString()));
                     ScaffoldMessenger.of(context).showSnackBar(sb);
