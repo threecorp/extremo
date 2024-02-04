@@ -16,7 +16,7 @@ part 'extremo.g.dart';
 @riverpod
 Dio apiClient(ApiClientRef ref) {
   final dio = Dio();
-  dio.interceptors.add(LoggerInterceptor());
+  dio.interceptors.add(HttpLoggerInterceptor());
   return dio;
 }
 

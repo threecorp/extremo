@@ -10,12 +10,13 @@ import 'package:extremo/io/store/api/extremo/mypage.dart';
 import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
-import 'package:result_dart/functions.dart';
-import 'package:result_dart/result_dart.dart';
+import 'package:extremo/misc/exception.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
+import 'package:result_dart/functions.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mypage.g.dart';
@@ -93,19 +94,11 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
 
     return Success(entity);
   } on GrpcError catch (ex, _) {
-    if (ex.code == StatusCode.invalidArgument) {
-      //
-      // TODO(Refactoring): Parse response validation message
-      //
-      // ex.response!.data.map(
-      //   (e) => e as Map<String, dynamic>,
-      // ).forEach(
-      //   (e) => print(e),
-      // );
-      debugPrint(ex.message);
-      return Failure(ex);
+    if ([StatusCode.invalidArgument].contains(ex.code)) {
+      return Failure(GrpcException(ex));
     }
 
+    debugPrint(ex.message);
     rethrow;
   }
 }

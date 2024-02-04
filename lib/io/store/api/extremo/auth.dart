@@ -2,6 +2,7 @@
 // import 'package:extremodart/extremo/msg/db/v1/enum.pb.dart';
 // import 'package:protobuf/protobuf.dart';
 import 'package:collection/collection.dart';
+import 'package:extremo/io/store/api/interceptor.dart';
 import 'package:extremodart/extremo/api/auth/accounts/v1/account_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -18,5 +19,8 @@ AccountServiceClient authAccountServiceClient(
     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
   );
 
-  return AccountServiceClient(channel);
+  return AccountServiceClient(
+    channel,
+    interceptors: [GrpcLoggerInterceptor.instance],
+  );
 }

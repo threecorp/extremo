@@ -194,7 +194,6 @@ class FormContent extends HookConsumerWidget {
                     return;
                   }
                   final value = formKey.currentState?.value;
-                  debugPrint(value?.toString());
                   if (value == null) {
                     return;
                   }

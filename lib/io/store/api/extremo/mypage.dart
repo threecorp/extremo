@@ -4,6 +4,7 @@
 import 'package:collection/collection.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
+import 'package:extremo/io/store/api/interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mypage.g.dart';
@@ -18,5 +19,8 @@ ArtifactServiceClient mypageArtifactServiceClient(
     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
   );
 
-  return ArtifactServiceClient(channel);
+  return ArtifactServiceClient(
+    channel,
+    interceptors: [GrpcLoggerInterceptor.instance],
+  );
 }
