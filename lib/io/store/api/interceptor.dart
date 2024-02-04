@@ -60,7 +60,7 @@ class GrpcLoggerInterceptor extends ClientInterceptor {
 
   final maskptn = RegExp(r'password: \s*\S+');
   String sanitize(String log) {
-    return log.replaceAll(maskptn, 'password: ********').replaceAll('\n', ' ');
+    return log.replaceAll(maskptn, 'password: ********').replaceAll('\n', ', ');
   }
 
   @override

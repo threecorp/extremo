@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/io/store/secure/extremo/account.dart';
+import 'package:extremo/misc/logger.dart';
 import 'package:extremodart/extremo/msg/api/v1/api.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod/riverpod.dart';
