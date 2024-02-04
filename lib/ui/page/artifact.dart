@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/artifact.dart';
+import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
@@ -25,6 +26,8 @@ class ArtifactPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final artifacts = ref.watch(listPagerArtifactsCaseProvider);
     final notifier = ref.watch(listPagerArtifactsCaseProvider.notifier);
+    // final account = ref.watch(accountProvider);
+    final accountNotifier = ref.watch(accountProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: Text(t.appName)),
@@ -54,15 +57,16 @@ class ArtifactPage extends HookConsumerWidget {
         animatedIconTheme: const IconThemeData(size: 22),
         curve: Curves.bounceIn,
         children: [
-          // SpeedDialChild(
-          //   child: const Icon(Icons.create),
-          //   backgroundColor: Colors.blue,
-          //   label: 'add something',
-          //   onTap: () {
-          //     PostRoute().go(context);
-          //   },
-          //   labelStyle: const TextStyle(fontWeight: FontWeight.w500),
-          // ),
+          SpeedDialChild(
+            child: const Icon(Icons.logout),
+            backgroundColor: Colors.blue,
+            label: t.logout,
+            onTap: () {
+              accountNotifier.logout();
+              LoginRoute().go(context);
+            },
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          ),
           SpeedDialChild(
             child: const Icon(Icons.person_add),
             backgroundColor: Colors.lightBlueAccent,
