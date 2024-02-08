@@ -18,6 +18,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class ArtifactPage extends HookConsumerWidget {
   const ArtifactPage({super.key});
@@ -68,6 +69,17 @@ class ArtifactPage extends HookConsumerWidget {
             labelStyle: const TextStyle(fontWeight: FontWeight.w500),
           ),
           SpeedDialChild(
+            child: const Icon(Icons.calendar_today),
+            backgroundColor: Colors.lightGreenAccent,
+            label: t.calendar,
+            onTap: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (context) => const CalendarWindow(),
+            ),
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          SpeedDialChild(
             child: const Icon(Icons.person_add),
             backgroundColor: Colors.lightBlueAccent,
             label: t.newPost,
@@ -96,6 +108,31 @@ class ArtifactPage extends HookConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// TODO(Refactoring): Unuse to Scaffold to change another widget for AppBar.
+class CalendarWindow extends HookConsumerWidget {
+  const CalendarWindow({
+    super.key,
+    // required this.onSubmitted,
+  });
+
+  // final void Function(Any model) onSubmitted;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        // backgroundColor: Colors.white,
+        title: const Text('Reservation'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SfCalendar(view: CalendarView.week),
     );
   }
 }
