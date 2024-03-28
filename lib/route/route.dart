@@ -4,6 +4,7 @@
 import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/post.dart';
+import 'package:extremo/ui/page/message.dart';
 import 'package:extremo/ui/page/login.dart';
 
 import 'package:flutter/widgets.dart';
@@ -19,7 +20,7 @@ class Routes {
   static const rootPage = '/';
   static const artifactPage = '/artifacts';
   static const loginPage = '/login';
-  // static const favoritePage = "/favorites";
+  static const messagePage = "/messages";
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";
 }
@@ -80,6 +81,21 @@ class PostRoute extends GoRouteData {
       CustomTransitionPage(
         key: state.pageKey,
         child: const PostPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      );
+}
+
+@TypedGoRoute<MessageRoute>(
+  path: Routes.messagePage,
+)
+@immutable
+class MessageRoute extends GoRouteData {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      CustomTransitionPage(
+        key: state.pageKey,
+        child: const MessagePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
       );

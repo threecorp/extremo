@@ -11,6 +11,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() async {
   usePathUrlStrategy();
@@ -71,7 +72,8 @@ class MyApp extends HookConsumerWidget {
         // AppLocalizations.delegate,
         FormBuilderLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
-        // GlobalWidgetsLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        SfGlobalLocalizations.delegate,
       ],
       // localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: router,

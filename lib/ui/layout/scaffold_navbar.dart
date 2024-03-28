@@ -14,7 +14,7 @@ class ScaffoldNavbar extends StatelessWidget {
   final routes = () {
     final postRoute = PostRoute();
     final artifactRoute = ArtifactRoute();
-    // final favoriteRoute = FavoritesRoute();
+    final messageRoute = MessageRoute();
 
     return [
       _NavigationItem(
@@ -31,6 +31,14 @@ class ScaffoldNavbar extends StatelessWidget {
         item: BottomNavigationBarItem(
           icon: const Icon(Icons.list),
           label: t.index,
+        ),
+      ),
+      _NavigationItem(
+        go: messageRoute.go,
+        location: messageRoute.location,
+        item: BottomNavigationBarItem(
+          icon: const Icon(Icons.message),
+          label: t.message,
         ),
       ),
       // _NavigationItem(

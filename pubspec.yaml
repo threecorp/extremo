@@ -65,6 +65,7 @@ dependencies:
   slang: ^3.28.0
   slang_flutter: ^3.28.0
   syncfusion_flutter_calendar: ^24.2.4
+  syncfusion_localizations: ^24.2.4
   # intl_utils: ^2.8.7
   #
   # gRPC
@@ -74,6 +75,10 @@ dependencies:
     git:
       url: https://github.com/threecorp/extremo-proto.git
       ref: master
+  flutter_chat_ui: ^1.6.12
+  open_filex: ^4.4.0
+  file_picker: ^8.0.0+1
+  image_picker: ^1.0.7
 
 
 dev_dependencies:

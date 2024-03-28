@@ -342,6 +342,10 @@ class ArtifactItemView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Expanded(
+                  // flex: 1,
+                  child: _ArtifactItemInfo(data: data),
+                ),
                 const Gap(4),
                 CachedNetworkImage(
                   imageUrl:
@@ -360,10 +364,7 @@ class ArtifactItemView extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(
-                  // flex: 1,
-                  child: _ArtifactItemInfo(data: data),
-                ),
+
                 // FavoriteButton(
                 //   isFavorite: data.isFavorite,
                 //   onPressedFavorite: () {

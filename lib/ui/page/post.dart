@@ -43,12 +43,29 @@ class PostPage extends HookConsumerWidget {
       //
       //
       body: SfCalendar(
-        view: CalendarView.month,
+        view: CalendarView.week,
+        showNavigationArrow: true,
+        allowAppointmentResize: true,
+        allowDragAndDrop: true,
+        todayHighlightColor: Colors.red,
+        firstDayOfWeek: 1, // Monday
+        timeZone: 'Tokyo Standard Time',
         dataSource: MeetingDataSource(_getDataSource()),
         monthViewSettings: const MonthViewSettings(
           showAgenda: true,
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
         ),
+        selectionDecoration: BoxDecoration(
+          color: Colors.green,
+          border: Border.all(color: Colors.transparent, width: 0),
+        ),
+        onViewChanged: (ViewChangedDetails details) {
+          print("onViewChanged: ${details.visibleDates}");
+        },
+        onTap: (CalendarTapDetails details) {
+          print("onTap: ${details.date}");
+        },
+        // resourceViewSettings: ResourceViewSettings(showAvatar: true),
       ),
       //
       // body: MyCustomForm(),
@@ -56,14 +73,19 @@ class PostPage extends HookConsumerWidget {
   }
 
   List<Meeting> _getDataSource() {
-    final List<Meeting> meetings = <Meeting>[];
-    final DateTime today = DateTime.now();
-    final DateTime startTime =
-        DateTime(today.year, today.month, today.day, 9, 0, 0);
-    final DateTime endTime = startTime.add(const Duration(hours: 2));
+    final meetings = <Meeting>[];
+    final today = DateTime.now();
+    final startTime = DateTime(today.year, today.month, today.day, 9);
+    final endTime = startTime.add(const Duration(hours: 2));
 
     meetings.add(
-      Meeting('Conference', startTime, endTime, const Color(0xFF0F8644), false),
+      Meeting(
+        eventName: 'Conference',
+        from: startTime,
+        to: endTime,
+        background: const Color(0xFF0F8644),
+        isAllDay: false,
+      ),
     );
 
     return meetings;
@@ -77,38 +99,54 @@ class MeetingDataSource extends CalendarDataSource {
 
   @override
   DateTime getStartTime(int index) {
-    return appointments![index].from;
+    return _getMeetingData(index).from;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments![index].to;
+    return _getMeetingData(index).to;
   }
 
   @override
   String getSubject(int index) {
-    return appointments![index].eventName;
+    return _getMeetingData(index).eventName;
   }
 
   @override
   Color getColor(int index) {
-    return appointments![index].background;
+    return _getMeetingData(index).background;
   }
 
   @override
   bool isAllDay(int index) {
-    return appointments![index].isAllDay;
+    return _getMeetingData(index).isAllDay;
+  }
+
+  Meeting _getMeetingData(int index) {
+    final dynamic meeting = appointments![index];
+    late final Meeting meetingData;
+    if (meeting is Meeting) {
+      meetingData = meeting;
+    }
+
+    return meetingData;
   }
 }
 
 class Meeting {
-  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay);
+  Meeting({
+    required this.eventName,
+    required this.from,
+    required this.to,
+    required this.background,
+    required this.isAllDay,
+  });
 
-  String eventName;
-  DateTime from;
-  DateTime to;
-  Color background;
-  bool isAllDay;
+  final String eventName;
+  final DateTime from;
+  final DateTime to;
+  final Color background;
+  final bool isAllDay;
 }
 
 // class MyCustomForm extends HookConsumerWidget {
