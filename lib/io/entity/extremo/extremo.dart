@@ -1,10 +1,34 @@
+import 'dart:convert';
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
+import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 
 part 'extremo.g.dart';
+
+@HiveType(typeId: 0)
+class Message {
+  Message({required chat_types.Message message})
+      : messageJson = jsonEncode(message.toJson());
+
+  @HiveField(0)
+  final String messageJson;
+
+  chat_types.Message get message {
+    final decodedJson = jsonDecode(messageJson);
+    if (decodedJson is Map<String, dynamic>) {
+      return chat_types.Message.fromJson(decodedJson);
+    }
+
+    // TODO(referctoring): Handle error
+    throw const FormatException(
+      'Decoded message JSON is not a Map<String, dynamic>',
+    );
+  }
+}
 
 @HiveType(typeId: 1)
 class UserEntity {
