@@ -3,9 +3,9 @@
 // import 'package:extremo/ui/page/extremo_detail.dart';
 import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
-import 'package:extremo/ui/page/post.dart';
-import 'package:extremo/ui/page/message.dart';
 import 'package:extremo/ui/page/login.dart';
+import 'package:extremo/ui/page/message.dart';
+import 'package:extremo/ui/page/post.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +20,7 @@ class Routes {
   static const rootPage = '/';
   static const artifactPage = '/artifacts';
   static const loginPage = '/login';
-  static const messagePage = "/messages";
+  static const messagePage = '/messages';
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";
 }

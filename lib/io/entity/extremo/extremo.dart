@@ -9,27 +9,6 @@ import 'package:hive/hive.dart';
 
 part 'extremo.g.dart';
 
-@HiveType(typeId: 0)
-class Message {
-  Message({required chat_types.Message message})
-      : messageJson = jsonEncode(message.toJson());
-
-  @HiveField(0)
-  final String messageJson;
-
-  chat_types.Message get message {
-    final decodedJson = jsonDecode(messageJson);
-    if (decodedJson is Map<String, dynamic>) {
-      return chat_types.Message.fromJson(decodedJson);
-    }
-
-    // TODO(referctoring): Handle error
-    throw const FormatException(
-      'Decoded message JSON is not a Map<String, dynamic>',
-    );
-  }
-}
-
 @HiveType(typeId: 1)
 class UserEntity {
   UserEntity({
@@ -201,4 +180,107 @@ class ArtifactEntity {
 
   // Relationships
   UserEntity? user;
+}
+
+@HiveType(typeId: 3)
+class MessageEntity {
+  MessageEntity({
+    required this.id,
+    required this.fromFk,
+    required this.toFk,
+    this.message = '',
+    required this.isRead,
+    this.readAt,
+    required this.isDeleted,
+    this.deletedAt,
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.fromUser,
+    this.toUser,
+  });
+
+  // factory MessageEntity.fromResponse({
+  //   required MessageResponse element,
+  // }) {
+  //   final user = element.user != null
+  //       ? UserEntity.fromResponse(element: element.user!)
+  //       : null;
+  //
+  //   return MessageEntity(
+  //     id: element.pk,
+  //     userFk: element.userFk,
+  //     title: element.title,
+  //     content: element.content,
+  //     summary: element.summary,
+  //     status: element.status,
+  //     publishFrom: element.publishFrom,
+  //     publishUntil: element.publishUntil,
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     user: user,
+  //   );
+  // }
+
+  factory MessageEntity.fromRpc({
+    required pbdb.Message element,
+  }) {
+    final fromUser = element.hasFromUser()
+        ? UserEntity.fromRpc(element: element.fromUser)
+        : null;
+    final toUser = element.hasToUser()
+        ? UserEntity.fromRpc(element: element.toUser)
+        : null;
+
+    return MessageEntity(
+      id: element.pk,
+      fromFk: element.fromFk,
+      toFk: element.toFk,
+      message: element.message,
+      isRead: element.isRead,
+      readAt: element.readAt.toDateTime(),
+      isDeleted: element.isDeleted,
+      deletedAt: element.deletedAt.toDateTime(),
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+      // Relationships
+      fromUser: fromUser,
+      toUser: toUser,
+    );
+  }
+
+  @HiveField(0)
+  int id;
+
+  @HiveField(1)
+  int fromFk;
+
+  @HiveField(2)
+  int toFk;
+
+  @HiveField(3)
+  String message;
+
+  @HiveField(4)
+  bool isRead;
+
+  @HiveField(5)
+  DateTime? readAt;
+
+  @HiveField(6)
+  bool isDeleted;
+
+  @HiveField(7)
+  DateTime? deletedAt;
+
+  @HiveField(8)
+  DateTime? createdAt;
+
+  @HiveField(9)
+  DateTime? updatedAt;
+
+  // Relationships
+  UserEntity? fromUser;
+  UserEntity? toUser;
 }

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -112,7 +113,7 @@ extension ArtifactModelX on ArtifactModel {
   }
 }
 
-// enum ArtifactType {
+// enum MessageType {
 //   normal(nameJp: "ノーマル", color: 0xffaea886),
 //   medium(nameJp: "ミディアム", color: 0xfff45c19),
 //   large(nameJp: "ラージ", color: 0xff4a96d6),
@@ -122,13 +123,98 @@ extension ArtifactModelX on ArtifactModel {
 //   final String nameJp;
 //
 //   final int color;
-//   const ArtifactType({required this.nameJp, required this.color});
+//   const MessageType({required this.nameJp, required this.color});
 //
-//   static ArtifactType? getOrNull(String name) {
-//     const List<ArtifactType?> types = ArtifactType.values;
+//   static MessageType? getOrNull(String name) {
+//     const List<MessageType?> types = MessageType.values;
 //     for (var element in types) {
 //       if (element?.name == name) return element;
 //     }
 //     return null;
 //   }
 // }
+
+@freezed
+class MessageModel with _$MessageModel {
+  const factory MessageModel({
+    int? id,
+    required int fromFk,
+    required int toFk,
+    required String message,
+    required bool isRead,
+    DateTime? readAt,
+    required bool isDeleted,
+    DateTime? deletedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    UserModel? fromUser,
+    UserModel? toUser,
+  }) = _MessageModel;
+
+  factory MessageModel.fromEntity({
+    required MessageEntity entity,
+  }) {
+    final fromUser = entity.fromUser != null
+        ? UserModel.fromEntity(entity: entity.fromUser!)
+        : null;
+    final toUser = entity.toUser != null
+        ? UserModel.fromEntity(entity: entity.toUser!)
+        : null;
+
+    return MessageModel(
+      id: entity.id,
+      fromFk: entity.fromFk,
+      toFk: entity.toFk,
+      message: entity.message,
+      isRead: entity.isRead,
+      readAt: entity.readAt,
+      isDeleted: entity.isDeleted,
+      deletedAt: entity.deletedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      // Relationships
+      fromUser: fromUser,
+      toUser: toUser,
+    );
+  }
+
+  factory MessageModel.fromChatMessage({
+    required chat_types.Message chat,
+  }) {
+    return MessageModel(
+      id: chat.id,
+      fromFk: entity.fromFk,
+      toFk: entity.toFk,
+      message: entity.message,
+      isRead: entity.isRead,
+      readAt: entity.readAt,
+      isDeleted: entity.isDeleted,
+      deletedAt: entity.deletedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      // Relationships
+      fromUser: null,
+      toUser: null,
+    );
+  }
+}
+
+extension MessageModelX on MessageModel {
+  MessageEntity toEntity() {
+    return MessageEntity(
+      id: id ?? 0,
+      fromFk: fromFk,
+      toFk: toFk,
+      message: message,
+      isRead: isRead,
+      readAt: readAt,
+      isDeleted: isDeleted,
+      deletedAt: deletedAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      fromUser: fromUser?.toEntity(),
+      toUser: toUser?.toEntity(),
+    );
+  }
+}

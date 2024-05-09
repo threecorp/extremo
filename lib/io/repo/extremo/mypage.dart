@@ -102,6 +102,33 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
     rethrow;
   }
 }
+
+@riverpod
+Future<PagingEntity<MessageEntity>> repoListPagerMessages(
+  RepoListPagerMessagesRef ref,
+  int page,
+  int pageSize,
+) async {
+  // final rpc = ref.read(mypageArtifactServiceClientProvider);
+  //
+  // // TODO(offline): Use DBCache when offlined or error
+  // final response = await rpc.list(
+  //   ListRequest(
+  //     page: page,
+  //     pageSize: pageSize,
+  //   ),
+  // );
+  // final elements = await Future.wait(
+  //   response.elements.map(
+  //     (element) => xFormRpcArtifactEntity(ref, element),
+  //   ),
+  // );
+
+  return PagingEntity<MessageEntity>(
+    elements: [],
+    totalSize: 0,
+  );
+}
 //
 //
 //
