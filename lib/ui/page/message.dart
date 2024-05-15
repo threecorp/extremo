@@ -50,7 +50,17 @@ class ChatPage extends HookConsumerWidget {
     }, []);
 
     void _addMessage(types.Message message) {
-      final messageModel = MessageModel.fromChatMessage(chat: message);
+      final messageModel = MessageModel(
+        id: 0,
+        fromFk: 1, // 任意のfromFkを設定してください
+        toFk: 1, // 任意のtoFkを設定してください
+        message: jsonEncode(message.toJson()), // JSONエンコード
+        isRead: false,
+        isDeleted: false,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
       messagesNotifier.state = AsyncValue.data(
         [messageModel, ...messagesNotifier.state.value ?? []],
       );
@@ -107,7 +117,6 @@ class ChatPage extends HookConsumerWidget {
           try {
             final index = messagesNotifier.state.value!
                 .indexWhere((element) => element.id == message.id);
-            // 更新処理
             final updatedMessageModel =
                 messagesNotifier.state.value![index].copyWith(
               message: jsonEncode(message.copyWith(uri: localPath).toJson()),
@@ -174,10 +183,10 @@ class ChatPage extends HookConsumerWidget {
     return Scaffold(
       body: messagesProvider.when(
         data: (messageModels) {
-          final messages = messageModels
-              .map((m) => types.Message.fromJson(
-                  jsonDecode(m.message) as Map<String, dynamic>))
-              .toList();
+          final messages = messageModels.map((m) {
+            final json = jsonDecode(m.message) as Map<String, dynamic>;
+            return types.Message.fromJson(json);
+          }).toList();
           return Chat(
             messages: messages,
             onAttachmentPressed: _handleAttachmentPressed,
