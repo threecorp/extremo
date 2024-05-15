@@ -1,20 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:extremo/domain/model/extremo.dart';
+import 'package:extremo/domain/usecase/message.dart';
+import 'package:extremo/io/repo/extremo/mypage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:result_dart/functions.dart';
+import 'package:result_dart/result_dart.dart';
+import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MessagePage extends HookConsumerWidget {
   const MessagePage({super.key});
@@ -32,18 +38,24 @@ class ChatPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messages = useState<List<types.Message>>([]);
+    final messagesProvider = ref.watch(listPagerMessagesCaseProvider);
+    final messagesNotifier = ref.watch(listPagerMessagesCaseProvider.notifier);
     final user = const types.User(
       id: '82091008-a484-4a89-ae75-a22bf8d6f3ac',
     );
 
-    useEffect(() {
-      _loadMessages(messages);
-      return;
-    }, []);
+    useEffect(
+      () {
+        messagesNotifier.loadListNextPage();
+      },
+      [],
+    );
 
     void _addMessage(types.Message message) {
-      messages.value = [message, ...messages.value];
+      final messageModel = MessageModel.fromChatMessage(chat: message);
+      messagesNotifier.state = AsyncValue.data(
+        [messageModel, ...messagesNotifier.state.value ?? []],
+      );
     }
 
     void _handleAttachmentPressed() {
@@ -95,17 +107,23 @@ class ChatPage extends HookConsumerWidget {
 
         if (message.uri.startsWith('http')) {
           try {
-            final index = messages.value.indexWhere((element) => element.id == message.id);
-            final updatedMessage = (messages.value[index] as types.FileMessage).copyWith(
-              isLoading: true,
+            final index = messagesNotifier.state.value!
+                .indexWhere((element) => element.id == message.id);
+            // 更新処理
+            final updatedMessageModel =
+                messagesNotifier.state.value![index].copyWith(
+              message: jsonEncode(message.copyWith(uri: localPath).toJson()),
             );
 
-            messages.value = List.from(messages.value)..[index] = updatedMessage;
+            messagesNotifier.state = AsyncValue.data(
+                List.from(messagesNotifier.state.value!)
+                  ..[index] = updatedMessageModel);
 
             final client = http.Client();
             final request = await client.get(Uri.parse(message.uri));
             final bytes = request.bodyBytes;
-            final documentsDir = (await getApplicationDocumentsDirectory()).path;
+            final documentsDir =
+                (await getApplicationDocumentsDirectory()).path;
             localPath = '$documentsDir/${message.name}';
 
             if (!File(localPath).existsSync()) {
@@ -113,12 +131,16 @@ class ChatPage extends HookConsumerWidget {
               await file.writeAsBytes(bytes);
             }
           } finally {
-            final index = messages.value.indexWhere((element) => element.id == message.id);
-            final updatedMessage = (messages.value[index] as types.FileMessage).copyWith(
-              isLoading: null,
+            final index = messagesNotifier.state.value!
+                .indexWhere((element) => element.id == message.id);
+            final updatedMessageModel =
+                messagesNotifier.state.value![index].copyWith(
+              message: jsonEncode(message.toJson()),
             );
 
-            messages.value = List.from(messages.value)..[index] = updatedMessage;
+            messagesNotifier.state = AsyncValue.data(
+                List.from(messagesNotifier.state.value!)
+                  ..[index] = updatedMessageModel);
           }
         }
 
@@ -126,13 +148,18 @@ class ChatPage extends HookConsumerWidget {
       }
     }
 
-    void _handlePreviewDataFetched(types.TextMessage message, types.PreviewData previewData) {
-      final index = messages.value.indexWhere((element) => element.id == message.id);
-      final updatedMessage = (messages.value[index] as types.TextMessage).copyWith(
-        previewData: previewData,
+    void _handlePreviewDataFetched(
+        types.TextMessage message, types.PreviewData previewData) {
+      final index = messagesNotifier.state.value!
+          .indexWhere((element) => element.id == message.id);
+      final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
+        message:
+            jsonEncode(message.copyWith(previewData: previewData).toJson()),
       );
 
-      messages.value = List.from(messages.value)..[index] = updatedMessage;
+      messagesNotifier.state = AsyncValue.data(
+          List.from(messagesNotifier.state.value!)
+            ..[index] = updatedMessageModel);
     }
 
     void _handleSendPressed(types.PartialText message) {
@@ -147,37 +174,39 @@ class ChatPage extends HookConsumerWidget {
     }
 
     return Scaffold(
-      body: Chat(
-        messages: messages.value,
-        onAttachmentPressed: _handleAttachmentPressed,
-        onMessageTap: _handleMessageTap,
-        onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: _handleSendPressed,
-        showUserAvatars: true,
-        showUserNames: true,
-        user: user,
-        theme: const DefaultChatTheme(
-          seenIcon: Text(
-            'read',
-            style: TextStyle(
-              fontSize: 10.0,
+      body: messagesProvider.when(
+        data: (messageModels) {
+          final messages = messageModels
+              .map((m) => types.Message.fromJson(
+                  jsonDecode(m.message) as Map<String, dynamic>))
+              .toList();
+          return Chat(
+            messages: messages,
+            onAttachmentPressed: _handleAttachmentPressed,
+            onMessageTap: _handleMessageTap,
+            onPreviewDataFetched: _handlePreviewDataFetched,
+            onSendPressed: _handleSendPressed,
+            showUserAvatars: true,
+            showUserNames: true,
+            user: user,
+            theme: const DefaultChatTheme(
+              seenIcon: Text(
+                'read',
+                style: TextStyle(
+                  fontSize: 10.0,
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => Center(child: Text('Error: $e')),
       ),
     );
   }
 
-  Future<void> _loadMessages(ValueNotifier<List<types.Message>> messages) async {
-    final response = await rootBundle.loadString('assets/messages.json');
-    final loadedMessages = (jsonDecode(response) as List)
-        .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
-        .toList();
-
-    messages.value = loadedMessages;
-  }
-
-  Future<void> _handleFileSelection(void Function(types.Message) addMessage, types.User user) async {
+  Future<void> _handleFileSelection(
+      void Function(types.Message) addMessage, types.User user) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
@@ -197,7 +226,8 @@ class ChatPage extends HookConsumerWidget {
     }
   }
 
-  Future<void> _handleImageSelection(void Function(types.Message) addMessage, types.User user) async {
+  Future<void> _handleImageSelection(
+      void Function(types.Message) addMessage, types.User user) async {
     final result = await ImagePicker().pickImage(
       imageQuality: 70,
       maxWidth: 1440,
