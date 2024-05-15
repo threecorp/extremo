@@ -44,12 +44,10 @@ class ChatPage extends HookConsumerWidget {
       id: '82091008-a484-4a89-ae75-a22bf8d6f3ac',
     );
 
-    useEffect(
-      () {
-        messagesNotifier.loadListNextPage();
-      },
-      [],
-    );
+    useEffect(() {
+      messagesNotifier.loadListNextPage();
+      return;
+    }, []);
 
     void _addMessage(types.Message message) {
       final messageModel = MessageModel.fromChatMessage(chat: message);
