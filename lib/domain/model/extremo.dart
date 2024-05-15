@@ -183,19 +183,19 @@ class MessageModel with _$MessageModel {
     required chat_types.Message chat,
   }) {
     return MessageModel(
-      id: chat.id,
-      fromFk: entity.fromFk,
-      toFk: entity.toFk,
-      message: entity.message,
-      isRead: entity.isRead,
-      readAt: entity.readAt,
-      isDeleted: entity.isDeleted,
-      deletedAt: entity.deletedAt,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-      // Relationships
-      fromUser: null,
-      toUser: null,
+      id: 0,
+      fromFk: 0,
+      toFk: 0,
+      message: chat.toJson().toString(),
+      isRead: false,
+      // readAt: chat.readAt,
+      isDeleted: false,
+      // deletedAt: chat.deletedAt,
+      // createdAt: chat.createdAt,
+      // updatedAt: chat.updatedAt,
+      // // Relationships
+      // fromUser: null,
+      // toUser: null,
     );
   }
 }
