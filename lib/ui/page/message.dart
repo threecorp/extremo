@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:extremo/domain/model/extremo.dart';
@@ -40,33 +42,40 @@ class ChatPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final messagesProvider = ref.watch(listPagerMessagesCaseProvider);
     final messagesNotifier = ref.watch(listPagerMessagesCaseProvider.notifier);
+
     final user = const types.User(
       id: '82091008-a484-4a89-ae75-a22bf8d6f3ac',
     );
 
-    useEffect(() {
-      messagesNotifier.loadListNextPage();
-      return;
-    }, []);
+    useEffect(
+      () {
+        messagesNotifier.loadListNextPage();
+        return;
+      },
+      [],
+    );
 
-    void _addMessage(types.Message message) {
+    Future<void> addMessage(types.Message message) async {
       final messageModel = MessageModel(
         id: 0,
-        fromFk: 1, // 任意のfromFkを設定してください
-        toFk: 1, // 任意のtoFkを設定してください
-        message: jsonEncode(message.toJson()), // JSONエンコード
+        fromFk: 1,
+        toFk: 1,
+        message: jsonEncode(message.toJson()),
         isRead: false,
         isDeleted: false,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      messagesNotifier.state = AsyncValue.data(
-        [messageModel, ...messagesNotifier.state.value ?? []],
-      );
+      final result = await messagesNotifier.createMessage(messageModel);
+      result.onFailure<Exception>((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send message: $error')),
+        );
+      });
     }
 
-    void _handleAttachmentPressed() {
+    void handleAttachmentPressed() {
       showModalBottomSheet<void>(
         context: context,
         builder: (BuildContext context) => SafeArea(
@@ -78,7 +87,7 @@ class ChatPage extends HookConsumerWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    _handleImageSelection(_addMessage, user);
+                    _handleImageSelection(addMessage, user);
                   },
                   child: const Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -88,7 +97,7 @@ class ChatPage extends HookConsumerWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    _handleFileSelection(_addMessage, user);
+                    _handleFileSelection(addMessage, user);
                   },
                   child: const Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -109,22 +118,23 @@ class ChatPage extends HookConsumerWidget {
       );
     }
 
-    void _handleMessageTap(BuildContext _, types.Message message) async {
+    void handleMessageTap(BuildContext _, types.Message message) async {
       if (message is types.FileMessage) {
         var localPath = message.uri;
 
         if (message.uri.startsWith('http')) {
           try {
             final index = messagesNotifier.state.value!
-                .indexWhere((element) => element.id == message.id);
+                .indexWhere((model) => model.id == message.id);
             final updatedMessageModel =
                 messagesNotifier.state.value![index].copyWith(
               message: jsonEncode(message.copyWith(uri: localPath).toJson()),
             );
 
             messagesNotifier.state = AsyncValue.data(
-                List.from(messagesNotifier.state.value!)
-                  ..[index] = updatedMessageModel);
+              List.from(messagesNotifier.state.value!)
+                ..[index] = updatedMessageModel,
+            );
 
             final client = http.Client();
             final request = await client.get(Uri.parse(message.uri));
@@ -139,15 +149,16 @@ class ChatPage extends HookConsumerWidget {
             }
           } finally {
             final index = messagesNotifier.state.value!
-                .indexWhere((element) => element.id == message.id);
+                .indexWhere((model) => model.id == message.id);
             final updatedMessageModel =
                 messagesNotifier.state.value![index].copyWith(
               message: jsonEncode(message.toJson()),
             );
 
             messagesNotifier.state = AsyncValue.data(
-                List.from(messagesNotifier.state.value!)
-                  ..[index] = updatedMessageModel);
+              List.from(messagesNotifier.state.value!)
+                ..[index] = updatedMessageModel,
+            );
           }
         }
 
@@ -155,21 +166,23 @@ class ChatPage extends HookConsumerWidget {
       }
     }
 
-    void _handlePreviewDataFetched(
-        types.TextMessage message, types.PreviewData previewData) {
+    void handlePreviewDataFetched(
+      types.TextMessage message,
+      types.PreviewData previewData,
+    ) {
       final index = messagesNotifier.state.value!
-          .indexWhere((element) => element.id == message.id);
+          .indexWhere((model) => model.id == message.id);
       final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
         message:
             jsonEncode(message.copyWith(previewData: previewData).toJson()),
       );
 
       messagesNotifier.state = AsyncValue.data(
-          List.from(messagesNotifier.state.value!)
-            ..[index] = updatedMessageModel);
+        List.from(messagesNotifier.state.value!)..[index] = updatedMessageModel,
+      );
     }
 
-    void _handleSendPressed(types.PartialText message) {
+    void handleSendPressed(types.PartialText message) {
       final textMessage = types.TextMessage(
         author: user,
         createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -177,7 +190,7 @@ class ChatPage extends HookConsumerWidget {
         text: message.text,
       );
 
-      _addMessage(textMessage);
+      addMessage(textMessage);
     }
 
     return Scaffold(
@@ -189,10 +202,10 @@ class ChatPage extends HookConsumerWidget {
           }).toList();
           return Chat(
             messages: messages,
-            onAttachmentPressed: _handleAttachmentPressed,
-            onMessageTap: _handleMessageTap,
-            onPreviewDataFetched: _handlePreviewDataFetched,
-            onSendPressed: _handleSendPressed,
+            onAttachmentPressed: handleAttachmentPressed,
+            onMessageTap: handleMessageTap,
+            onPreviewDataFetched: handlePreviewDataFetched,
+            onSendPressed: handleSendPressed,
             showUserAvatars: true,
             showUserNames: true,
             user: user,
@@ -200,7 +213,7 @@ class ChatPage extends HookConsumerWidget {
               seenIcon: Text(
                 'read',
                 style: TextStyle(
-                  fontSize: 10.0,
+                  fontSize: 10,
                 ),
               ),
             ),
@@ -213,9 +226,11 @@ class ChatPage extends HookConsumerWidget {
   }
 
   Future<void> _handleFileSelection(
-      void Function(types.Message) addMessage, types.User user) async {
+    void Function(types.Message) addMessage,
+    types.User user,
+  ) async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
+      // type: FileType.any,
     );
 
     if (result != null && result.files.single.path != null) {
@@ -234,7 +249,9 @@ class ChatPage extends HookConsumerWidget {
   }
 
   Future<void> _handleImageSelection(
-      void Function(types.Message) addMessage, types.User user) async {
+    void Function(types.Message) addMessage,
+    types.User user,
+  ) async {
     final result = await ImagePicker().pickImage(
       imageQuality: 70,
       maxWidth: 1440,

@@ -7,29 +7,24 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-// import './util.dart';
-
 part 'message.g.dart';
-
-// TODO(ClassBase): Transform to Class base
 
 @riverpod
 class ListPagerMessagesCase extends _$ListPagerMessagesCase {
-  int _page = 1; // TODO(Refactoring): Remove build by using state
+  int _page = 1; // TODO: Remove build by using state
   int _pageSize = 25;
   bool _isLast = false;
 
   void loadListNextPage() {
-    _page++; // TODO(Refactoring): Remove build by using state
+    _page++;
     build();
   }
 
-  // ignore: use_setters_to_change_properties
-  void setPageSize(int pageSize) {
-    _pageSize = pageSize; // TODO(Refactoring): Remove build by using state
+  set pageSize(int pageSize) {
+    _pageSize = pageSize;
   }
 
-  bool isLast() {
+  bool get isLast {
     return _isLast;
   }
 
@@ -43,14 +38,23 @@ class ListPagerMessagesCase extends _$ListPagerMessagesCase {
       (entity) => MessageModel.fromEntity(entity: entity),
     );
 
-    // TODO(Unuse): pager.totalSize
     _isLast = pager.elements.length < _pageSize;
 
     final rr = models.toList();
     state = AsyncValue.data([...state.value ?? [], ...rr]);
     return rr;
   }
+
+  Future<Result<MessageModel, Exception>> createMessage(
+    MessageModel message,
+  ) async {
+    final result = await ref.read(
+      repoCreateMessageProvider(message.toEntity()).future,
+    );
+
+    return result.map((e) {
+      state = AsyncValue.data([message, ...state.value ?? []]);
+      return MessageModel.fromEntity(entity: e);
+    });
+  }
 }
-//
-//
-//

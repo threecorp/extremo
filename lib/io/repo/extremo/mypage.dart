@@ -11,7 +11,10 @@ import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
-import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
+import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pb.dart'
+    as messagepb;
+import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart'
+    as artifactpb;
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -34,7 +37,7 @@ Future<PagingEntity<ArtifactEntity>> repoListPagerArtifacts(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    ListRequest(
+    artifactpb.ListRequest(
       page: page,
       pageSize: pageSize,
     ),
@@ -59,7 +62,7 @@ Future<Result<ArtifactEntity, Exception>> repoGetArtifact(
   final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final entity = await rpc.get(GetRequest(pk: id)).then(
+  final entity = await rpc.get(artifactpb.GetRequest(pk: id)).then(
         (r) => xFormRpcArtifactEntity(ref, r.element),
       );
 
@@ -76,7 +79,7 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
   try {
     final entity = await rpc
         .create(
-          CreateRequest(
+          artifactpb.CreateRequest(
             title: request.title,
             summary: request.summary,
             content: request.content,
@@ -109,26 +112,58 @@ Future<PagingEntity<MessageEntity>> repoListPagerMessages(
   int page,
   int pageSize,
 ) async {
-  // final rpc = ref.read(mypageArtifactServiceClientProvider);
-  //
-  // // TODO(offline): Use DBCache when offlined or error
-  // final response = await rpc.list(
-  //   ListRequest(
-  //     page: page,
-  //     pageSize: pageSize,
-  //   ),
-  // );
-  // final elements = await Future.wait(
-  //   response.elements.map(
-  //     (element) => xFormRpcArtifactEntity(ref, element),
-  //   ),
-  // );
+  final rpc = ref.read(mypageMessageServiceClientProvider);
+
+  // TODO(offline): Use DBCache when offlined or error
+  final response = await rpc.list(
+    messagepb.ListRequest(
+      page: page,
+      pageSize: pageSize,
+    ),
+  );
+  final elements = await Future.wait(
+    response.elements.map(
+      (element) => xFormRpcMessageEntity(ref, element),
+    ),
+  );
 
   return PagingEntity<MessageEntity>(
-    elements: [],
-    totalSize: 0,
+    elements: elements.toList(),
+    totalSize: response.totalSize,
   );
 }
+
+@riverpod
+Future<Result<MessageEntity, Exception>> repoCreateMessage(
+  RepoCreateMessageRef ref,
+  MessageEntity request,
+) async {
+  final rpc = ref.read(mypageMessageServiceClientProvider);
+
+  try {
+    final entity = await rpc
+        .create(
+          messagepb.CreateRequest(
+            fromFk: request.fromFk,
+            toFk: request.toFk,
+            message: request.message,
+          ),
+        )
+        .then(
+          (r) => xFormRpcMessageEntity(ref, r.element),
+        );
+
+    return Success(entity);
+  } on GrpcError catch (ex, _) {
+    if ([StatusCode.invalidArgument].contains(ex.code)) {
+      return Failure(GrpcException(ex));
+    }
+
+    debugPrint(ex.message);
+    rethrow;
+  }
+}
+
 //
 //
 //
