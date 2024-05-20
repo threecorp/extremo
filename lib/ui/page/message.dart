@@ -119,51 +119,53 @@ class ChatPage extends HookConsumerWidget {
     }
 
     void handleMessageTap(BuildContext _, types.Message message) async {
-      if (message is types.FileMessage) {
-        var localPath = message.uri;
-
-        if (message.uri.startsWith('http')) {
-          try {
-            final index = messagesNotifier.state.value!
-                .indexWhere((model) => model.id == message.id);
-            final updatedMessageModel =
-                messagesNotifier.state.value![index].copyWith(
-              message: jsonEncode(message.copyWith(uri: localPath).toJson()),
-            );
-
-            messagesNotifier.state = AsyncValue.data(
-              List.from(messagesNotifier.state.value!)
-                ..[index] = updatedMessageModel,
-            );
-
-            final client = http.Client();
-            final request = await client.get(Uri.parse(message.uri));
-            final bytes = request.bodyBytes;
-            final documentsDir =
-                (await getApplicationDocumentsDirectory()).path;
-            localPath = '$documentsDir/${message.name}';
-
-            if (!File(localPath).existsSync()) {
-              final file = File(localPath);
-              await file.writeAsBytes(bytes);
-            }
-          } finally {
-            final index = messagesNotifier.state.value!
-                .indexWhere((model) => model.id == message.id);
-            final updatedMessageModel =
-                messagesNotifier.state.value![index].copyWith(
-              message: jsonEncode(message.toJson()),
-            );
-
-            messagesNotifier.state = AsyncValue.data(
-              List.from(messagesNotifier.state.value!)
-                ..[index] = updatedMessageModel,
-            );
-          }
-        }
-
-        await OpenFilex.open(localPath);
+      if (message is! types.FileMessage) {
+        return;
       }
+
+      var localPath = message.uri;
+
+      if (message.uri.startsWith('http')) {
+        try {
+          final index = messagesNotifier.state.value!
+              .indexWhere((model) => model.id == message.id);
+          final updatedMessageModel =
+              messagesNotifier.state.value![index].copyWith(
+            message: jsonEncode(message.copyWith(uri: localPath).toJson()),
+          );
+
+          messagesNotifier.state = AsyncValue.data(
+            List.from(messagesNotifier.state.value!)
+              ..[index] = updatedMessageModel,
+          );
+
+          final client = http.Client();
+          final request = await client.get(Uri.parse(message.uri));
+          final bytes = request.bodyBytes;
+          final documentsDir =
+              (await getApplicationDocumentsDirectory()).path;
+          localPath = '$documentsDir/${message.name}';
+
+          if (!File(localPath).existsSync()) {
+            final file = File(localPath);
+            await file.writeAsBytes(bytes);
+          }
+        } finally {
+          final index = messagesNotifier.state.value!
+              .indexWhere((model) => model.id == message.id);
+          final updatedMessageModel =
+              messagesNotifier.state.value![index].copyWith(
+            message: jsonEncode(message.toJson()),
+          );
+
+          messagesNotifier.state = AsyncValue.data(
+            List.from(messagesNotifier.state.value!)
+              ..[index] = updatedMessageModel,
+          );
+        }
+      }
+
+      await OpenFilex.open(localPath);
     }
 
     void handlePreviewDataFetched(
@@ -172,6 +174,7 @@ class ChatPage extends HookConsumerWidget {
     ) {
       final index = messagesNotifier.state.value!
           .indexWhere((model) => model.id == message.id);
+
       final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
         message:
             jsonEncode(message.copyWith(previewData: previewData).toJson()),
