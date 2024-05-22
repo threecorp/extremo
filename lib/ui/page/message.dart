@@ -142,8 +142,7 @@ class ChatPage extends HookConsumerWidget {
           final client = http.Client();
           final request = await client.get(Uri.parse(message.uri));
           final bytes = request.bodyBytes;
-          final documentsDir =
-              (await getApplicationDocumentsDirectory()).path;
+          final documentsDir = (await getApplicationDocumentsDirectory()).path;
           localPath = '$documentsDir/${message.name}';
 
           if (!File(localPath).existsSync()) {
@@ -233,8 +232,8 @@ class ChatPage extends HookConsumerWidget {
     types.User user,
   ) async {
     final result = await FilePicker.platform.pickFiles(
-      // type: FileType.any,
-    );
+        // type: FileType.any,
+        );
 
     if (result != null && result.files.single.path != null) {
       final message = types.FileMessage(
