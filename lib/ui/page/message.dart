@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/message.dart';
 import 'package:extremo/io/repo/extremo/mypage.dart';
+import 'package:extremo/misc/logger.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -60,7 +61,7 @@ class ChatPage extends HookConsumerWidget {
         id: 0,
         fromFk: 1,
         toFk: 1,
-        message: jsonEncode(message.toJson()),
+        message: message,
         isRead: false,
         isDeleted: false,
         createdAt: DateTime.now(),
@@ -128,10 +129,10 @@ class ChatPage extends HookConsumerWidget {
       if (message.uri.startsWith('http')) {
         try {
           final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.id == message.id);
+              .indexWhere((model) => model.message.id == message.id);
           final updatedMessageModel =
               messagesNotifier.state.value![index].copyWith(
-            message: jsonEncode(message.copyWith(uri: localPath).toJson()),
+            message: message.copyWith(uri: localPath),
           );
 
           messagesNotifier.state = AsyncValue.data(
@@ -151,10 +152,10 @@ class ChatPage extends HookConsumerWidget {
           }
         } finally {
           final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.id == message.id);
+              .indexWhere((model) => model.message.id == message.id);
           final updatedMessageModel =
               messagesNotifier.state.value![index].copyWith(
-            message: jsonEncode(message.toJson()),
+            message: message,
           );
 
           messagesNotifier.state = AsyncValue.data(
@@ -172,11 +173,15 @@ class ChatPage extends HookConsumerWidget {
       types.PreviewData previewData,
     ) {
       final index = messagesNotifier.state.value!
-          .indexWhere((model) => model.id == message.id);
+          .indexWhere((model) => model.message.id == message.id);
+
+      if (index == -1) {
+        logger.e('Error: Message with id ${message.id} not found');
+        return;
+      }
 
       final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
-        message:
-            jsonEncode(message.copyWith(previewData: previewData).toJson()),
+        message: message.copyWith(previewData: previewData),
       );
 
       messagesNotifier.state = AsyncValue.data(
@@ -199,8 +204,7 @@ class ChatPage extends HookConsumerWidget {
       body: messagesProvider.when(
         data: (messageModels) {
           final messages = messageModels.map((m) {
-            final json = jsonDecode(m.message) as Map<String, dynamic>;
-            return types.Message.fromJson(json);
+            return m.message;
           }).toList();
           return Chat(
             messages: messages,

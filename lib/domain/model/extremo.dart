@@ -140,7 +140,7 @@ class MessageModel with _$MessageModel {
     int? id,
     required int fromFk,
     required int toFk,
-    required String message,
+    required chat_types.Message message,
     required bool isRead,
     DateTime? readAt,
     required bool isDeleted,
@@ -161,12 +161,21 @@ class MessageModel with _$MessageModel {
     final toUser = entity.toUser != null
         ? UserModel.fromEntity(entity: entity.toUser!)
         : null;
+    final messageJson = entity.messageToJson;
+    final message = messageJson != null
+        ? chat_types.Message.fromJson(messageJson)
+        : const chat_types.TextMessage(
+            id: 'invalid',
+            author: chat_types.User(id: 'unknown'),
+            text: 'Invalid message',
+            type: chat_types.MessageType.unsupported,
+          );
 
     return MessageModel(
       id: entity.id,
       fromFk: entity.fromFk,
       toFk: entity.toFk,
-      message: entity.message,
+      message: message,
       isRead: entity.isRead,
       readAt: entity.readAt,
       isDeleted: entity.isDeleted,
@@ -186,7 +195,7 @@ class MessageModel with _$MessageModel {
       id: 0,
       fromFk: 0,
       toFk: 0,
-      message: chat.toJson().toString(),
+      message: chat,
       isRead: false,
       // readAt: chat.readAt,
       isDeleted: false,
@@ -206,7 +215,7 @@ extension MessageModelX on MessageModel {
       id: id ?? 0,
       fromFk: fromFk,
       toFk: toFk,
-      message: message,
+      message: message.toJson().toString(),
       isRead: isRead,
       readAt: readAt,
       isDeleted: isDeleted,

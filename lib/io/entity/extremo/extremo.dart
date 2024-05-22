@@ -237,7 +237,7 @@ class MessageEntity {
       id: element.pk,
       fromFk: element.fromFk,
       toFk: element.toFk,
-      message: element.message,
+      message: jsonEncode(element.message),
       isRead: element.isRead,
       readAt: element.readAt.toDateTime(),
       isDeleted: element.isDeleted,
@@ -283,4 +283,13 @@ class MessageEntity {
   // Relationships
   UserEntity? fromUser;
   UserEntity? toUser;
+
+  Map<String, dynamic>? get messageToJson {
+    final decoded = jsonDecode(message);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
+    }
+
+    return decoded;
+  }
 }
