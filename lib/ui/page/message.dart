@@ -217,6 +217,7 @@ class ChatPage extends HookConsumerWidget {
             final json = jsonDecode(m.message) as Map<String, dynamic>;
             return types.Message.fromJson(json);
           }).toList();
+
           return Chat(
             messages: messages,
             onAttachmentPressed: handleAttachmentPressed,
