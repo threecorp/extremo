@@ -220,11 +220,15 @@ extension MessageModelX on MessageModel {
   }
 
   chat_types.Message? get toChatMessage {
-    final json = jsonDecode(message);
-    return chat_types.Message.fromJson(json);
+    final decoded = jsonDecode(message);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
+    }
+
+    return chat_types.Message.fromJson(decoded);
   }
 
-  Map<String, dynamic>? get messageToJson {
+  Map<String, dynamic>? get toChatJson {
     final decoded = jsonDecode(message);
     if (decoded is! Map<String, dynamic>) {
       return null;
