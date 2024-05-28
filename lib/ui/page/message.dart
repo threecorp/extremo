@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:extremo/misc/logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:extremo/domain/model/extremo.dart';
@@ -25,20 +26,19 @@ class MessagePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messages = ref.watch(listPagerMessagesCaseProvider);
-    final notifier = ref.watch(listPagerMessagesCaseProvider.notifier);
-    // final account = ref.watch(accountProvider);
-    final accountNotifier = ref.watch(accountProvider.notifier);
+    final userProvider = ref.watch(listPagerMessageUsersCaseProvider);
+    final userNotifier = ref.watch(listPagerMessageUsersCaseProvider.notifier);
+    // final accountNotifier = ref.watch(accountProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: Text(t.appName)),
       body: MessageView(
-        list: messages.valueOrNull,
-        isLast: notifier.isLast(),
-        error: messages.error,
+        list: userProvider.valueOrNull,
+        isLast: userNotifier.isLast,
+        error: userProvider.error,
         loadMore: () {
           WidgetsBinding.instance.addPostFrameCallback(
-            (callback) => notifier.loadListNextPage(),
+            (callback) => userNotifier.loadListNextPage(),
           );
         },
         onTapListItem: (item) {
@@ -71,12 +71,12 @@ class MessageView extends HookConsumerWidget {
     super.key,
   });
 
-  final List<MessageModel>? list;
+  final List<UserModel>? list;
   final bool? isLast;
   final dynamic error;
   final void Function() loadMore;
-  final void Function(MessageModel item) onTapListItem;
-  final void Function(MessageModel item) onPressedFavorite;
+  final void Function(UserModel item) onTapListItem;
+  final void Function(UserModel item) onPressedFavorite;
   final void Function() refresh;
   final String emptyErrorMessage;
   final bool enableRetryButton;
@@ -97,7 +97,7 @@ class MessageView extends HookConsumerWidget {
       child: PagedListView.separated(
         pagingController: pagingController,
         separatorBuilder: (context, index) => const Divider(),
-        builderDelegate: PagedChildBuilderDelegate<MessageModel>(
+        builderDelegate: PagedChildBuilderDelegate<UserModel>(
           itemBuilder: (context, item, index) => MessageItemView(
             data: item,
             onTapListItem: onTapListItem,
@@ -128,9 +128,9 @@ class MessageItemView extends StatelessWidget {
     super.key,
   });
 
-  final MessageModel data;
-  final void Function(MessageModel item) onTapListItem;
-  final void Function(MessageModel item) onPressedFavorite;
+  final UserModel data;
+  final void Function(UserModel item) onTapListItem;
+  final void Function(UserModel item) onPressedFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -189,16 +189,18 @@ class MessageItemView extends StatelessWidget {
 class _MessageItemInfo extends StatelessWidget {
   const _MessageItemInfo({required this.data});
 
-  final MessageModel data;
+  final UserModel data;
 
   @override
   Widget build(BuildContext context) {
+    // logger.d('MessageItemInfo: $data');
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          data.title,
+          data.email,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         // MessageTypeChips(types: data.types),

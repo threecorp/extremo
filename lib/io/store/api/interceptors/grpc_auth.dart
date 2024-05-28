@@ -14,11 +14,11 @@ class GrpcAuthInterceptor extends ClientInterceptor {
     CallOptions options,
     ClientUnaryInvoker<Q, R> invoker,
   ) {
-    final token = ref.read(accountProvider.notifier).token() ?? '';
+    final token = ref.read(accountProvider.notifier).token();
     final newOptions = options.mergedWith(
       CallOptions(
         metadata: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer ${token?.token}',
         },
       ),
     );
@@ -33,11 +33,11 @@ class GrpcAuthInterceptor extends ClientInterceptor {
     CallOptions options,
     ClientStreamingInvoker<Q, R> invoker,
   ) {
-    final token = ref.read(accountProvider.notifier).token() ?? '';
+    final token = ref.read(accountProvider.notifier).token();
     final newOptions = options.mergedWith(
       CallOptions(
         metadata: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer ${token?.token}',
         },
       ),
     );
