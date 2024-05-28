@@ -1,17 +1,17 @@
-import 'package:collection/collection.dart';
+// import 'package:collection/collection.dart';
+// import 'package:hooks_riverpod/hooks_riverpod.dart';
+// import 'package:result_dart/functions.dart';
+// import 'package:riverpod/riverpod.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/io/repo/extremo/mypage.dart';
-import 'package:result_dart/functions.dart';
 import 'package:result_dart/result_dart.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'message.g.dart';
 
 @riverpod
 class ListPagerMessagesCase extends _$ListPagerMessagesCase {
-  int _page = 1; // TODO: Remove build by using state
+  int _page = 1; // TODO(refactoring): Remove build by using state
   int _pageSize = 25;
   bool _isLast = false;
 

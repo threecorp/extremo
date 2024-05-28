@@ -1,11 +1,11 @@
+// import 'package:extremo/misc/logger.dart';
+// import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart' as extremo_entity;
 import 'package:extremo/misc/i18n/strings.g.dart';
-import 'package:extremo/misc/logger.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/scaffold_navbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -38,11 +38,10 @@ class MyApp extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = GoRouter(
       redirect: (context, state) {
-        // final account = ref.watch(accountProvider);
         final notifier = ref.watch(accountProvider.notifier);
         final loggingIn = state.path == Routes.loginPage;
 
-        logger.d('StateValue: ${notifier.stateValue()}');
+        // logger.d('StateValue: ${notifier.stateValue()}');
         if (!notifier.isLoggedIn() && !loggingIn) {
           return Routes.loginPage;
         }
