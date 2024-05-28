@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/message.dart';
+import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/repo/extremo/mypage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -43,8 +44,22 @@ class ChatPage extends HookConsumerWidget {
     final messagesProvider = ref.watch(listPagerMessagesCaseProvider);
     final messagesNotifier = ref.watch(listPagerMessagesCaseProvider.notifier);
 
-    final user = const types.User(
-      id: '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+    final accountNotifier = ref.watch(accountProvider.notifier);
+    final account = accountNotifier.account();
+    if (account == null) {
+      // TODO(refactoring): Implement error handling
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    final user = types.User(
+      id: 'user:${account.pk}:${account.dateJoined.seconds}',
+      // imageUrl
+      // firstName
+      // lastName
+      createdAt: account.dateJoined.seconds.toInt(),
     );
 
     useEffect(
@@ -58,8 +73,8 @@ class ChatPage extends HookConsumerWidget {
     Future<void> addMessage(types.Message message) async {
       final messageModel = MessageModel(
         id: 0,
-        fromFk: 1,
-        toFk: 1,
+        fromFk: account.pk,
+        toFk: 1, // TODO(refactoring): UserID
         message: jsonEncode(message.toJson()),
         isRead: false,
         isDeleted: false,
