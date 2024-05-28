@@ -118,7 +118,7 @@ class ChatPage extends HookConsumerWidget {
       );
     }
 
-    void handleMessageTap(BuildContext _, types.Message message) async {
+    Future<void> handleMessageTap(BuildContext _, types.Message message) async {
       if (message is! types.FileMessage) {
         return;
       }
@@ -128,7 +128,7 @@ class ChatPage extends HookConsumerWidget {
       if (message.uri.startsWith('http')) {
         try {
           final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.id == message.id);
+              .indexWhere((model) => model.toChatMessage?.id == message.id);
           final updatedMessageModel =
               messagesNotifier.state.value![index].copyWith(
             message: jsonEncode(message.copyWith(uri: localPath).toJson()),
@@ -151,7 +151,7 @@ class ChatPage extends HookConsumerWidget {
           }
         } finally {
           final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.id == message.id);
+              .indexWhere((model) => model.toChatMessage?.id == message.id);
           final updatedMessageModel =
               messagesNotifier.state.value![index].copyWith(
             message: jsonEncode(message.toJson()),
@@ -172,7 +172,7 @@ class ChatPage extends HookConsumerWidget {
       types.PreviewData previewData,
     ) {
       final index = messagesNotifier.state.value!
-          .indexWhere((model) => model.id == message.id);
+          .indexWhere((model) => model.toChatMessage?.id == message.id);
 
       final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
         message:
