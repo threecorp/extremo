@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:extremo/io/entity/extremo/extremo.dart';
@@ -216,5 +217,19 @@ extension MessageModelX on MessageModel {
       fromUser: fromUser?.toEntity(),
       toUser: toUser?.toEntity(),
     );
+  }
+
+  chat_types.Message? get toChatMessage {
+    final json = jsonDecode(message);
+    return chat_types.Message.fromJson(json);
+  }
+
+  Map<String, dynamic>? get messageToJson {
+    final decoded = jsonDecode(message);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
+    }
+
+    return decoded;
   }
 }
