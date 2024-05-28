@@ -11,10 +11,8 @@ import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
-import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pb.dart'
-    as messagepb;
-import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart'
-    as artifactpb;
+import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart' as artifactpb;
+import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pb.dart' as messagepb;
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -104,6 +102,33 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
     debugPrint(ex.message);
     rethrow;
   }
+}
+
+@riverpod
+Future<PagingEntity<UserEntity>> repoListPagerMessageUsers(
+  RepoListPagerMessageUsersRef ref,
+  int page,
+  int pageSize,
+) async {
+  final rpc = ref.read(mypageMessageServiceClientProvider);
+
+  // TODO(offline): Use DBCache when offlined or error
+  final response = await rpc.listUsers(
+    messagepb.ListUsersRequest(
+      page: page,
+      pageSize: pageSize,
+    ),
+  );
+  final elements = await Future.wait(
+    response.elements.map(
+      (element) => xFormRpcMessageUserEntity(ref, element),
+    ),
+  );
+
+  return PagingEntity<UserEntity>(
+    elements: elements.toList(),
+    totalSize: response.totalSize,
+  );
 }
 
 @riverpod

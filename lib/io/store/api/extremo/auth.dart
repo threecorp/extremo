@@ -2,10 +2,12 @@
 // import 'package:extremodart/extremo/msg/db/v1/enum.pb.dart';
 // import 'package:protobuf/protobuf.dart';
 import 'package:collection/collection.dart';
-import 'package:extremo/io/store/api/interceptor.dart';
 import 'package:extremodart/extremo/api/auth/accounts/v1/account_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../interceptors/grpc_auth.dart';
+import '../interceptors/grpc_logger.dart';
 
 part 'auth.g.dart';
 
@@ -21,6 +23,6 @@ AccountServiceClient authAccountServiceClient(
 
   return AccountServiceClient(
     channel,
-    interceptors: [GrpcLoggerInterceptor.instance],
+    interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );
 }

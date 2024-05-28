@@ -22,3 +22,9 @@ Future<Box<MessageEntity>> messageBox(
   MessageBoxRef ref,
 ) async =>
     Hive.openBox<MessageEntity>('extremoMessageBox');
+
+@riverpod
+Future<Box<UserEntity>> messageUserBox(
+  MessageUserBoxRef ref,
+) async =>
+    Hive.openBox<UserEntity>('extremoMessageUserBox');

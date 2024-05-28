@@ -58,3 +58,40 @@ class ListPagerMessagesCase extends _$ListPagerMessagesCase {
     });
   }
 }
+
+@riverpod
+class ListPagerMessageUsersCase extends _$ListPagerMessageUsersCase {
+  int _page = 1; // TODO(refactoring): Remove build by using state
+  int _pageSize = 25;
+  bool _isLast = false;
+
+  void loadListNextPage() {
+    _page++;
+    build();
+  }
+
+  set pageSize(int pageSize) {
+    _pageSize = pageSize;
+  }
+
+  bool get isLast {
+    return _isLast;
+  }
+
+  @override
+  Future<List<UserModel>> build() async {
+    final pager = await ref.read(
+      repoListPagerMessageUsersProvider(_page, _pageSize).future,
+    );
+
+    final models = pager.elements.map(
+      (entity) => UserModel.fromEntity(entity: entity),
+    );
+
+    _isLast = pager.elements.length < _pageSize;
+
+    final rr = models.toList();
+    state = AsyncValue.data([...state.value ?? [], ...rr]);
+    return rr;
+  }
+}

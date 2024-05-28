@@ -4,8 +4,10 @@
 import 'package:collection/collection.dart';
 import 'package:extremodart/extremo/api/public/users/v1/user_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
-import 'package:extremo/io/store/api/interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../interceptors/grpc_auth.dart';
+import '../interceptors/grpc_logger.dart';
 
 part 'public.g.dart';
 
@@ -21,6 +23,6 @@ UserServiceClient publicUserServiceClient(
 
   return UserServiceClient(
     channel,
-    interceptors: [GrpcLoggerInterceptor.instance],
+    interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );
 }

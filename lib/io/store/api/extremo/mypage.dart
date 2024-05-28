@@ -5,8 +5,10 @@ import 'package:collection/collection.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pbgrpc.dart';
 import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
-import 'package:extremo/io/store/api/interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../interceptors/grpc_auth.dart';
+import '../interceptors/grpc_logger.dart';
 
 part 'mypage.g.dart';
 
@@ -22,7 +24,7 @@ ArtifactServiceClient mypageArtifactServiceClient(
 
   return ArtifactServiceClient(
     channel,
-    interceptors: [GrpcLoggerInterceptor.instance],
+    interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );
 }
 
@@ -38,6 +40,6 @@ MessageServiceClient mypageMessageServiceClient(
 
   return MessageServiceClient(
     channel,
-    interceptors: [GrpcLoggerInterceptor.instance],
+    interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );
 }

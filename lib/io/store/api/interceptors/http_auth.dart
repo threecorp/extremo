@@ -3,9 +3,8 @@ import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-
-class AuthInterceptor extends QueuedInterceptor {
-  AuthInterceptor(this.dio, this.ref);
+class HttpAuthInterceptor extends QueuedInterceptor {
+  HttpAuthInterceptor(this.dio, this.ref);
   final Dio dio;
   final Ref ref;
 

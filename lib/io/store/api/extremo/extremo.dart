@@ -7,7 +7,7 @@ import 'package:retrofit/retrofit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 // import '../interceptors/grpc_logger.dart';
-import '../interceptors/auth.dart';
+import '../interceptors/http_auth.dart';
 import '../interceptors/http_logger.dart';
 
 import 'extremo_request.dart';
@@ -19,7 +19,7 @@ part 'extremo.g.dart';
 Dio apiClient(ApiClientRef ref) {
   final dio = Dio();
   dio.interceptors.add(HttpLoggerInterceptor());
-  dio.interceptors.add(AuthInterceptor(dio, ref));
+  dio.interceptors.add(HttpAuthInterceptor(dio, ref));
   return dio;
 }
 
