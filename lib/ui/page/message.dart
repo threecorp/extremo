@@ -1,297 +1,208 @@
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-
-import 'dart:convert';
-import 'dart:io';
+import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/message.dart';
 import 'package:extremo/io/auth/account.dart';
-import 'package:extremo/io/repo/extremo/mypage.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/route/route.dart';
+import 'package:extremo/ui/layout/error_view.dart';
+import 'package:extremo/ui/layout/paging_controller.dart';
+import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:mime/mime.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:result_dart/functions.dart';
-import 'package:result_dart/result_dart.dart';
-import 'package:riverpod/riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:uuid/uuid.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class MessagePage extends HookConsumerWidget {
   const MessagePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const MaterialApp(
-      home: ChatPage(),
+    final messages = ref.watch(listPagerMessagesCaseProvider);
+    final notifier = ref.watch(listPagerMessagesCaseProvider.notifier);
+    // final account = ref.watch(accountProvider);
+    final accountNotifier = ref.watch(accountProvider.notifier);
+
+    return Scaffold(
+      appBar: AppBar(title: Text(t.appName)),
+      body: MessageView(
+        list: messages.valueOrNull,
+        isLast: notifier.isLast(),
+        error: messages.error,
+        loadMore: () {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (callback) => notifier.loadListNextPage(),
+          );
+        },
+        onTapListItem: (item) {
+          final id = item.id;
+          if (id == null) {
+            return;
+          }
+          MessageDetailRoute(id: id).go(context);
+        },
+        onPressedFavorite: (item) =>
+            null, // ref.read(toggleFavoriteMessageByIdCaseProvider(item.id)),
+        refresh: () => ref.refresh(listPagerMessagesCaseProvider),
+        emptyErrorMessage: t.emptyError,
+      ),
     );
   }
 }
 
-class ChatPage extends HookConsumerWidget {
-  const ChatPage({super.key});
+class MessageView extends HookConsumerWidget {
+  const MessageView({
+    required this.list,
+    required this.isLast,
+    required this.error,
+    required this.loadMore,
+    required this.onTapListItem,
+    required this.onPressedFavorite,
+    required this.refresh,
+    required this.emptyErrorMessage,
+    this.enableRetryButton = true,
+    super.key,
+  });
+
+  final List<MessageModel>? list;
+  final bool? isLast;
+  final dynamic error;
+  final void Function() loadMore;
+  final void Function(MessageModel item) onTapListItem;
+  final void Function(MessageModel item) onPressedFavorite;
+  final void Function() refresh;
+  final String emptyErrorMessage;
+  final bool enableRetryButton;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final messagesProvider = ref.watch(listPagerMessagesCaseProvider);
-    final messagesNotifier = ref.watch(listPagerMessagesCaseProvider.notifier);
-
-    final accountNotifier = ref.watch(accountProvider.notifier);
-    final account = accountNotifier.account();
-    if (account == null) {
-      // TODO(refactoring): Implement error handling
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    final user = types.User(
-      id: 'user:${account.pk}:${account.dateJoined.seconds}',
-      // imageUrl
-      // firstName
-      // lastName
-      createdAt: account.dateJoined.seconds.toInt(),
+    final pagingController = useStateLessPagingController(
+      itemList: list,
+      isLast: isLast,
+      loadMore: loadMore,
+      error: error,
     );
 
-    useEffect(
-      () {
-        messagesNotifier.loadListNextPage();
-        return;
+    return RefreshIndicator(
+      onRefresh: () async {
+        refresh();
       },
-      [],
+      child: PagedListView.separated(
+        pagingController: pagingController,
+        separatorBuilder: (context, index) => const Divider(),
+        builderDelegate: PagedChildBuilderDelegate<MessageModel>(
+          itemBuilder: (context, item, index) => MessageItemView(
+            data: item,
+            onTapListItem: onTapListItem,
+            onPressedFavorite: onPressedFavorite,
+          ),
+          firstPageErrorIndicatorBuilder: (context) => ErrorView(
+            text: t.networkError,
+            retry: refresh,
+            error: error,
+          ),
+          newPageProgressIndicatorBuilder: (context) => const ProgressView(),
+          noItemsFoundIndicatorBuilder: (context) => ErrorView(
+            text: emptyErrorMessage,
+            retry: refresh,
+            enableRetryButton: enableRetryButton,
+          ),
+        ),
+      ),
     );
+  }
+}
 
-    Future<void> addMessage(types.Message message) async {
-      final messageModel = MessageModel(
-        id: 0,
-        fromFk: account.pk,
-        toFk: 1, // TODO(refactoring): UserID
-        message: jsonEncode(message.toJson()),
-        isRead: false,
-        isDeleted: false,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+class MessageItemView extends StatelessWidget {
+  const MessageItemView({
+    required this.data,
+    required this.onTapListItem,
+    required this.onPressedFavorite,
+    super.key,
+  });
 
-      final result = await messagesNotifier.createMessage(messageModel);
-      result.onFailure<Exception>((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: $error')),
-        );
-      });
-    }
+  final MessageModel data;
+  final void Function(MessageModel item) onTapListItem;
+  final void Function(MessageModel item) onPressedFavorite;
 
-    void handleAttachmentPressed() {
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (BuildContext context) => SafeArea(
-          child: SizedBox(
-            height: 144,
-            child: Column(
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        onTapListItem(data);
+      },
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _handleImageSelection(addMessage, user);
-                  },
-                  child: const Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text('Photo'),
+              children: [
+                Expanded(
+                  // flex: 1,
+                  child: _MessageItemInfo(data: data),
+                ),
+                const Gap(4),
+                CachedNetworkImage(
+                  imageUrl:
+                      'https://placehold.co/300x200/png', // data.imageUrl,
+                  width: 128,
+                  height: 128,
+                  fit: BoxFit.fitHeight,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  errorWidget: (context, url, error) => const Center(
+                    child: Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _handleFileSelection(addMessage, user);
-                  },
-                  child: const Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text('File'),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text('Cancel'),
-                  ),
-                ),
+
+                // FavoriteButton(
+                //   isFavorite: data.isFavorite,
+                //   onPressedFavorite: () {
+                //     onPressedFavorite(data);
+                //   },
+                // ),
+                const Gap(4),
               ],
             ),
           ),
         ),
-      );
-    }
-
-    Future<void> handleMessageTap(BuildContext _, types.Message message) async {
-      if (message is! types.FileMessage) {
-        return;
-      }
-
-      var localPath = message.uri;
-
-      if (message.uri.startsWith('http')) {
-        try {
-          final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.toChatMessage?.id == message.id);
-          final updatedMessageModel =
-              messagesNotifier.state.value![index].copyWith(
-            message: jsonEncode(message.copyWith(uri: localPath).toJson()),
-          );
-
-          messagesNotifier.state = AsyncValue.data(
-            List.from(messagesNotifier.state.value!)
-              ..[index] = updatedMessageModel,
-          );
-
-          final client = http.Client();
-          final request = await client.get(Uri.parse(message.uri));
-          final bytes = request.bodyBytes;
-          final documentsDir = (await getApplicationDocumentsDirectory()).path;
-          localPath = '$documentsDir/${message.name}';
-
-          if (!File(localPath).existsSync()) {
-            final file = File(localPath);
-            await file.writeAsBytes(bytes);
-          }
-        } finally {
-          final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.toChatMessage?.id == message.id);
-          final updatedMessageModel =
-              messagesNotifier.state.value![index].copyWith(
-            message: jsonEncode(message.toJson()),
-          );
-
-          messagesNotifier.state = AsyncValue.data(
-            List.from(messagesNotifier.state.value!)
-              ..[index] = updatedMessageModel,
-          );
-        }
-      }
-
-      await OpenFilex.open(localPath);
-    }
-
-    void handlePreviewDataFetched(
-      types.TextMessage message,
-      types.PreviewData previewData,
-    ) {
-      final index = messagesNotifier.state.value!
-          .indexWhere((model) => model.toChatMessage?.id == message.id);
-
-      final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
-        message:
-            jsonEncode(message.copyWith(previewData: previewData).toJson()),
-      );
-
-      messagesNotifier.state = AsyncValue.data(
-        List.from(messagesNotifier.state.value!)..[index] = updatedMessageModel,
-      );
-    }
-
-    void handleSendPressed(types.PartialText message) {
-      final textMessage = types.TextMessage(
-        author: user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: const Uuid().v4(),
-        text: message.text,
-      );
-
-      addMessage(textMessage);
-    }
-
-    return Scaffold(
-      body: messagesProvider.when(
-        data: (messageModels) {
-          final messages = messageModels.map((m) {
-            final json = jsonDecode(m.message) as Map<String, dynamic>;
-            return types.Message.fromJson(json);
-          }).toList();
-
-          return Chat(
-            messages: messages,
-            onAttachmentPressed: handleAttachmentPressed,
-            onMessageTap: handleMessageTap,
-            onPreviewDataFetched: handlePreviewDataFetched,
-            onSendPressed: handleSendPressed,
-            showUserAvatars: true,
-            showUserNames: true,
-            user: user,
-            theme: const DefaultChatTheme(
-              seenIcon: Text(
-                'read',
-                style: TextStyle(
-                  fontSize: 10,
-                ),
-              ),
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
       ),
     );
   }
+}
 
-  Future<void> _handleFileSelection(
-    void Function(types.Message) addMessage,
-    types.User user,
-  ) async {
-    final result = await FilePicker.platform.pickFiles(
-        // type: FileType.any,
-        );
+class _MessageItemInfo extends StatelessWidget {
+  const _MessageItemInfo({required this.data});
 
-    if (result != null && result.files.single.path != null) {
-      final message = types.FileMessage(
-        author: user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: const Uuid().v4(),
-        mimeType: lookupMimeType(result.files.single.path!),
-        name: result.files.single.name,
-        size: result.files.single.size,
-        uri: result.files.single.path!,
-      );
+  final MessageModel data;
 
-      addMessage(message);
-    }
-  }
-
-  Future<void> _handleImageSelection(
-    void Function(types.Message) addMessage,
-    types.User user,
-  ) async {
-    final result = await ImagePicker().pickImage(
-      imageQuality: 70,
-      maxWidth: 1440,
-      source: ImageSource.gallery,
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          data.title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        // MessageTypeChips(types: data.types),
+      ],
     );
-
-    if (result != null) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-
-      final message = types.ImageMessage(
-        author: user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        height: image.height.toDouble(),
-        id: const Uuid().v4(),
-        name: result.name,
-        size: bytes.length,
-        uri: result.path,
-        width: image.width.toDouble(),
-      );
-
-      addMessage(message);
-    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/login.dart';
 import 'package:extremo/ui/page/message.dart';
+import 'package:extremo/ui/page/message_detail.dart';
 import 'package:extremo/ui/page/post.dart';
 
 import 'package:flutter/widgets.dart';
@@ -88,6 +89,7 @@ class PostRoute extends GoRouteData {
 
 @TypedGoRoute<MessageRoute>(
   path: Routes.messagePage,
+  routes: [TypedGoRoute<MessageDetailRoute>(path: ':id')],
 )
 @immutable
 class MessageRoute extends GoRouteData {
@@ -96,6 +98,21 @@ class MessageRoute extends GoRouteData {
       CustomTransitionPage(
         key: state.pageKey,
         child: const MessagePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      );
+}
+
+@immutable
+class MessageDetailRoute extends GoRouteData {
+  const MessageDetailRoute({required this.id});
+  final int id;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      CustomTransitionPage(
+        key: state.pageKey,
+        child: MessageDetailPage(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
       );
