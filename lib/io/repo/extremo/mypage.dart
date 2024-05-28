@@ -33,6 +33,7 @@ Future<PagingEntity<ArtifactEntity>> repoListPagerArtifacts(
   int page,
   int pageSize,
 ) async {
+  print(1);
   final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
@@ -42,12 +43,14 @@ Future<PagingEntity<ArtifactEntity>> repoListPagerArtifacts(
       pageSize: pageSize,
     ),
   );
+  print(2);
   final elements = await Future.wait(
     response.elements.map(
       (element) => xFormRpcArtifactEntity(ref, element),
     ),
   );
 
+  print(3);
   return PagingEntity<ArtifactEntity>(
     elements: elements.toList(),
     totalSize: response.totalSize,

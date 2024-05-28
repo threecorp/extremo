@@ -17,12 +17,16 @@ class UserModel with _$UserModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     // Relationships
+    UserProfileModel? profile,
     @Default([]) List<ArtifactModel> artifacts,
   }) = _UserModel;
 
   factory UserModel.fromEntity({
     required UserEntity entity,
   }) {
+    final profile = entity.profile != null
+        ? UserProfileModel.fromEntity(entity: entity.profile!)
+        : null;
     final artifacts = entity.artifacts
         .map((e) => ArtifactModel.fromEntity(entity: e))
         .toList();
@@ -36,6 +40,7 @@ class UserModel with _$UserModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
+      profile: profile,
       artifacts: artifacts,
     );
   }
@@ -51,7 +56,51 @@ extension UserModelX on UserModel {
       deletedAt: deletedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      profile: profile?.toEntity(),
       artifacts: artifacts.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
+@freezed
+class UserProfileModel with _$UserProfileModel {
+  const factory UserProfileModel({
+    int? id,
+    int? userFk,
+    String? name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    UserModel? user,
+  }) = _UserProfileModel;
+
+  factory UserProfileModel.fromEntity({
+    required UserProfileEntity entity,
+  }) {
+    final user =
+        entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
+
+    return UserProfileModel(
+      id: entity.id,
+      userFk: entity.userFk,
+      name: entity.name,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      // Relationships
+      user: user,
+    );
+  }
+}
+
+extension UserProfileModelX on UserProfileModel {
+  UserProfileEntity toEntity() {
+    return UserProfileEntity(
+      id: id ?? 0,
+      userFk: userFk ?? 0,
+      name: name ?? '',
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      user: user?.toEntity(),
     );
   }
 }

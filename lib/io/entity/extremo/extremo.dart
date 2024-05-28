@@ -20,31 +20,33 @@ class UserEntity {
     this.createdAt,
     this.updatedAt,
     // Relationships
+    this.profile,
     this.artifacts = const [],
   });
 
-  factory UserEntity.fromResponse({
-    required UserResponse element,
-  }) {
-    final artifacts = element.artifacts
-        .map((element) => ArtifactEntity.fromResponse(element: element))
-        .toList();
-    return UserEntity(
-      id: element.pk,
-      email: element.email ?? '',
-      dateJoined: element.dateJoined,
-      isDeleted: element.isDeleted,
-      deletedAt: element.deletedAt,
-      createdAt: element.createdAt,
-      updatedAt: element.updatedAt,
-      // Relationships
-      artifacts: artifacts,
-    );
-  }
+  // factory UserEntity.fromResponse({
+  //   required UserResponse element,
+  // }) {
+  //   final artifacts = element.artifacts
+  //       .map((element) => ArtifactEntity.fromResponse(element: element))
+  //       .toList();
+  //   return UserEntity(
+  //     id: element.pk,
+  //     email: element.email ?? '',
+  //     dateJoined: element.dateJoined,
+  //     isDeleted: element.isDeleted,
+  //     deletedAt: element.deletedAt,
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     artifacts: artifacts,
+  //   );
+  // }
 
   factory UserEntity.fromRpc({
     required pbdb.User element,
   }) {
+    final profile = UserProfileEntity.fromRpc(element: element.profile);
     final artifacts = element.artifacts
         .map((element) => ArtifactEntity.fromRpc(element: element))
         .toList();
@@ -57,6 +59,7 @@ class UserEntity {
       createdAt: element.createdAt.toDateTime(),
       updatedAt: element.updatedAt.toDateTime(),
       // Relationships
+      profile: profile,
       artifacts: artifacts,
     );
   }
@@ -83,7 +86,69 @@ class UserEntity {
   DateTime? updatedAt;
 
   // Relationships
+  UserProfileEntity? profile;
   List<ArtifactEntity> artifacts;
+}
+
+@HiveType(typeId: 4)
+class UserProfileEntity {
+  UserProfileEntity({
+    required this.id,
+    required this.userFk,
+    this.name = '',
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.user,
+  });
+
+  // factory UserProfileEntity.fromResponse({
+  //   required UserResponse element,
+  // }) {
+  //   final user = element.user != null ?
+  //   UserEntity.fromResponse(element: element))
+  //
+  //   return UserProfileEntity(
+  //     id: element.pk,
+  //     name: element.name ?? '',
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     user: user,
+  //   );
+  // }
+
+  factory UserProfileEntity.fromRpc({
+    required pbdb.UserProfile element,
+  }) {
+    return UserProfileEntity(
+      id: element.pk,
+      userFk: element.userFk,
+      name: element.name,
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+      // Relationships
+      user: UserEntity.fromRpc(element: element.user),
+    );
+  }
+
+  @HiveField(0)
+  int id;
+
+  @HiveField(1)
+  int userFk;
+
+  @HiveField(2)
+  String name;
+
+  @HiveField(3)
+  DateTime? createdAt;
+
+  @HiveField(4)
+  DateTime? updatedAt;
+
+  // Relationships
+  UserEntity? user;
 }
 
 @HiveType(typeId: 2)
@@ -103,28 +168,28 @@ class ArtifactEntity {
     this.user,
   });
 
-  factory ArtifactEntity.fromResponse({
-    required ArtifactResponse element,
-  }) {
-    final user = element.user != null
-        ? UserEntity.fromResponse(element: element.user!)
-        : null;
-
-    return ArtifactEntity(
-      id: element.pk,
-      userFk: element.userFk,
-      title: element.title,
-      content: element.content,
-      summary: element.summary,
-      status: element.status,
-      publishFrom: element.publishFrom,
-      publishUntil: element.publishUntil,
-      createdAt: element.createdAt,
-      updatedAt: element.updatedAt,
-      // Relationships
-      user: user,
-    );
-  }
+  // factory ArtifactEntity.fromResponse({
+  //   required ArtifactResponse element,
+  // }) {
+  //   final user = element.user != null
+  //       ? UserEntity.fromResponse(element: element.user!)
+  //       : null;
+  //
+  //   return ArtifactEntity(
+  //     id: element.pk,
+  //     userFk: element.userFk,
+  //     title: element.title,
+  //     content: element.content,
+  //     summary: element.summary,
+  //     status: element.status,
+  //     publishFrom: element.publishFrom,
+  //     publishUntil: element.publishUntil,
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     user: user,
+  //   );
+  // }
 
   factory ArtifactEntity.fromRpc({
     required pbdb.Artifact element,

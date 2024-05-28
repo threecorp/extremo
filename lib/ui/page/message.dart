@@ -200,7 +200,7 @@ class _MessageItemInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          data.email,
+          data.profile?.name ?? '',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         // MessageTypeChips(types: data.types),

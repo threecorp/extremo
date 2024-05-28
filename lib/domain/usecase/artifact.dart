@@ -38,16 +38,20 @@ class ListPagerArtifactsCase extends _$ListPagerArtifactsCase {
     final pager = await ref.read(
       repoListPagerArtifactsProvider(_page, _pageSize).future,
     );
+  print(4);
 
     final models = pager.elements.map(
       (entity) => ArtifactModel.fromEntity(entity: entity),
     );
 
+  print(5);
     // TODO(Unuse): pager.totalSize
     _isLast = pager.elements.length < _pageSize;
 
+  print(6);
     final rr = models.toList();
     state = AsyncValue.data([...state.value ?? [], ...rr]);
+  print(7);
     return rr;
   }
 }
