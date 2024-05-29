@@ -249,14 +249,12 @@ class MessageModel with _$MessageModel {
   }) {
     context ??= XContext.of();
 
-    final fromUser = entity.fromUser != null
-        ? UserModel.fromEntity(entity: entity.fromUser!, context: context)
-        : null;
-    final toUser = entity.toUser != null
-        ? UserModel.fromEntity(entity: entity.toUser!, context: context)
-        : null;
+    var model = context.getE<MessageModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
 
-    return MessageModel(
+    model = MessageModel(
       id: entity.id,
       fromFk: entity.fromFk,
       toFk: entity.toFk,
@@ -268,8 +266,20 @@ class MessageModel with _$MessageModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      fromUser: fromUser,
-      toUser: toUser,
+      // fromUser: fromUser,
+      // toUser: toUser,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      fromUser: context.getE<UserModel>(entity.fromFk) ??
+          (entity.fromUser != null
+              ? UserModel.fromEntity(entity: entity.fromUser!, context: context)
+              : null),
+      toUser: context.getE<UserModel>(entity.toFk) ??
+          (entity.toUser != null
+              ? UserModel.fromEntity(entity: entity.toUser!, context: context)
+              : null),
     );
   }
 
