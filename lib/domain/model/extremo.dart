@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:extremo/io/entity/extremo/extremo.dart';
+import 'package:extremo/misc/logger.dart';
+import 'package:extremo/misc/xcontext.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'extremo.freezed.dart';
@@ -23,15 +25,16 @@ class UserModel with _$UserModel {
 
   factory UserModel.fromEntity({
     required UserEntity entity,
+    XContext? context,
   }) {
-    final profile = entity.profile != null
-        ? UserProfileModel.fromEntity(entity: entity.profile!)
-        : null;
-    final artifacts = entity.artifacts
-        .map((e) => ArtifactModel.fromEntity(entity: e))
-        .toList();
+    context ??= XContext.of();
 
-    return UserModel(
+    var model = context.getE<UserModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = UserModel(
       id: entity.id,
       email: entity.email,
       dateJoined: entity.dateJoined,
@@ -40,8 +43,20 @@ class UserModel with _$UserModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      profile: profile,
-      artifacts: artifacts,
+      // profile: profile,
+      // artifacts: artifacts,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      profile: entity.profile != null
+          ? UserProfileModel.fromEntity(
+              entity: entity.profile!, context: context)
+          : null,
+      artifacts: entity.artifacts.map((e) {
+        return context!.getE<ArtifactModel>(e.id) ??
+            ArtifactModel.fromEntity(entity: e, context: context);
+      }).toList(),
     );
   }
 }
@@ -76,18 +91,31 @@ class UserProfileModel with _$UserProfileModel {
 
   factory UserProfileModel.fromEntity({
     required UserProfileEntity entity,
+    XContext? context,
   }) {
-    final user =
-        entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
+    context ??= XContext.of();
 
-    return UserProfileModel(
+    var model = context.getE<UserProfileModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = UserProfileModel(
       id: entity.id,
       userFk: entity.userFk,
       name: entity.name,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      user: user,
+      // user: user,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      user: context.getE<UserModel>(entity.userFk) ??
+          (entity.user != null
+              ? UserModel.fromEntity(entity: entity.user!, context: context)
+              : null),
     );
   }
 }
@@ -124,11 +152,16 @@ class ArtifactModel with _$ArtifactModel {
 
   factory ArtifactModel.fromEntity({
     required ArtifactEntity entity,
+    XContext? context,
   }) {
-    final user =
-        entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
+    context ??= XContext.of();
 
-    return ArtifactModel(
+    var model = context.getE<ArtifactModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = ArtifactModel(
       id: entity.id,
       userFk: entity.userFk,
       title: entity.title,
@@ -140,7 +173,15 @@ class ArtifactModel with _$ArtifactModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      user: user,
+      // user: user
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      user: context.getE<UserModel>(entity.userFk) ??
+          (entity.user != null
+              ? UserModel.fromEntity(entity: entity.user!, context: context)
+              : null),
     );
   }
 }
@@ -204,12 +245,15 @@ class MessageModel with _$MessageModel {
 
   factory MessageModel.fromEntity({
     required MessageEntity entity,
+    XContext? context,
   }) {
+    context ??= XContext.of();
+
     final fromUser = entity.fromUser != null
-        ? UserModel.fromEntity(entity: entity.fromUser!)
+        ? UserModel.fromEntity(entity: entity.fromUser!, context: context)
         : null;
     final toUser = entity.toUser != null
-        ? UserModel.fromEntity(entity: entity.toUser!)
+        ? UserModel.fromEntity(entity: entity.toUser!, context: context)
         : null;
 
     return MessageModel(

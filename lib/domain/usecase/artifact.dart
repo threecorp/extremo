@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/io/repo/extremo/mypage.dart';
+import 'package:extremo/misc/logger.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:result_dart/functions.dart';
 import 'package:result_dart/result_dart.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -38,20 +39,16 @@ class ListPagerArtifactsCase extends _$ListPagerArtifactsCase {
     final pager = await ref.read(
       repoListPagerArtifactsProvider(_page, _pageSize).future,
     );
-  print(4);
 
     final models = pager.elements.map(
       (entity) => ArtifactModel.fromEntity(entity: entity),
     );
 
-  print(5);
     // TODO(Unuse): pager.totalSize
     _isLast = pager.elements.length < _pageSize;
 
-  print(6);
     final rr = models.toList();
     state = AsyncValue.data([...state.value ?? [], ...rr]);
-  print(7);
     return rr;
   }
 }
