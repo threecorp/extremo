@@ -1,11 +1,11 @@
 import 'dart:math';
-import 'package:extremo/misc/logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/message.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/misc/logger.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
@@ -44,12 +44,14 @@ class MessagePage extends HookConsumerWidget {
         onTapListItem: (item) {
           final id = item.id;
           if (id == null) {
+            const s = 'ID is not found';
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text(s)),
+            );
             return;
           }
           MessageDetailRoute(id: id).go(context);
         },
-        onPressedFavorite: (item) =>
-            null, // ref.read(toggleFavoriteMessageByIdCaseProvider(item.id)),
         refresh: () => ref.refresh(listPagerMessagesCaseProvider),
         emptyErrorMessage: t.emptyError,
       ),
@@ -64,7 +66,6 @@ class MessageView extends HookConsumerWidget {
     required this.error,
     required this.loadMore,
     required this.onTapListItem,
-    required this.onPressedFavorite,
     required this.refresh,
     required this.emptyErrorMessage,
     this.enableRetryButton = true,
@@ -76,7 +77,6 @@ class MessageView extends HookConsumerWidget {
   final dynamic error;
   final void Function() loadMore;
   final void Function(UserModel item) onTapListItem;
-  final void Function(UserModel item) onPressedFavorite;
   final void Function() refresh;
   final String emptyErrorMessage;
   final bool enableRetryButton;
@@ -101,7 +101,6 @@ class MessageView extends HookConsumerWidget {
           itemBuilder: (context, item, index) => MessageItemView(
             data: item,
             onTapListItem: onTapListItem,
-            onPressedFavorite: onPressedFavorite,
           ),
           firstPageErrorIndicatorBuilder: (context) => ErrorView(
             text: t.networkError,
@@ -124,13 +123,11 @@ class MessageItemView extends StatelessWidget {
   const MessageItemView({
     required this.data,
     required this.onTapListItem,
-    required this.onPressedFavorite,
     super.key,
   });
 
   final UserModel data;
   final void Function(UserModel item) onTapListItem;
-  final void Function(UserModel item) onPressedFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -169,13 +166,6 @@ class MessageItemView extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // FavoriteButton(
-                //   isFavorite: data.isFavorite,
-                //   onPressedFavorite: () {
-                //     onPressedFavorite(data);
-                //   },
-                // ),
                 const Gap(4),
               ],
             ),

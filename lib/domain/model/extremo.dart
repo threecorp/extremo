@@ -323,7 +323,7 @@ extension MessageModelX on MessageModel {
   }
 
   chat_types.Message? get toChatMessage {
-    final decoded = jsonDecode(message);
+    final decoded = toChatJson;
     if (decoded is! Map<String, dynamic>) {
       return null;
     }
