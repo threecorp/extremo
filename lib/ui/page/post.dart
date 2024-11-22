@@ -92,6 +92,9 @@ class PostPage extends HookConsumerWidget {
         onTap: (CalendarTapDetails details) {
           final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
           final meeting = isEdit ? details.appointments!.first as Meeting : null;
+          final eventName = meeting?.eventName ?? '';
+          final startTime = meeting?.from ?? details.date!;
+          final endTime = meeting?.to ?? details.date!.add(const Duration(hours: 1));
 
           showModalBottomSheet<void>(
             context: context,
@@ -129,28 +132,18 @@ class PostPage extends HookConsumerWidget {
                       // Event form for editing
                       Expanded(
                         child: _EventForm(
-                          meeting: meeting,
-                          onSave: (mtg) {
-                            if (isEdit) {
-                              debugPrint('edit: ${mtg.eventName}');
-                              // Update the selected meeting
-                              final updatedMeeting = Meeting(
-                                eventName: mtg.eventName,
-                                from: mtg.from,
-                                to: mtg.to,
-                                background: mtg.background,
-                                isAllDay: mtg.isAllDay,
-                              );
-                              meetingsState.value = meetingsState.value.map((elm) {
-                                if (elm.eventName == meeting?.eventName) {
-                                  return updatedMeeting; // Update the selected meeting
-                                }
-                                return elm;
-                              }).toList();
-                            } else {
-                              debugPrint('new: ${mtg.eventName}');
+                          eventName: eventName,
+                          startTime: startTime,
+                          endTime: endTime,
+                          onAdd: (mtg) {
+                            if (!isEdit) {
                               meetingsState.value = [...meetingsState.value, mtg];
+                              return;
                             }
+
+                            meetingsState.value = meetingsState.value.map((elm) {
+                              return elm.eventName == eventName ? mtg : elm;
+                            }).toList();
                           },
                         ),
                       ),
@@ -171,21 +164,22 @@ class PostPage extends HookConsumerWidget {
 
 class _EventForm extends HookConsumerWidget {
   const _EventForm({
-    required this.meeting,
-    required this.onSave,
+    required this.eventName,
+    required this.startTime,
+    required this.endTime,
+    required this.onAdd,
   });
 
-  final Meeting? meeting;
-  final void Function(Meeting) onSave;
+  final String eventName;
+  final DateTime startTime;
+  final DateTime endTime;
+  final void Function(Meeting) onAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final eventNameController = TextEditingController(
-      text: meeting?.eventName ?? '',
-    );
-
-    final startTime = useState(meeting?.from ?? DateTime.now());
-    final endTime = useState(meeting?.to ?? DateTime.now().add(const Duration(hours: 1)));
+    final eventNameController = useTextEditingController(text: eventName);
+    final sTime = useState(startTime);
+    final eTime = useState(endTime);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -199,42 +193,27 @@ class _EventForm extends HookConsumerWidget {
           const SizedBox(height: 16),
           TextFormField(
             readOnly: true,
-            initialValue: startTime.value.toString(),
+            initialValue: sTime.value.toString(),
             decoration: const InputDecoration(labelText: 'Start Time'),
             onTap: () async {
-              final selectedTime = await showTimePicker(
-                context: context,
-                initialTime: TimeOfDay.fromDateTime(startTime.value),
-              );
+              final selectedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(sTime.value));
               if (selectedTime != null) {
-                startTime.value = DateTime(
-                  startTime.value.year,
-                  startTime.value.month,
-                  startTime.value.day,
-                  selectedTime.hour,
-                  selectedTime.minute,
-                );
+                sTime.value = DateTime(sTime.value.year, sTime.value.month, sTime.value.day, selectedTime.hour, selectedTime.minute);
               }
             },
           ),
           const SizedBox(height: 16),
           TextFormField(
             readOnly: true,
-            initialValue: endTime.value.toString(),
+            initialValue: eTime.value.toString(),
             decoration: const InputDecoration(labelText: 'End Time'),
             onTap: () async {
               final selectedTime = await showTimePicker(
                 context: context,
-                initialTime: TimeOfDay.fromDateTime(endTime.value),
+                initialTime: TimeOfDay.fromDateTime(eTime.value),
               );
               if (selectedTime != null) {
-                endTime.value = DateTime(
-                  endTime.value.year,
-                  endTime.value.month,
-                  endTime.value.day,
-                  selectedTime.hour,
-                  selectedTime.minute,
-                );
+                eTime.value = DateTime(eTime.value.year, eTime.value.month, eTime.value.day, selectedTime.hour, selectedTime.minute);
               }
             },
           ),
@@ -242,18 +221,18 @@ class _EventForm extends HookConsumerWidget {
           ElevatedButton(
             onPressed: () {
               if (eventNameController.text.isNotEmpty) {
-                final updatedMeeting = Meeting(
+                final newMeeting = Meeting(
                   eventName: eventNameController.text,
-                  from: startTime.value,
-                  to: endTime.value,
-                  background: meeting?.background ?? const Color(0xFF0F8644),
-                  isAllDay: meeting?.isAllDay ?? false,
+                  from: sTime.value,
+                  to: eTime.value,
+                  background: const Color(0xFF0F8644),
+                  isAllDay: false,
                 );
-                onSave(updatedMeeting);
+                onAdd(newMeeting);
                 Navigator.pop(context);
               }
             },
-            child: Text(meeting == null ? 'Add Event' : 'Save Changes'),
+            child: const Text('Save'),
           ),
         ],
       ),
