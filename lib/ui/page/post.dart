@@ -1,19 +1,19 @@
+// import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:extremo/domain/model/extremo.dart';
+// import 'package:extremo/domain/usecase/artifact.dart';
+// import 'package:extremo/ui/layout/error_view.dart';
 // import 'package:extremo/ui/layout/extremo_type_chips.dart';
 // import 'package:extremo/ui/layout/favorite_button.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:extremo/domain/model/extremo.dart';
-import 'package:extremo/domain/usecase/artifact.dart';
+// import 'package:extremo/ui/layout/paging_controller.dart';
+// import 'package:extremo/ui/layout/progress_view.dart';
+// import 'package:flutter_form_builder/flutter_form_builder.dart';
+// import 'package:flutter_hooks/flutter_hooks.dart';
+// import 'package:form_builder_validators/form_builder_validators.dart';
+// import 'package:gap/gap.dart';
+// import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
-import 'package:extremo/ui/layout/error_view.dart';
-import 'package:extremo/ui/layout/paging_controller.dart';
-import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class PostPage extends HookConsumerWidget {
@@ -23,34 +23,27 @@ class PostPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: Text(t.post)),
-      // body: SfCalendar(view: CalendarView.month),
-      //
-      // body: SfCalendar(
-      //   view: CalendarView.week,
-      //   firstDayOfWeek: 1,
-      //   // timeSlotViewSettings: const TimeSlotViewSettings(
-      //   //   startHour: 9,
-      //   //   endHour: 20,
-      //   //   nonWorkingDays: <int>[DateTime.friday, DateTime.saturday],
-      //   // ),
-      // ),
-      //
-      //
-      // body: SfCalendar(
-      //   view: CalendarView.month,
-      //   monthViewSettings: const MonthViewSettings(showAgenda: true),
-      // ),
-      //
-      //
       body: SfCalendar(
         view: CalendarView.week,
-        showNavigationArrow: true,
+        allowedViews: const [
+          CalendarView.day,
+          CalendarView.week,
+          CalendarView.workWeek,
+          CalendarView.month,
+          CalendarView.timelineDay,
+          CalendarView.timelineWeek,
+          CalendarView.timelineWorkWeek,
+        ],
         allowAppointmentResize: true,
+        onAppointmentResizeStart: resizeStart,
+        onAppointmentResizeUpdate: resizeUpdate,
+        onAppointmentResizeEnd: resizeEnd,
         allowDragAndDrop: true,
-        todayHighlightColor: Colors.red,
-        firstDayOfWeek: 1, // Monday
-        timeZone: 'Tokyo Standard Time',
         dataSource: MeetingDataSource(_getDataSource()),
+        firstDayOfWeek: 1, // Monday
+        showNavigationArrow: true,
+        timeZone: 'Tokyo Standard Time',
+        todayHighlightColor: Colors.red,
         monthViewSettings: const MonthViewSettings(
           showAgenda: true,
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
@@ -67,9 +60,28 @@ class PostPage extends HookConsumerWidget {
         },
         // resourceViewSettings: ResourceViewSettings(showAvatar: true),
       ),
-      //
-      // body: MyCustomForm(),
     );
+  }
+
+  void resizeStart(
+      AppointmentResizeStartDetails appointmentResizeStartDetails) {
+    dynamic appointment = appointmentResizeStartDetails.appointment;
+    CalendarResource? resource = appointmentResizeStartDetails.resource;
+  }
+
+  void resizeUpdate(
+      AppointmentResizeUpdateDetails appointmentResizeUpdateDetails) {
+    dynamic appointment = appointmentResizeUpdateDetails.appointment;
+    DateTime? resizingTime = appointmentResizeUpdateDetails.resizingTime;
+    Offset? resizingOffset = appointmentResizeUpdateDetails.resizingOffset;
+    CalendarResource? resourceDetails = appointmentResizeUpdateDetails.resource;
+  }
+
+  void resizeEnd(AppointmentResizeEndDetails appointmentResizeEndDetails) {
+    dynamic appointment = appointmentResizeEndDetails.appointment;
+    DateTime? startTime = appointmentResizeEndDetails.startTime;
+    DateTime? endTime = appointmentResizeEndDetails.endTime;
+    CalendarResource? resourceDetails = appointmentResizeEndDetails.resource;
   }
 
   List<Meeting> _getDataSource() {
@@ -148,68 +160,3 @@ class Meeting {
   final Color background;
   final bool isAllDay;
 }
-
-// class MyCustomForm extends HookConsumerWidget {
-//   const MyCustomForm({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final formKey = useMemoized(GlobalKey<FormBuilderState>.new);
-//
-//     return FormBuilder(
-//       key: formKey,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           FormBuilderTextField(
-//             name: 'title',
-//             decoration: InputDecoration(labelText: t.title),
-//             validator: FormBuilderValidators.compose([
-//               FormBuilderValidators.required(),
-//               FormBuilderValidators.maxWordsCount(255),
-//             ]),
-//           ),
-//           FormBuilderTextField(
-//             name: 'summary',
-//             decoration: InputDecoration(labelText: t.summary),
-//             validator: FormBuilderValidators.compose([
-//               FormBuilderValidators.required(),
-//               FormBuilderValidators.maxWordsCount(255),
-//             ]),
-//           ),
-//           FormBuilderTextField(
-//             name: 'content',
-//             decoration: InputDecoration(labelText: t.content),
-//             minLines: 3,
-//             maxLines: 10,
-//             // validator: FormBuilderValidators.compose([]),
-//           ),
-//           // FormBuilderTextField(
-//           //   name: 'status',
-//           //   decoration: InputDecoration(labelText: t.status),
-//           //   validator: FormBuilderValidators.compose([
-//           //     FormBuilderValidators.required(),
-//           //     FormBuilderValidators.maxWordsCount(255),
-//           //   ]),
-//           // ),
-//           Padding(
-//             padding: const EdgeInsets.symmetric(vertical: 16),
-//             child: ElevatedButton(
-//               onPressed: () {
-//                 // Validate and save the form values
-//                 if (formKey.currentState?.saveAndValidate() ?? false) {
-//                   debugPrint(formKey.currentState?.value.toString());
-//                 }
-//
-//                 // On another side, can access all field values
-//                 // without saving form with instantValues
-//                 debugPrint(formKey.currentState?.instantValue.toString());
-//               },
-//               child: const Text('Submit'),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
