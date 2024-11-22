@@ -48,8 +48,7 @@ class MessagePage extends HookConsumerWidget {
           }
           MessageDetailRoute(id: id).go(context);
         },
-        onPressedFavorite: (item) =>
-            null, // ref.read(toggleFavoriteMessageByIdCaseProvider(item.id)),
+        onPressedFavorite: (item) => null, // ref.read(toggleFavoriteMessageByIdCaseProvider(item.id)),
         refresh: () => ref.refresh(listPagerMessagesCaseProvider),
         emptyErrorMessage: t.emptyError,
       ),
@@ -153,8 +152,7 @@ class MessageItemView extends StatelessWidget {
                 ),
                 const Gap(4),
                 CachedNetworkImage(
-                  imageUrl:
-                      'https://placehold.co/300x200/png', // data.imageUrl,
+                  imageUrl: 'https://placehold.co/300x200/png', // data.imageUrl,
                   width: 128,
                   height: 128,
                   fit: BoxFit.fitHeight,

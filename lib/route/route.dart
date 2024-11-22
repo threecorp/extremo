@@ -33,12 +33,10 @@ class Routes {
 @immutable
 class ArtifactRoute extends GoRouteData {
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      CustomTransitionPage(
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: const ArtifactPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
 
@@ -48,12 +46,10 @@ class ArtifactDetailRoute extends GoRouteData {
   final int id;
 
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      CustomTransitionPage(
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: ArtifactDetailPage(id: id),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
 
@@ -63,12 +59,10 @@ class ArtifactDetailRoute extends GoRouteData {
 @immutable
 class LoginRoute extends GoRouteData {
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      CustomTransitionPage(
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: const LoginPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
 
@@ -78,12 +72,10 @@ class LoginRoute extends GoRouteData {
 @immutable
 class PostRoute extends GoRouteData {
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      CustomTransitionPage(
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: const PostPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
 
@@ -94,12 +86,10 @@ class PostRoute extends GoRouteData {
 @immutable
 class MessageRoute extends GoRouteData {
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      CustomTransitionPage(
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: const MessagePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
 
@@ -109,11 +99,9 @@ class MessageDetailRoute extends GoRouteData {
   final int id;
 
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      CustomTransitionPage(
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: MessageDetailPage(id: id),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }

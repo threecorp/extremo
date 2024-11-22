@@ -33,4 +33,9 @@ include: package:pedantic_mono/analysis_options.yaml
 analyzer:
   plugins:
     - custom_lint
+  code-style:
+    line-length: 100
 
+linter:
+  rules:
+    lines_longer_than_80_chars: false

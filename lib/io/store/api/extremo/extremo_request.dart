@@ -19,6 +19,5 @@ class ArtifactRequest with _$ArtifactRequest {
     @DateTimeConverter() DateTime? publishUntil,
   }) = _ArtifactRequest;
 
-  factory ArtifactRequest.fromJson(Map<String, dynamic> json) =>
-      _$ArtifactRequestFromJson(json);
+  factory ArtifactRequest.fromJson(Map<String, dynamic> json) => _$ArtifactRequestFromJson(json);
 }

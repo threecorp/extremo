@@ -48,8 +48,7 @@ class ArtifactPage extends HookConsumerWidget {
           }
           ArtifactDetailRoute(id: id).go(context);
         },
-        onPressedFavorite: (item) =>
-            null, // ref.read(toggleFavoriteArtifactByIdCaseProvider(item.id)),
+        onPressedFavorite: (item) => null, // ref.read(toggleFavoriteArtifactByIdCaseProvider(item.id)),
         refresh: () => ref.refresh(listPagerArtifactsCaseProvider),
         emptyErrorMessage: t.emptyError,
       ),
@@ -348,8 +347,7 @@ class ArtifactItemView extends StatelessWidget {
                 ),
                 const Gap(4),
                 CachedNetworkImage(
-                  imageUrl:
-                      'https://placehold.co/300x200/png', // data.imageUrl,
+                  imageUrl: 'https://placehold.co/300x200/png', // data.imageUrl,
                   width: 128,
                   height: 128,
                   fit: BoxFit.fitHeight,

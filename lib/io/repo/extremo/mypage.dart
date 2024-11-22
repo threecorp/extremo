@@ -11,10 +11,8 @@ import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
-import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart'
-    as artifactpb;
-import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pb.dart'
-    as messagepb;
+import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart' as artifactpb;
+import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pb.dart' as messagepb;
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -83,12 +81,8 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
             title: request.title,
             summary: request.summary,
             content: request.content,
-            publishFrom: request.publishFrom != null
-                ? Timestamp.fromDateTime(request.publishFrom!)
-                : null,
-            publishUntil: request.publishUntil != null
-                ? Timestamp.fromDateTime(request.publishUntil!)
-                : null,
+            publishFrom: request.publishFrom != null ? Timestamp.fromDateTime(request.publishFrom!) : null,
+            publishUntil: request.publishUntil != null ? Timestamp.fromDateTime(request.publishUntil!) : null,
           ),
         )
         .then(

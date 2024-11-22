@@ -26,9 +26,7 @@ class UserEntity {
   factory UserEntity.fromResponse({
     required UserResponse element,
   }) {
-    final artifacts = element.artifacts
-        .map((element) => ArtifactEntity.fromResponse(element: element))
-        .toList();
+    final artifacts = element.artifacts.map((element) => ArtifactEntity.fromResponse(element: element)).toList();
     return UserEntity(
       id: element.pk,
       email: element.email ?? '',
@@ -45,9 +43,7 @@ class UserEntity {
   factory UserEntity.fromRpc({
     required pbdb.User element,
   }) {
-    final artifacts = element.artifacts
-        .map((element) => ArtifactEntity.fromRpc(element: element))
-        .toList();
+    final artifacts = element.artifacts.map((element) => ArtifactEntity.fromRpc(element: element)).toList();
     return UserEntity(
       id: element.pk,
       email: element.email,
@@ -106,9 +102,7 @@ class ArtifactEntity {
   factory ArtifactEntity.fromResponse({
     required ArtifactResponse element,
   }) {
-    final user = element.user != null
-        ? UserEntity.fromResponse(element: element.user!)
-        : null;
+    final user = element.user != null ? UserEntity.fromResponse(element: element.user!) : null;
 
     return ArtifactEntity(
       id: element.pk,
@@ -129,8 +123,7 @@ class ArtifactEntity {
   factory ArtifactEntity.fromRpc({
     required pbdb.Artifact element,
   }) {
-    final user =
-        element.hasUser() ? UserEntity.fromRpc(element: element.user) : null;
+    final user = element.hasUser() ? UserEntity.fromRpc(element: element.user) : null;
 
     return ArtifactEntity(
       id: element.pk,
@@ -226,12 +219,8 @@ class MessageEntity {
   factory MessageEntity.fromRpc({
     required pbdb.Message element,
   }) {
-    final fromUser = element.hasFromUser()
-        ? UserEntity.fromRpc(element: element.fromUser)
-        : null;
-    final toUser = element.hasToUser()
-        ? UserEntity.fromRpc(element: element.toUser)
-        : null;
+    final fromUser = element.hasFromUser() ? UserEntity.fromRpc(element: element.fromUser) : null;
+    final toUser = element.hasToUser() ? UserEntity.fromRpc(element: element.toUser) : null;
 
     return MessageEntity(
       id: element.pk,

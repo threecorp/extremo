@@ -68,8 +68,7 @@ class MyApp extends HookConsumerWidget {
         fontFamily: 'Noto Sans JP',
         useMaterial3: true,
       ),
-      supportedLocales: AppLocaleUtils.supportedLocales +
-          FormBuilderLocalizations.supportedLocales,
+      supportedLocales: AppLocaleUtils.supportedLocales + FormBuilderLocalizations.supportedLocales,
       localizationsDelegates: const [
         // AppLocalizations.delegate,
         FormBuilderLocalizations.delegate,

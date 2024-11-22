@@ -23,9 +23,7 @@ class UserModel with _$UserModel {
   factory UserModel.fromEntity({
     required UserEntity entity,
   }) {
-    final artifacts = entity.artifacts
-        .map((e) => ArtifactModel.fromEntity(entity: e))
-        .toList();
+    final artifacts = entity.artifacts.map((e) => ArtifactModel.fromEntity(entity: e)).toList();
 
     return UserModel(
       id: entity.id,
@@ -76,8 +74,7 @@ class ArtifactModel with _$ArtifactModel {
   factory ArtifactModel.fromEntity({
     required ArtifactEntity entity,
   }) {
-    final user =
-        entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
+    final user = entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
 
     return ArtifactModel(
       id: entity.id,
@@ -156,12 +153,8 @@ class MessageModel with _$MessageModel {
   factory MessageModel.fromEntity({
     required MessageEntity entity,
   }) {
-    final fromUser = entity.fromUser != null
-        ? UserModel.fromEntity(entity: entity.fromUser!)
-        : null;
-    final toUser = entity.toUser != null
-        ? UserModel.fromEntity(entity: entity.toUser!)
-        : null;
+    final fromUser = entity.fromUser != null ? UserModel.fromEntity(entity: entity.fromUser!) : null;
+    final toUser = entity.toUser != null ? UserModel.fromEntity(entity: entity.toUser!) : null;
 
     return MessageModel(
       id: entity.id,
