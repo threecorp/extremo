@@ -21,7 +21,7 @@ class ReservePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final meetingsState = useState<List<Meeting>>([]);
+    final reservesState = useState<List<Reserve>>([]);
 
     return Scaffold(
       appBar: AppBar(title: Text(t.reserve)),
@@ -41,22 +41,22 @@ class ReservePage extends HookConsumerWidget {
         // onAppointmentResizeUpdate: resizeUpdate,
         onAppointmentResizeEnd: (AppointmentResizeEndDetails details) {
           if (details.appointment != null && details.startTime != null && details.endTime != null) {
-            final updatedMeetings = meetingsState.value.map((meeting) {
-              if (meeting.eventName == (details.appointment as Meeting).eventName) {
-                // Update the meeting time
-                return Meeting(
-                  eventName: meeting.eventName,
+            final values = reservesState.value.map((value) {
+              if (value.eventName == (details.appointment as Reserve).eventName) {
+                // Update the reserve time
+                return Reserve(
+                  eventName: value.eventName,
                   from: details.startTime!,
                   to: details.endTime!,
-                  background: meeting.background,
-                  isAllDay: meeting.isAllDay,
+                  background: value.background,
+                  isAllDay: value.isAllDay,
                 );
               }
-              return meeting;
+              return value;
             }).toList();
 
             // Update the state
-            meetingsState.value = updatedMeetings;
+            reservesState.value = values;
 
             // Show a Snackbar notification
             ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +68,7 @@ class ReservePage extends HookConsumerWidget {
           }
         },
         allowDragAndDrop: true,
-        dataSource: MeetingDataSource(meetingsState.value),
+        dataSource: ReserveDataSource(reservesState.value),
         firstDayOfWeek: 1, // Monday
         showNavigationArrow: true,
         timeZone: 'Tokyo Standard Time',
@@ -86,10 +86,10 @@ class ReservePage extends HookConsumerWidget {
         },
         onTap: (CalendarTapDetails details) {
           final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
-          final meeting = isEdit ? details.appointments!.first as Meeting : null;
-          final eventName = meeting?.eventName ?? '';
-          final startTime = meeting?.from ?? details.date!;
-          final endTime = meeting?.to ?? details.date!.add(const Duration(hours: 1));
+          final reserve = isEdit ? details.appointments!.first as Reserve : null;
+          final eventName = reserve?.eventName ?? '';
+          final startTime = reserve?.from ?? details.date!;
+          final endTime = reserve?.to ?? details.date!.add(const Duration(hours: 1));
 
           showModalBottomSheet<void>(
             context: context,
@@ -100,6 +100,7 @@ class ReservePage extends HookConsumerWidget {
                   FocusScope.of(context).unfocus();
                 },
                 child: Container(
+                  color: Theme.of(context).bottomSheetTheme.backgroundColor ?? Colors.white,
                   height: MediaQuery.of(context).size.height,
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -132,9 +133,9 @@ class ReservePage extends HookConsumerWidget {
                           endTime: endTime,
                           onAdd: (mtg) {
                             if (!isEdit) {
-                              meetingsState.value = [...meetingsState.value, mtg];
+                              reservesState.value = [...reservesState.value, mtg];
                             } else {
-                              meetingsState.value = meetingsState.value.map((elm) {
+                              reservesState.value = reservesState.value.map((elm) {
                                 return elm.eventName == eventName ? mtg : elm;
                               }).toList();
                             }
@@ -175,7 +176,7 @@ class _EventForm extends HookConsumerWidget {
   final String eventName;
   final DateTime startTime;
   final DateTime endTime;
-  final void Function(Meeting) onAdd;
+  final void Function(Reserve) onAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -223,14 +224,14 @@ class _EventForm extends HookConsumerWidget {
           ElevatedButton(
             onPressed: () {
               if (eventNameController.text.isNotEmpty) {
-                final newMeeting = Meeting(
+                final m = Reserve(
                   eventName: eventNameController.text,
                   from: sTime.value,
                   to: eTime.value,
                   background: const Color(0xFF0F8644),
                   isAllDay: false,
                 );
-                onAdd(newMeeting);
+                onAdd(m);
                 Navigator.pop(context);
               }
             },
@@ -242,43 +243,43 @@ class _EventForm extends HookConsumerWidget {
   }
 }
 
-class MeetingDataSource extends CalendarDataSource<Meeting> {
-  MeetingDataSource(List<Meeting> source) {
+class ReserveDataSource extends CalendarDataSource<Reserve> {
+  ReserveDataSource(List<Reserve> source) {
     appointments = source;
     debugPrint('Appointments initialized: ${appointments?.length}');
   }
 
   @override
   DateTime getStartTime(int index) {
-    return _getMeetingData(index).from;
+    return _getData(index).from;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return _getMeetingData(index).to;
+    return _getData(index).to;
   }
 
   @override
   String getSubject(int index) {
-    return _getMeetingData(index).eventName;
+    return _getData(index).eventName;
   }
 
   @override
   Color getColor(int index) {
-    return _getMeetingData(index).background;
+    return _getData(index).background;
   }
 
   @override
   bool isAllDay(int index) {
-    return _getMeetingData(index).isAllDay;
+    return _getData(index).isAllDay;
   }
 
   @override
-  Meeting convertAppointmentToObject(
-    Meeting? customData,
+  Reserve convertAppointmentToObject(
+    Reserve? customData,
     Appointment appointment,
   ) {
-    return Meeting(
+    return Reserve(
       eventName: appointment.subject,
       from: appointment.startTime,
       to: appointment.endTime,
@@ -287,19 +288,20 @@ class MeetingDataSource extends CalendarDataSource<Meeting> {
     );
   }
 
-  Meeting _getMeetingData(int index) {
-    final dynamic meeting = appointments![index];
-    late final Meeting meetingData;
-    if (meeting is Meeting) {
-      meetingData = meeting;
+  Reserve _getData(int index) {
+    final dynamic data = appointments![index];
+    late final Reserve reserve;
+
+    if (data is Reserve) {
+      reserve = data;
     }
 
-    return meetingData;
+    return reserve;
   }
 }
 
-class Meeting {
-  Meeting({
+class Reserve {
+  Reserve({
     required this.eventName,
     required this.from,
     required this.to,

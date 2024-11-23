@@ -65,7 +65,6 @@ class UserPage extends HookConsumerWidget {
             child: TextField(
               decoration: const InputDecoration(
                 labelText: 'ユーザー検索',
-                border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) => searchQuery.value = value,

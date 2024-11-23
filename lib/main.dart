@@ -88,6 +88,16 @@ class MyApp extends HookConsumerWidget {
         //   bodyLarge: TextStyle(fontSize: 16, color: Colors.black),
         //   bodyMedium: TextStyle(fontSize: 14, color: Colors.grey),
         // ),
+
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(16),
+            ),
+          ),
+        ),
+
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -105,12 +115,23 @@ class MyApp extends HookConsumerWidget {
             ),
           ),
           filled: true,
-          fillColor: Colors.grey[200],
+          fillColor: const Color(0xFFF2F2F2), // white grey
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 12,
           ),
+          // helperStyle: const TextStyle(
+          //   color: Colors.grey,
+          //   // fontSize: 12,
+          //   // fontWeight: FontWeight.normal,
+          // ),
+          labelStyle: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+          ),
         ),
+
         // listTileTheme: ListTileThemeData(
         //   tileColor: Colors.grey[200], // background color
         //   shape: RoundedRectangleBorder(
