@@ -42,7 +42,7 @@ class LoginRoute extends GoRouteData {
 }
 
 @TypedGoRoute<UserRoute>(
-  path: Routes.artifactPage,
+  path: Routes.userPage,
   // routes: [TypedGoRoute<UserDetailRoute>(path: ':id')],
 )
 @immutable

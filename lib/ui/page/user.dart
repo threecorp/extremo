@@ -120,7 +120,6 @@ class UserPage extends HookConsumerWidget {
   }
 }
 
-// ユーザークラス
 class User {
   User({
     required this.name,

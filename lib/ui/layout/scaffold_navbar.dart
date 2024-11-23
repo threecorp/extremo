@@ -30,7 +30,7 @@ class ScaffoldNavbar extends StatelessWidget {
         go: userRoute.go,
         location: userRoute.location,
         item: BottomNavigationBarItem(
-          icon: const Icon(Icons.list),
+          icon: const Icon(Icons.account_circle),
           label: t.user,
         ),
       ),
@@ -86,6 +86,7 @@ class ScaffoldNavbar extends StatelessWidget {
     final index = routes.lastIndexWhere(
       (route) => route.location != '/' && location.startsWith(route.location),
     );
+
     return max(0, index);
   }
 
