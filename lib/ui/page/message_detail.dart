@@ -37,7 +37,7 @@ class MessageDetailPage extends StatelessWidget {
 class ChatPage extends HookConsumerWidget {
   const ChatPage({required this.id, super.key});
 
-  final int id;
+  final int id; // toFk
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,7 +74,7 @@ class ChatPage extends HookConsumerWidget {
       final messageModel = MessageModel(
         id: 0,
         fromFk: account.pk,
-        toFk: 1, // TODO(refactoring): UserID
+        toFk: id,
         message: jsonEncode(message.toJson()),
         isRead: false,
         isDeleted: false,

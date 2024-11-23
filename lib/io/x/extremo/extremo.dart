@@ -11,30 +11,30 @@ import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Cache save & return
-Future<ArtifactEntity> xFormResponseArtifactEntity(
-  Ref ref,
-  ArtifactResponse element,
-) async {
-  final artifactBox = await ref.read(artifactBoxProvider.future);
-  final userBox = await ref.read(userBoxProvider.future);
-
-  final entity = ArtifactEntity.fromResponse(element: element);
-  if (artifactBox.get(element.pk)?.updatedAt == entity.updatedAt) {
-    return entity;
-  }
-
-  //
-  // TODO(Backgrounder): Background process to put data to DB
-  //
-  // Artifact
-  await artifactBox.put(element.pk, entity);
-  // User
-  if (entity.user != null) {
-    await userBox.put(entity.userFk, entity.user!);
-  }
-
-  return entity;
-}
+// Future<ArtifactEntity> xFormResponseArtifactEntity(
+//   Ref ref,
+//   ArtifactResponse element,
+// ) async {
+//   final artifactBox = await ref.read(artifactBoxProvider.future);
+//   final userBox = await ref.read(userBoxProvider.future);
+//
+//   final entity = ArtifactEntity.fromResponse(element: element);
+//   if (artifactBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+//     return entity;
+//   }
+//
+//   //
+//   // TODO(Backgrounder): Background process to put data to DB
+//   //
+//   // Artifact
+//   await artifactBox.put(element.pk, entity);
+//   // User
+//   if (entity.user != null) {
+//     await userBox.put(entity.userFk, entity.user!);
+//   }
+//
+//   return entity;
+// }
 
 // Cache save & return
 Future<ArtifactEntity> xFormRpcArtifactEntity(

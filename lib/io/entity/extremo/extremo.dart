@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
+import 'package:extremo/misc/logger.dart';
+import 'package:extremo/misc/xcontext.dart';
 import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -20,31 +22,41 @@ class UserEntity {
     this.createdAt,
     this.updatedAt,
     // Relationships
+    this.profile,
     this.artifacts = const [],
   });
 
-  factory UserEntity.fromResponse({
-    required UserResponse element,
-  }) {
-    final artifacts = element.artifacts.map((element) => ArtifactEntity.fromResponse(element: element)).toList();
-    return UserEntity(
-      id: element.pk,
-      email: element.email ?? '',
-      dateJoined: element.dateJoined,
-      isDeleted: element.isDeleted,
-      deletedAt: element.deletedAt,
-      createdAt: element.createdAt,
-      updatedAt: element.updatedAt,
-      // Relationships
-      artifacts: artifacts,
-    );
-  }
+  // factory UserEntity.fromResponse({
+  //   required UserResponse element,
+  // }) {
+  //   final artifacts = element.artifacts
+  //       .map((element) => ArtifactEntity.fromResponse(element: element))
+  //       .toList();
+  //   return UserEntity(
+  //     id: element.pk,
+  //     email: element.email ?? '',
+  //     dateJoined: element.dateJoined,
+  //     isDeleted: element.isDeleted,
+  //     deletedAt: element.deletedAt,
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     artifacts: artifacts,
+  //   );
+  // }
 
   factory UserEntity.fromRpc({
     required pbdb.User element,
+    XContext? context,
   }) {
-    final artifacts = element.artifacts.map((element) => ArtifactEntity.fromRpc(element: element)).toList();
-    return UserEntity(
+    context ??= XContext.of();
+
+    var entity = context.getE<UserEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+
+    entity = UserEntity(
       id: element.pk,
       email: element.email,
       dateJoined: element.dateJoined.toDateTime(),
@@ -53,8 +65,24 @@ class UserEntity {
       createdAt: element.createdAt.toDateTime(),
       updatedAt: element.updatedAt.toDateTime(),
       // Relationships
-      artifacts: artifacts,
+      // profile: profile,
+      // artifacts: artifacts,
     );
+    context.putE(entity.id, entity);
+
+    entity
+      ..artifacts = element.artifacts.map((e) {
+        return context!.getE<ArtifactEntity>(e.pk) ??
+            ArtifactEntity.fromRpc(element: e, context: context);
+      }).toList()
+      ..profile = element.hasProfile()
+          ? UserProfileEntity.fromRpc(
+              element: element.profile,
+              context: context,
+            )
+          : null;
+
+    return entity;
   }
 
   @HiveField(0)
@@ -79,7 +107,85 @@ class UserEntity {
   DateTime? updatedAt;
 
   // Relationships
+  UserProfileEntity? profile;
   List<ArtifactEntity> artifacts;
+}
+
+@HiveType(typeId: 4)
+class UserProfileEntity {
+  UserProfileEntity({
+    required this.id,
+    required this.userFk,
+    this.name = '',
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.user,
+  });
+
+  // factory UserProfileEntity.fromResponse({
+  //   required UserResponse element,
+  // }) {
+  //   final user = element.user != null ?
+  //   UserEntity.fromResponse(element: element))
+  //
+  //   return UserProfileEntity(
+  //     id: element.pk,
+  //     name: element.name ?? '',
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     user: user,
+  //   );
+  // }
+
+  factory UserProfileEntity.fromRpc({
+    required pbdb.UserProfile element,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var entity = context.getE<UserProfileEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+
+    entity = UserProfileEntity(
+      id: element.pk,
+      userFk: element.userFk,
+      name: element.name,
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+      // Relationships
+      // user: null,
+    );
+    context.putE(entity.id, entity);
+
+    entity.user = (context.getE<UserEntity>(element.userFk)) ??
+        (element.hasUser()
+            ? UserEntity.fromRpc(element: element.user, context: context)
+            : null);
+
+    return entity;
+  }
+
+  @HiveField(0)
+  int id;
+
+  @HiveField(1)
+  int userFk;
+
+  @HiveField(2)
+  String name;
+
+  @HiveField(3)
+  DateTime? createdAt;
+
+  @HiveField(4)
+  DateTime? updatedAt;
+
+  // Relationships
+  UserEntity? user;
 }
 
 @HiveType(typeId: 2)
@@ -99,33 +205,41 @@ class ArtifactEntity {
     this.user,
   });
 
-  factory ArtifactEntity.fromResponse({
-    required ArtifactResponse element,
-  }) {
-    final user = element.user != null ? UserEntity.fromResponse(element: element.user!) : null;
-
-    return ArtifactEntity(
-      id: element.pk,
-      userFk: element.userFk,
-      title: element.title,
-      content: element.content,
-      summary: element.summary,
-      status: element.status,
-      publishFrom: element.publishFrom,
-      publishUntil: element.publishUntil,
-      createdAt: element.createdAt,
-      updatedAt: element.updatedAt,
-      // Relationships
-      user: user,
-    );
-  }
+  // factory ArtifactEntity.fromResponse({
+  //   required ArtifactResponse element,
+  // }) {
+  //   final user = element.user != null
+  //       ? UserEntity.fromResponse(element: element.user!)
+  //       : null;
+  //
+  //   return ArtifactEntity(
+  //     id: element.pk,
+  //     userFk: element.userFk,
+  //     title: element.title,
+  //     content: element.content,
+  //     summary: element.summary,
+  //     status: element.status,
+  //     publishFrom: element.publishFrom,
+  //     publishUntil: element.publishUntil,
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     user: user,
+  //   );
+  // }
 
   factory ArtifactEntity.fromRpc({
     required pbdb.Artifact element,
+    XContext? context,
   }) {
-    final user = element.hasUser() ? UserEntity.fromRpc(element: element.user) : null;
+    context ??= XContext.of();
 
-    return ArtifactEntity(
+    var entity = context.getE<ArtifactEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+
+    entity = ArtifactEntity(
       id: element.pk,
       userFk: element.userFk,
       title: element.title,
@@ -137,8 +251,16 @@ class ArtifactEntity {
       createdAt: element.createdAt.toDateTime(),
       updatedAt: element.updatedAt.toDateTime(),
       // Relationships
-      user: user,
+      // user: user,
     );
+    context.putE(entity.id, entity);
+
+    entity.user = (context.getE<UserEntity>(element.userFk)) ??
+        (element.hasUser()
+            ? UserEntity.fromRpc(element: element.user, context: context)
+            : null);
+
+    return entity;
   }
 
   @HiveField(0)
@@ -218,11 +340,15 @@ class MessageEntity {
 
   factory MessageEntity.fromRpc({
     required pbdb.Message element,
+    XContext? context,
   }) {
-    final fromUser = element.hasFromUser() ? UserEntity.fromRpc(element: element.fromUser) : null;
-    final toUser = element.hasToUser() ? UserEntity.fromRpc(element: element.toUser) : null;
+    context ??= XContext.of();
 
-    return MessageEntity(
+    var entity = context.getE<MessageEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+    entity = MessageEntity(
       id: element.pk,
       fromFk: element.fromFk,
       toFk: element.toFk,
@@ -234,9 +360,22 @@ class MessageEntity {
       createdAt: element.createdAt.toDateTime(),
       updatedAt: element.updatedAt.toDateTime(),
       // Relationships
-      fromUser: fromUser,
-      toUser: toUser,
+      // fromUser: fromUser,
+      // toUser: toUser,
     );
+    context.putE(entity.id, entity);
+
+    entity
+      ..fromUser = (context.getE<UserEntity>(element.fromFk)) ??
+          (element.hasFromUser()
+              ? UserEntity.fromRpc(element: element.fromUser, context: context)
+              : null)
+      ..toUser = (context.getE<UserEntity>(element.toFk)) ??
+          (element.hasToUser()
+              ? UserEntity.fromRpc(element: element.toUser, context: context)
+              : null);
+
+    return entity;
   }
 
   @HiveField(0)

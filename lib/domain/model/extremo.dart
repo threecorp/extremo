@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:extremo/io/entity/extremo/extremo.dart';
+import 'package:extremo/misc/logger.dart';
+import 'package:extremo/misc/xcontext.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'extremo.freezed.dart';
@@ -17,15 +19,22 @@ class UserModel with _$UserModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     // Relationships
+    UserProfileModel? profile,
     @Default([]) List<ArtifactModel> artifacts,
   }) = _UserModel;
 
   factory UserModel.fromEntity({
     required UserEntity entity,
+    XContext? context,
   }) {
-    final artifacts = entity.artifacts.map((e) => ArtifactModel.fromEntity(entity: e)).toList();
+    context ??= XContext.of();
 
-    return UserModel(
+    var model = context.getE<UserModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = UserModel(
       id: entity.id,
       email: entity.email,
       dateJoined: entity.dateJoined,
@@ -34,7 +43,16 @@ class UserModel with _$UserModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      artifacts: artifacts,
+      // profile: profile,
+      // artifacts: artifacts,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      profile: entity.profile != null ? UserProfileModel.fromEntity(entity: entity.profile!, context: context) : null,
+      artifacts: entity.artifacts.map((e) {
+        return context!.getE<ArtifactModel>(e.id) ?? ArtifactModel.fromEntity(entity: e, context: context);
+      }).toList(),
     );
   }
 }
@@ -49,7 +67,61 @@ extension UserModelX on UserModel {
       deletedAt: deletedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      profile: profile?.toEntity(),
       artifacts: artifacts.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
+@freezed
+class UserProfileModel with _$UserProfileModel {
+  const factory UserProfileModel({
+    int? id,
+    int? userFk,
+    String? name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    UserModel? user,
+  }) = _UserProfileModel;
+
+  factory UserProfileModel.fromEntity({
+    required UserProfileEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<UserProfileModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = UserProfileModel(
+      id: entity.id,
+      userFk: entity.userFk,
+      name: entity.name,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      // Relationships
+      // user: user,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
+    );
+  }
+}
+
+extension UserProfileModelX on UserProfileModel {
+  UserProfileEntity toEntity() {
+    return UserProfileEntity(
+      id: id ?? 0,
+      userFk: userFk ?? 0,
+      name: name ?? '',
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      user: user?.toEntity(),
     );
   }
 }
@@ -73,10 +145,16 @@ class ArtifactModel with _$ArtifactModel {
 
   factory ArtifactModel.fromEntity({
     required ArtifactEntity entity,
+    XContext? context,
   }) {
-    final user = entity.user != null ? UserModel.fromEntity(entity: entity.user!) : null;
+    context ??= XContext.of();
 
-    return ArtifactModel(
+    var model = context.getE<ArtifactModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = ArtifactModel(
       id: entity.id,
       userFk: entity.userFk,
       title: entity.title,
@@ -88,7 +166,12 @@ class ArtifactModel with _$ArtifactModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      user: user,
+      // user: user
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
     );
   }
 }
@@ -152,11 +235,16 @@ class MessageModel with _$MessageModel {
 
   factory MessageModel.fromEntity({
     required MessageEntity entity,
+    XContext? context,
   }) {
-    final fromUser = entity.fromUser != null ? UserModel.fromEntity(entity: entity.fromUser!) : null;
-    final toUser = entity.toUser != null ? UserModel.fromEntity(entity: entity.toUser!) : null;
+    context ??= XContext.of();
 
-    return MessageModel(
+    var model = context.getE<MessageModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = MessageModel(
       id: entity.id,
       fromFk: entity.fromFk,
       toFk: entity.toFk,
@@ -168,8 +256,14 @@ class MessageModel with _$MessageModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       // Relationships
-      fromUser: fromUser,
-      toUser: toUser,
+      // fromUser: fromUser,
+      // toUser: toUser,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      fromUser: context.getE<UserModel>(entity.fromFk) ?? (entity.fromUser != null ? UserModel.fromEntity(entity: entity.fromUser!, context: context) : null),
+      toUser: context.getE<UserModel>(entity.toFk) ?? (entity.toUser != null ? UserModel.fromEntity(entity: entity.toUser!, context: context) : null),
     );
   }
 
@@ -213,7 +307,7 @@ extension MessageModelX on MessageModel {
   }
 
   chat_types.Message? get toChatMessage {
-    final decoded = jsonDecode(message);
+    final decoded = toChatJson;
     if (decoded is! Map<String, dynamic>) {
       return null;
     }
