@@ -18,7 +18,10 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 class UserPage extends HookConsumerWidget {
   const UserPage({
     super.key,
+    this.onTapAction,
   });
+
+  final void Function(User)? onTapAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,10 +110,19 @@ class UserPage extends HookConsumerWidget {
                   subtitle: Text(user.status),
                   trailing: user.isOnline ? const Icon(Icons.circle, color: Colors.green, size: 12) : null,
                   onTap: () {
+                    if (onTapAction != null) {
+                      return onTapAction!(user);
+                    }
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('${user.name} selected')),
                     );
                   },
+                  // onTap: () {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(content: Text('${user.name} selected')),
+                  //   );
+                  // },
                 );
               },
             ),

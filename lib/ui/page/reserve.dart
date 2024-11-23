@@ -49,6 +49,7 @@ class ReservePage extends HookConsumerWidget {
                 // Update the reserve time
                 return Reserve(
                   id: value.id,
+                  user: value.user,
                   subject: value.subject,
                   startTime: details.startTime!,
                   endTime: details.endTime!,
@@ -130,6 +131,7 @@ class ReservePage extends HookConsumerWidget {
                       Expanded(
                         child: _ReserveForm(
                           id: reserve?.id,
+                          user: reserve?.user,
                           subject: reserve?.subject ?? '',
                           startTime: reserve?.startTime ?? details.date!,
                           endTime: reserve?.endTime ?? details.date!.add(const Duration(hours: 1)),
@@ -170,6 +172,7 @@ class ReservePage extends HookConsumerWidget {
 class _ReserveForm extends HookConsumerWidget {
   const _ReserveForm({
     this.id,
+    this.user,
     required this.subject,
     required this.startTime,
     required this.endTime,
@@ -177,6 +180,7 @@ class _ReserveForm extends HookConsumerWidget {
   });
 
   final String? id;
+  final User? user;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;
@@ -187,7 +191,9 @@ class _ReserveForm extends HookConsumerWidget {
     final subjectController = useTextEditingController(text: subject);
     final sTimeState = useState(startTime);
     final eTimeState = useState(endTime);
-    final userState = useState<User?>(null);
+    final userState = useState<User?>(user);
+
+    debugPrint('id: $id, subject: $subject, startTime: $startTime, endTime: $endTime, user: ${user?.name}');
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -197,7 +203,7 @@ class _ReserveForm extends HookConsumerWidget {
           // user selection
           ElevatedButton(
             onPressed: () async {
-              final user = await UserRoute().push<User>(context);
+              final user = await UserRoute($extra: (User user) => Navigator.pop(context, user)).push<User>(context);
               if (user != null) {
                 userState.value = user;
               }
@@ -244,12 +250,12 @@ class _ReserveForm extends HookConsumerWidget {
               if (subjectController.text.isNotEmpty && userState.value != null) {
                 final reserve = Reserve.create(
                   id: id,
+                  user: userState.value,
                   subject: subjectController.text,
                   startTime: sTimeState.value,
                   endTime: eTimeState.value,
                   background: const Color(0xFF0F8644),
                   isAllDay: false,
-                  user: userState.value!,
                 );
                 onAdd(reserve); // TODO(impl): callback
                 Navigator.pop(context); // TODO(impl): callback
@@ -257,7 +263,7 @@ class _ReserveForm extends HookConsumerWidget {
               }
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please fill all fields and select a user')),
+                const SnackBar(content: Text('Please fill all fields')),
               );
             },
             child: const Text('Save'),
@@ -305,6 +311,8 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
     Appointment appointment,
   ) {
     return Reserve.create(
+      id: customData?.id,
+      user: customData?.user,
       subject: appointment.subject,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
@@ -328,22 +336,22 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
 class Reserve {
   Reserve({
     this.id,
+    this.user,
     required this.subject,
     required this.startTime,
     required this.endTime,
     required this.background,
     required this.isAllDay,
-    this.user,
   });
 
   factory Reserve.create({
     String? id,
+    User? user,
     required String subject,
     required DateTime startTime,
     required DateTime endTime,
     required Color background,
     required bool isAllDay,
-    User? user,
   }) {
     return Reserve(
       id: id ?? const Uuid().v7(),
@@ -357,10 +365,10 @@ class Reserve {
   }
 
   final String? id;
-  String subject;
-  DateTime startTime;
-  DateTime endTime;
-  Color background;
-  bool isAllDay;
-  User? user;
+  final User? user;
+  final String subject;
+  final DateTime startTime;
+  final DateTime endTime;
+  final Color background;
+  final bool isAllDay;
 }
