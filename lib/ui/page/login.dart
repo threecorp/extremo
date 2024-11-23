@@ -34,7 +34,7 @@ class LoginPage extends HookConsumerWidget {
 
       loggedAccount.onSuccess<AccountToken>((model) {
         notifier.login(model); // TODO(Refactoring): Use await
-        PostRoute().go(context);
+        ReserveRoute().go(context);
       }).onFailure<Exception>((error) {
         final sb = SnackBar(content: Text(error.toString()));
         ScaffoldMessenger.of(context).showSnackBar(sb);

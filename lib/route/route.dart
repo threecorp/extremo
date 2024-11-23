@@ -6,7 +6,8 @@ import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/login.dart';
 import 'package:extremo/ui/page/message.dart';
 import 'package:extremo/ui/page/message_detail.dart';
-import 'package:extremo/ui/page/post.dart';
+import 'package:extremo/ui/page/reserve.dart';
+import 'package:extremo/ui/page/user.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -19,12 +20,53 @@ part 'route.g.dart';
 //
 class Routes {
   static const rootPage = '/';
+  static const userPage = '/users';
   static const artifactPage = '/artifacts';
   static const loginPage = '/login';
   static const messagePage = '/messages';
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";
 }
+
+@TypedGoRoute<LoginRoute>(
+  path: Routes.loginPage,
+)
+@immutable
+class LoginRoute extends GoRouteData {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const LoginPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+      );
+}
+
+@TypedGoRoute<UserRoute>(
+  path: Routes.artifactPage,
+  // routes: [TypedGoRoute<UserDetailRoute>(path: ':id')],
+)
+@immutable
+class UserRoute extends GoRouteData {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const UserPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+      );
+}
+
+// @immutable
+// class UserDetailRoute extends GoRouteData {
+//   const UserDetailRoute({required this.id});
+//   final int id;
+//
+//   @override
+//   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
+//         key: state.pageKey,
+//         child: UserDetailPage(id: id),
+//         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+//       );
+// }
 
 @TypedGoRoute<ArtifactRoute>(
   path: Routes.artifactPage,
@@ -53,28 +95,15 @@ class ArtifactDetailRoute extends GoRouteData {
       );
 }
 
-@TypedGoRoute<LoginRoute>(
-  path: Routes.loginPage,
-)
-@immutable
-class LoginRoute extends GoRouteData {
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const LoginPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
-      );
-}
-
-@TypedGoRoute<PostRoute>(
+@TypedGoRoute<ReserveRoute>(
   path: Routes.rootPage,
 )
 @immutable
-class PostRoute extends GoRouteData {
+class ReserveRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const PostPage(),
+        child: const ReservePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }

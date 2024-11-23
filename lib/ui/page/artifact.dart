@@ -81,7 +81,7 @@ class ArtifactPage extends HookConsumerWidget {
           SpeedDialChild(
             child: const Icon(Icons.person_add),
             backgroundColor: Colors.lightBlueAccent,
-            label: t.newPost,
+            label: t.newReserve,
             onTap: () => showModalBottomSheet<void>(
               context: context,
               isScrollControlled: true,

@@ -16,15 +16,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class PostPage extends HookConsumerWidget {
-  const PostPage({super.key});
+class ReservePage extends HookConsumerWidget {
+  const ReservePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final meetingsState = useState<List<Meeting>>([]);
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.post)),
+      appBar: AppBar(title: Text(t.reserve)),
       body: SfCalendar(
         view: CalendarView.week,
         allowedViews: const [
@@ -60,14 +60,9 @@ class PostPage extends HookConsumerWidget {
 
             // Show a Snackbar notification
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Meeting "${(details.appointment as Meeting).eventName}"'
-                  'updated!',
-                ),
-                duration: const Duration(
-                  seconds: 5,
-                ), // Notification disappears after 5 seconds
+              const SnackBar(
+                content: Text('time updated!'),
+                duration: Duration(seconds: 5),
               ),
             );
           }
@@ -138,12 +133,19 @@ class PostPage extends HookConsumerWidget {
                           onAdd: (mtg) {
                             if (!isEdit) {
                               meetingsState.value = [...meetingsState.value, mtg];
-                              return;
+                            } else {
+                              meetingsState.value = meetingsState.value.map((elm) {
+                                return elm.eventName == eventName ? mtg : elm;
+                              }).toList();
                             }
 
-                            meetingsState.value = meetingsState.value.map((elm) {
-                              return elm.eventName == eventName ? mtg : elm;
-                            }).toList();
+                            // Show a Snackbar notification
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('"${mtg.eventName}" saved!'),
+                                duration: const Duration(seconds: 5),
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -273,7 +275,7 @@ class MeetingDataSource extends CalendarDataSource<Meeting> {
 
   @override
   Meeting convertAppointmentToObject(
-    Meeting? meeting,
+    Meeting? customData,
     Appointment appointment,
   ) {
     return Meeting(
