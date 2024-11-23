@@ -72,8 +72,7 @@ class UserEntity {
 
     entity
       ..artifacts = element.artifacts.map((e) {
-        return context!.getE<ArtifactEntity>(e.pk) ??
-            ArtifactEntity.fromRpc(element: e, context: context);
+        return context!.getE<ArtifactEntity>(e.pk) ?? ArtifactEntity.fromRpc(element: e, context: context);
       }).toList()
       ..profile = element.hasProfile()
           ? UserProfileEntity.fromRpc(
@@ -161,10 +160,7 @@ class UserProfileEntity {
     );
     context.putE(entity.id, entity);
 
-    entity.user = (context.getE<UserEntity>(element.userFk)) ??
-        (element.hasUser()
-            ? UserEntity.fromRpc(element: element.user, context: context)
-            : null);
+    entity.user = (context.getE<UserEntity>(element.userFk)) ?? (element.hasUser() ? UserEntity.fromRpc(element: element.user, context: context) : null);
 
     return entity;
   }
@@ -255,10 +251,7 @@ class ArtifactEntity {
     );
     context.putE(entity.id, entity);
 
-    entity.user = (context.getE<UserEntity>(element.userFk)) ??
-        (element.hasUser()
-            ? UserEntity.fromRpc(element: element.user, context: context)
-            : null);
+    entity.user = (context.getE<UserEntity>(element.userFk)) ?? (element.hasUser() ? UserEntity.fromRpc(element: element.user, context: context) : null);
 
     return entity;
   }
@@ -366,14 +359,8 @@ class MessageEntity {
     context.putE(entity.id, entity);
 
     entity
-      ..fromUser = (context.getE<UserEntity>(element.fromFk)) ??
-          (element.hasFromUser()
-              ? UserEntity.fromRpc(element: element.fromUser, context: context)
-              : null)
-      ..toUser = (context.getE<UserEntity>(element.toFk)) ??
-          (element.hasToUser()
-              ? UserEntity.fromRpc(element: element.toUser, context: context)
-              : null);
+      ..fromUser = (context.getE<UserEntity>(element.fromFk)) ?? (element.hasFromUser() ? UserEntity.fromRpc(element: element.fromUser, context: context) : null)
+      ..toUser = (context.getE<UserEntity>(element.toFk)) ?? (element.hasToUser() ? UserEntity.fromRpc(element: element.toUser, context: context) : null);
 
     return entity;
   }

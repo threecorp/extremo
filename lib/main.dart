@@ -62,11 +62,64 @@ class MyApp extends HookConsumerWidget {
     return MaterialApp.router(
       title: t.appName,
       theme: ThemeData(
-        // primarySwatch: Colors.blueGrey,
-        colorSchemeSeed: Colors.blueGrey,
-        brightness: Brightness.light,
-        fontFamily: 'Noto Sans JP',
         useMaterial3: true,
+        // primarySwatch: Colors.blueGrey,
+        // colorSchemeSeed: Colors.blueGrey,
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blueGrey,
+          // brightness: Brightness.light,
+        ),
+        fontFamily: 'Noto Sans JP',
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Colors.blueGrey,
+          unselectedItemColor: Colors.grey,
+        ),
+        // elevatedButtonTheme: ElevatedButtonThemeData(
+        //   style: ElevatedButton.styleFrom(
+        //     backgroundColor: Colors.blueGrey,
+        //     foregroundColor: Colors.white,
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(20),
+        //     ),
+        //   ),
+        // ),
+        // textTheme: const TextTheme(
+        //   bodyLarge: TextStyle(fontSize: 16, color: Colors.black),
+        //   bodyMedium: TextStyle(fontSize: 14, color: Colors.grey),
+        // ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
+              color: Colors.white,
+              width: 1.5,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200],
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+        ),
+        // listTileTheme: ListTileThemeData(
+        //   tileColor: Colors.grey[200], // background color
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(12), // radius corner
+        //   ),
+        //   selectedTileColor: Colors.grey[300],
+        //   textColor: Colors.black,
+        //   iconColor: Colors.grey,
+        // ),
       ),
       supportedLocales: AppLocaleUtils.supportedLocales + FormBuilderLocalizations.supportedLocales,
       localizationsDelegates: const [
