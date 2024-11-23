@@ -47,12 +47,20 @@ class LoginRoute extends GoRouteData {
 )
 @immutable
 class UserRoute extends GoRouteData {
+  const UserRoute({
+    this.$extra,
+  });
+
+  final void Function(User)? $extra;
+
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const UserPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
-      );
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: UserPage(onTapAction: $extra),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+    );
+  }
 }
 
 // @immutable
