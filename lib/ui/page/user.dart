@@ -16,7 +16,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class UserPage extends HookConsumerWidget {
-  const UserPage({super.key});
+  const UserPage({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

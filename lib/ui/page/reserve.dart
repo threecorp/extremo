@@ -7,6 +7,8 @@
 // import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/route/route.dart';
+import 'package:extremo/ui/page/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -15,6 +17,7 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:uuid/uuid.dart';
 
 class ReservePage extends HookConsumerWidget {
   const ReservePage({super.key});
@@ -42,10 +45,11 @@ class ReservePage extends HookConsumerWidget {
         onAppointmentResizeEnd: (AppointmentResizeEndDetails details) {
           if (details.appointment != null && details.startTime != null && details.endTime != null) {
             final values = reservesState.value.map((value) {
-              if (value.eventName == (details.appointment as Reserve).eventName) {
+              if (value.id == (details.appointment as Reserve).id) {
                 // Update the reserve time
                 return Reserve(
-                  eventName: value.eventName,
+                  id: value.id,
+                  subject: value.subject,
                   startTime: details.startTime!,
                   endTime: details.endTime!,
                   background: value.background,
@@ -87,9 +91,6 @@ class ReservePage extends HookConsumerWidget {
         onTap: (CalendarTapDetails details) {
           final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
           final reserve = isEdit ? details.appointments!.first as Reserve : null;
-          final eventName = reserve?.eventName ?? '';
-          final startTime = reserve?.startTime ?? details.date!;
-          final endTime = reserve?.endTime ?? details.date!.add(const Duration(hours: 1));
 
           showModalBottomSheet<void>(
             context: context,
@@ -125,25 +126,26 @@ class ReservePage extends HookConsumerWidget {
                         ],
                       ),
                       const Divider(),
-                      // Event form for editing
+                      // Reserve form for editing
                       Expanded(
-                        child: _EventForm(
-                          eventName: eventName,
-                          startTime: startTime,
-                          endTime: endTime,
+                        child: _ReserveForm(
+                          id: reserve?.id,
+                          subject: reserve?.subject ?? '',
+                          startTime: reserve?.startTime ?? details.date!,
+                          endTime: reserve?.endTime ?? details.date!.add(const Duration(hours: 1)),
                           onAdd: (reserve) {
                             if (!isEdit) {
                               reservesState.value = [...reservesState.value, reserve];
                             } else {
                               reservesState.value = reservesState.value.map((value) {
-                                return value.eventName == eventName ? reserve : value;
+                                return value.id == reserve.id ? reserve : value;
                               }).toList();
                             }
 
                             // Show a Snackbar notification
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('"${reserve.eventName}" saved!'),
+                                content: Text('"${reserve.subject}" saved!'),
                                 duration: const Duration(seconds: 5),
                               ),
                             );
@@ -165,75 +167,98 @@ class ReservePage extends HookConsumerWidget {
   }
 }
 
-class _EventForm extends HookConsumerWidget {
-  const _EventForm({
-    required this.eventName,
+class _ReserveForm extends HookConsumerWidget {
+  const _ReserveForm({
+    this.id,
+    required this.subject,
     required this.startTime,
     required this.endTime,
     required this.onAdd,
   });
 
-  final String eventName;
+  final String? id;
+  final String subject;
   final DateTime startTime;
   final DateTime endTime;
   final void Function(Reserve) onAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final eventNameController = useTextEditingController(text: eventName);
-    final sTime = useState(startTime);
-    final eTime = useState(endTime);
+    final subjectController = useTextEditingController(text: subject);
+    final sTimeState = useState(startTime);
+    final eTimeState = useState(endTime);
+    final userState = useState<User?>(null);
 
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // user selection
+          ElevatedButton(
+            onPressed: () async {
+              final user = await UserRoute().push<User>(context);
+              if (user != null) {
+                userState.value = user;
+              }
+            },
+            child: Text(
+              userState.value != null ? 'Selected: ${userState.value!.name}' : 'Select User',
+            ),
+          ),
+          const SizedBox(height: 16),
           TextField(
-            controller: eventNameController,
-            decoration: const InputDecoration(labelText: 'Event Name'),
+            controller: subjectController,
+            decoration: const InputDecoration(labelText: 'Subject'),
           ),
           const SizedBox(height: 16),
           TextFormField(
             readOnly: true,
-            initialValue: sTime.value.toString(),
+            initialValue: sTimeState.value.toString(),
             decoration: const InputDecoration(labelText: 'Start Time'),
             onTap: () async {
-              final selectedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(sTime.value));
+              final selectedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(sTimeState.value));
               if (selectedTime != null) {
-                sTime.value = DateTime(sTime.value.year, sTime.value.month, sTime.value.day, selectedTime.hour, selectedTime.minute);
+                sTimeState.value = DateTime(sTimeState.value.year, sTimeState.value.month, sTimeState.value.day, selectedTime.hour, selectedTime.minute);
               }
             },
           ),
           const SizedBox(height: 16),
           TextFormField(
             readOnly: true,
-            initialValue: eTime.value.toString(),
+            initialValue: eTimeState.value.toString(),
             decoration: const InputDecoration(labelText: 'End Time'),
             onTap: () async {
               final selectedTime = await showTimePicker(
                 context: context,
-                initialTime: TimeOfDay.fromDateTime(eTime.value),
+                initialTime: TimeOfDay.fromDateTime(eTimeState.value),
               );
               if (selectedTime != null) {
-                eTime.value = DateTime(eTime.value.year, eTime.value.month, eTime.value.day, selectedTime.hour, selectedTime.minute);
+                eTimeState.value = DateTime(eTimeState.value.year, eTimeState.value.month, eTimeState.value.day, selectedTime.hour, selectedTime.minute);
               }
             },
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              if (eventNameController.text.isNotEmpty) {
-                final reserve = Reserve(
-                  eventName: eventNameController.text,
-                  startTime: sTime.value,
-                  endTime: eTime.value,
+              if (subjectController.text.isNotEmpty && userState.value != null) {
+                final reserve = Reserve.create(
+                  id: id,
+                  subject: subjectController.text,
+                  startTime: sTimeState.value,
+                  endTime: eTimeState.value,
                   background: const Color(0xFF0F8644),
                   isAllDay: false,
+                  user: userState.value!,
                 );
-                onAdd(reserve);
-                Navigator.pop(context);
+                onAdd(reserve); // TODO(impl): callback
+                Navigator.pop(context); // TODO(impl): callback
+                return;
               }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please fill all fields and select a user')),
+              );
             },
             child: const Text('Save'),
           ),
@@ -261,7 +286,7 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
 
   @override
   String getSubject(int index) {
-    return _getData(index).eventName;
+    return _getData(index).subject;
   }
 
   @override
@@ -279,8 +304,8 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
     Reserve? customData,
     Appointment appointment,
   ) {
-    return Reserve(
-      eventName: appointment.subject,
+    return Reserve.create(
+      subject: appointment.subject,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       background: appointment.color,
@@ -302,16 +327,40 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
 
 class Reserve {
   Reserve({
-    required this.eventName,
+    this.id,
+    required this.subject,
     required this.startTime,
     required this.endTime,
     required this.background,
     required this.isAllDay,
+    this.user,
   });
 
-  String eventName;
+  factory Reserve.create({
+    String? id,
+    required String subject,
+    required DateTime startTime,
+    required DateTime endTime,
+    required Color background,
+    required bool isAllDay,
+    User? user,
+  }) {
+    return Reserve(
+      id: id ?? const Uuid().v7(),
+      subject: subject,
+      startTime: startTime,
+      endTime: endTime,
+      background: background,
+      isAllDay: isAllDay,
+      user: user,
+    );
+  }
+
+  final String? id;
+  String subject;
   DateTime startTime;
   DateTime endTime;
   Color background;
   bool isAllDay;
+  User? user;
 }
