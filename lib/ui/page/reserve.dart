@@ -46,8 +46,8 @@ class ReservePage extends HookConsumerWidget {
                 // Update the reserve time
                 return Reserve(
                   eventName: value.eventName,
-                  from: details.startTime!,
-                  to: details.endTime!,
+                  startTime: details.startTime!,
+                  endTime: details.endTime!,
                   background: value.background,
                   isAllDay: value.isAllDay,
                 );
@@ -88,8 +88,8 @@ class ReservePage extends HookConsumerWidget {
           final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
           final reserve = isEdit ? details.appointments!.first as Reserve : null;
           final eventName = reserve?.eventName ?? '';
-          final startTime = reserve?.from ?? details.date!;
-          final endTime = reserve?.to ?? details.date!.add(const Duration(hours: 1));
+          final startTime = reserve?.startTime ?? details.date!;
+          final endTime = reserve?.endTime ?? details.date!.add(const Duration(hours: 1));
 
           showModalBottomSheet<void>(
             context: context,
@@ -131,19 +131,19 @@ class ReservePage extends HookConsumerWidget {
                           eventName: eventName,
                           startTime: startTime,
                           endTime: endTime,
-                          onAdd: (mtg) {
+                          onAdd: (reserve) {
                             if (!isEdit) {
-                              reservesState.value = [...reservesState.value, mtg];
+                              reservesState.value = [...reservesState.value, reserve];
                             } else {
-                              reservesState.value = reservesState.value.map((elm) {
-                                return elm.eventName == eventName ? mtg : elm;
+                              reservesState.value = reservesState.value.map((value) {
+                                return value.eventName == eventName ? reserve : value;
                               }).toList();
                             }
 
                             // Show a Snackbar notification
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('"${mtg.eventName}" saved!'),
+                                content: Text('"${reserve.eventName}" saved!'),
                                 duration: const Duration(seconds: 5),
                               ),
                             );
@@ -224,14 +224,14 @@ class _EventForm extends HookConsumerWidget {
           ElevatedButton(
             onPressed: () {
               if (eventNameController.text.isNotEmpty) {
-                final m = Reserve(
+                final reserve = Reserve(
                   eventName: eventNameController.text,
-                  from: sTime.value,
-                  to: eTime.value,
+                  startTime: sTime.value,
+                  endTime: eTime.value,
                   background: const Color(0xFF0F8644),
                   isAllDay: false,
                 );
-                onAdd(m);
+                onAdd(reserve);
                 Navigator.pop(context);
               }
             },
@@ -251,12 +251,12 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
 
   @override
   DateTime getStartTime(int index) {
-    return _getData(index).from;
+    return _getData(index).startTime;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return _getData(index).to;
+    return _getData(index).endTime;
   }
 
   @override
@@ -281,8 +281,8 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
   ) {
     return Reserve(
       eventName: appointment.subject,
-      from: appointment.startTime,
-      to: appointment.endTime,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
       background: appointment.color,
       isAllDay: appointment.isAllDay,
     );
@@ -303,15 +303,15 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
 class Reserve {
   Reserve({
     required this.eventName,
-    required this.from,
-    required this.to,
+    required this.startTime,
+    required this.endTime,
     required this.background,
     required this.isAllDay,
   });
 
   String eventName;
-  DateTime from;
-  DateTime to;
+  DateTime startTime;
+  DateTime endTime;
   Color background;
   bool isAllDay;
 }
