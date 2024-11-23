@@ -10,8 +10,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 /// See also:
 /// - [useScrollController]
 /// - [PagingController]
-PagingController<PageKeyType, ItemType>
-    usePagingController<PageKeyType, ItemType>({
+PagingController<PageKeyType, ItemType> usePagingController<PageKeyType, ItemType>({
   required PageKeyType firstPageKey,
   required List<ItemType>? itemList,
   required PageKeyType? nextPageKey,
@@ -62,8 +61,7 @@ PagingController<void, ItemType> useStateLessPagingController<ItemType>({
       keys: keys,
     );
 
-class _PagingControllerHook<PageKeyType, ItemType>
-    extends Hook<PagingController<PageKeyType, ItemType>> {
+class _PagingControllerHook<PageKeyType, ItemType> extends Hook<PagingController<PageKeyType, ItemType>> {
   const _PagingControllerHook({
     required this.firstPageKey,
     required this.addPageRequestListener,
@@ -74,20 +72,14 @@ class _PagingControllerHook<PageKeyType, ItemType>
   final void Function(PageKeyType) addPageRequestListener;
 
   @override
-  HookState<PagingController<PageKeyType, ItemType>,
-          Hook<PagingController<PageKeyType, ItemType>>>
-      createState() => _PagingControllerHookState();
+  HookState<PagingController<PageKeyType, ItemType>, Hook<PagingController<PageKeyType, ItemType>>> createState() => _PagingControllerHookState();
 }
 
-class _PagingControllerHookState<PageKeyType, ItemType> extends HookState<
-    PagingController<PageKeyType, ItemType>,
-    _PagingControllerHook<PageKeyType, ItemType>> {
-  late final pagingController =
-      PagingController<PageKeyType, ItemType>(firstPageKey: hook.firstPageKey);
+class _PagingControllerHookState<PageKeyType, ItemType> extends HookState<PagingController<PageKeyType, ItemType>, _PagingControllerHook<PageKeyType, ItemType>> {
+  late final pagingController = PagingController<PageKeyType, ItemType>(firstPageKey: hook.firstPageKey);
 
   @override
-  PagingController<PageKeyType, ItemType> build(BuildContext context) =>
-      pagingController;
+  PagingController<PageKeyType, ItemType> build(BuildContext context) => pagingController;
 
   @override
   void initHook() {

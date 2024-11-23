@@ -86,12 +86,7 @@ class Logo extends StatelessWidget {
           child: Text(
             'Welcome to Flutter!',
             textAlign: TextAlign.center,
-            style: isSmallScreen
-                ? Theme.of(context).textTheme.headlineSmall
-                : Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(color: Colors.black),
+            style: isSmallScreen ? Theme.of(context).textTheme.headlineSmall : Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.black),
           ),
         ),
       ],
@@ -147,9 +142,7 @@ class FormContent extends HookConsumerWidget {
                 // border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    isPasswordVisible.value
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                    isPasswordVisible.value ? Icons.visibility_off : Icons.visibility,
                   ),
                   onPressed: () {
                     isPasswordVisible.value = !isPasswordVisible.value;

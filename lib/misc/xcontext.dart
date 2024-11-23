@@ -19,8 +19,6 @@ class XContext {
 
   @override
   String toString() {
-    return _context.entries
-        .map((entry) => '${entry.key}: ${entry.value}')
-        .join(', ');
+    return _context.entries.map((entry) => '${entry.key}: ${entry.value}').join(', ');
   }
 }

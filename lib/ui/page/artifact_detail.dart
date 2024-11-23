@@ -23,8 +23,7 @@ class ArtifactDetailPage extends StatelessWidget {
   final int id;
 
   @override
-  Widget build(BuildContext context) =>
-      Scaffold(appBar: AppBar(), body: _ArtifactDetailView(id: id));
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(), body: _ArtifactDetailView(id: id));
 }
 
 class _ArtifactDetailView extends HookConsumerWidget {
@@ -65,8 +64,7 @@ class _ArtifactDetailView extends HookConsumerWidget {
               width: 240,
               height: 240,
               fit: BoxFit.fitHeight,
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => const Center(
                 child: Icon(Icons.error_outline, size: 64, color: Colors.red),
               ),
@@ -81,10 +79,7 @@ class _ArtifactDetailView extends HookConsumerWidget {
             children: [
               Text(
                 data.title,
-                style: Theme.of(context)
-                    .textTheme
-                    .displayMedium
-                    ?.copyWith(color: Colors.black),
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(color: Colors.black),
               ),
               // FavoriteButton(
               //   isFavorite: data.isFavorite,
@@ -102,27 +97,18 @@ class _ArtifactDetailView extends HookConsumerWidget {
           children: [
             Text(
               t.height(height: 200 /*data.height*/),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Colors.black),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black),
             ),
             Text(
               t.weight(weight: 300 /*data.weight*/),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Colors.black),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black),
             ),
           ],
         ),
         const Gap(8),
         Text(
           data.content,
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.black),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black),
         ),
       ],
     );

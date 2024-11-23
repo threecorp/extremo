@@ -49,13 +49,9 @@ class UserModel with _$UserModel {
     context.putE(entity.id, model);
 
     return model.copyWith(
-      profile: entity.profile != null
-          ? UserProfileModel.fromEntity(
-              entity: entity.profile!, context: context)
-          : null,
+      profile: entity.profile != null ? UserProfileModel.fromEntity(entity: entity.profile!, context: context) : null,
       artifacts: entity.artifacts.map((e) {
-        return context!.getE<ArtifactModel>(e.id) ??
-            ArtifactModel.fromEntity(entity: e, context: context);
+        return context!.getE<ArtifactModel>(e.id) ?? ArtifactModel.fromEntity(entity: e, context: context);
       }).toList(),
     );
   }
@@ -112,10 +108,7 @@ class UserProfileModel with _$UserProfileModel {
     context.putE(entity.id, model);
 
     return model.copyWith(
-      user: context.getE<UserModel>(entity.userFk) ??
-          (entity.user != null
-              ? UserModel.fromEntity(entity: entity.user!, context: context)
-              : null),
+      user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
     );
   }
 }
@@ -178,10 +171,7 @@ class ArtifactModel with _$ArtifactModel {
     context.putE(entity.id, model);
 
     return model.copyWith(
-      user: context.getE<UserModel>(entity.userFk) ??
-          (entity.user != null
-              ? UserModel.fromEntity(entity: entity.user!, context: context)
-              : null),
+      user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
     );
   }
 }
@@ -272,14 +262,8 @@ class MessageModel with _$MessageModel {
     context.putE(entity.id, model);
 
     return model.copyWith(
-      fromUser: context.getE<UserModel>(entity.fromFk) ??
-          (entity.fromUser != null
-              ? UserModel.fromEntity(entity: entity.fromUser!, context: context)
-              : null),
-      toUser: context.getE<UserModel>(entity.toFk) ??
-          (entity.toUser != null
-              ? UserModel.fromEntity(entity: entity.toUser!, context: context)
-              : null),
+      fromUser: context.getE<UserModel>(entity.fromFk) ?? (entity.fromUser != null ? UserModel.fromEntity(entity: entity.fromUser!, context: context) : null),
+      toUser: context.getE<UserModel>(entity.toFk) ?? (entity.toUser != null ? UserModel.fromEntity(entity: entity.toUser!, context: context) : null),
     );
   }
 

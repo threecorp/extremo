@@ -52,8 +52,7 @@ class ArtifactResponse with _$ArtifactResponse {
     UserResponse? user,
   }) = _ArtifactResponse;
 
-  factory ArtifactResponse.fromJson(Map<String, dynamic> json) =>
-      _$ArtifactResponseFromJson(json);
+  factory ArtifactResponse.fromJson(Map<String, dynamic> json) => _$ArtifactResponseFromJson(json);
 }
 
 @freezed
@@ -71,6 +70,5 @@ class UserResponse with _$UserResponse {
     @Default([]) List<ArtifactResponse> artifacts,
   }) = _UserResponse;
 
-  factory UserResponse.fromJson(Map<String, dynamic> json) =>
-      _$UserResponseFromJson(json);
+  factory UserResponse.fromJson(Map<String, dynamic> json) => _$UserResponseFromJson(json);
 }

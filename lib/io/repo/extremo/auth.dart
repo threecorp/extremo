@@ -29,9 +29,7 @@ Future<Result<AccountToken, Exception>> repoLogin(
 
   try {
     // TODO(offline): Use DBCache when offlined or error
-    final entity = await rpc
-        .login(request)
-        .then((r) => r.element); // TODO(Refactoring): Transform & Cache?
+    final entity = await rpc.login(request).then((r) => r.element); // TODO(Refactoring): Transform & Cache?
 
     return Success(entity);
   } on GrpcError catch (ex, _) {
@@ -55,10 +53,9 @@ Future<Result<Account, Exception>> repoGetAccountByToken(
   final rpc = ref.read(authAccountServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final entity =
-      await rpc.getAccountByToken(GetAccountByTokenRequest(token: token)).then(
-            (r) => r.element, // TODO(Refactoring): Transform & Cache?
-          );
+  final entity = await rpc.getAccountByToken(GetAccountByTokenRequest(token: token)).then(
+        (r) => r.element, // TODO(Refactoring): Transform & Cache?
+      );
 
   return Success(entity);
 }

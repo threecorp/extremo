@@ -31,8 +31,7 @@ class MessageDetailPage extends StatelessWidget {
   final int id;
 
   @override
-  Widget build(BuildContext context) =>
-      Scaffold(appBar: AppBar(), body: ChatPage(id: id, key: super.key));
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(), body: ChatPage(id: id, key: super.key));
 }
 
 class ChatPage extends HookConsumerWidget {
@@ -143,16 +142,13 @@ class ChatPage extends HookConsumerWidget {
 
       if (message.uri.startsWith('http')) {
         try {
-          final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.toChatMessage?.id == message.id);
-          final updatedMessageModel =
-              messagesNotifier.state.value![index].copyWith(
+          final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.id == message.id);
+          final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
             message: jsonEncode(message.copyWith(uri: localPath).toJson()),
           );
 
           messagesNotifier.state = AsyncValue.data(
-            List.from(messagesNotifier.state.value!)
-              ..[index] = updatedMessageModel,
+            List.from(messagesNotifier.state.value!)..[index] = updatedMessageModel,
           );
 
           final client = http.Client();
@@ -166,16 +162,13 @@ class ChatPage extends HookConsumerWidget {
             await file.writeAsBytes(bytes);
           }
         } finally {
-          final index = messagesNotifier.state.value!
-              .indexWhere((model) => model.toChatMessage?.id == message.id);
-          final updatedMessageModel =
-              messagesNotifier.state.value![index].copyWith(
+          final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.id == message.id);
+          final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
             message: jsonEncode(message.toJson()),
           );
 
           messagesNotifier.state = AsyncValue.data(
-            List.from(messagesNotifier.state.value!)
-              ..[index] = updatedMessageModel,
+            List.from(messagesNotifier.state.value!)..[index] = updatedMessageModel,
           );
         }
       }
@@ -187,12 +180,10 @@ class ChatPage extends HookConsumerWidget {
       types.TextMessage message,
       types.PreviewData previewData,
     ) {
-      final index = messagesNotifier.state.value!
-          .indexWhere((model) => model.toChatMessage?.id == message.id);
+      final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.id == message.id);
 
       final updatedMessageModel = messagesNotifier.state.value![index].copyWith(
-        message:
-            jsonEncode(message.copyWith(previewData: previewData).toJson()),
+        message: jsonEncode(message.copyWith(previewData: previewData).toJson()),
       );
 
       messagesNotifier.state = AsyncValue.data(

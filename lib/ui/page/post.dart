@@ -1,12 +1,12 @@
+// import 'package:extremo/domain/model/extremo.dart';
+// import 'package:extremo/domain/usecase/artifact.dart';
+// import 'package:extremo/ui/layout/error_view.dart';
 // import 'package:extremo/ui/layout/extremo_type_chips.dart';
 // import 'package:extremo/ui/layout/favorite_button.dart';
+// import 'package:extremo/ui/layout/paging_controller.dart';
+// import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:extremo/domain/model/extremo.dart';
-import 'package:extremo/domain/usecase/artifact.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
-import 'package:extremo/ui/layout/error_view.dart';
-import 'package:extremo/ui/layout/paging_controller.dart';
-import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,80 +21,229 @@ class PostPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final meetingsState = useState<List<Meeting>>([]);
+
     return Scaffold(
       appBar: AppBar(title: Text(t.post)),
-      // body: SfCalendar(view: CalendarView.month),
-      //
-      // body: SfCalendar(
-      //   view: CalendarView.week,
-      //   firstDayOfWeek: 1,
-      //   // timeSlotViewSettings: const TimeSlotViewSettings(
-      //   //   startHour: 9,
-      //   //   endHour: 20,
-      //   //   nonWorkingDays: <int>[DateTime.friday, DateTime.saturday],
-      //   // ),
-      // ),
-      //
-      //
-      // body: SfCalendar(
-      //   view: CalendarView.month,
-      //   monthViewSettings: const MonthViewSettings(showAgenda: true),
-      // ),
-      //
-      //
       body: SfCalendar(
         view: CalendarView.week,
-        showNavigationArrow: true,
+        allowedViews: const [
+          CalendarView.day,
+          CalendarView.week,
+          CalendarView.workWeek,
+          CalendarView.month,
+          CalendarView.timelineDay,
+          CalendarView.timelineWeek,
+          CalendarView.timelineWorkWeek,
+        ],
         allowAppointmentResize: true,
+        // onAppointmentResizeStart: resizeStart,
+        // onAppointmentResizeUpdate: resizeUpdate,
+        onAppointmentResizeEnd: (AppointmentResizeEndDetails details) {
+          if (details.appointment != null && details.startTime != null && details.endTime != null) {
+            final updatedMeetings = meetingsState.value.map((meeting) {
+              if (meeting.eventName == (details.appointment as Meeting).eventName) {
+                // Update the meeting time
+                return Meeting(
+                  eventName: meeting.eventName,
+                  from: details.startTime!,
+                  to: details.endTime!,
+                  background: meeting.background,
+                  isAllDay: meeting.isAllDay,
+                );
+              }
+              return meeting;
+            }).toList();
+
+            // Update the state
+            meetingsState.value = updatedMeetings;
+
+            // Show a Snackbar notification
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Meeting "${(details.appointment as Meeting).eventName}"'
+                  'updated!',
+                ),
+                duration: const Duration(
+                  seconds: 5,
+                ), // Notification disappears after 5 seconds
+              ),
+            );
+          }
+        },
         allowDragAndDrop: true,
-        todayHighlightColor: Colors.red,
+        dataSource: MeetingDataSource(meetingsState.value),
         firstDayOfWeek: 1, // Monday
+        showNavigationArrow: true,
         timeZone: 'Tokyo Standard Time',
-        dataSource: MeetingDataSource(_getDataSource()),
+        todayHighlightColor: Colors.red,
         monthViewSettings: const MonthViewSettings(
           showAgenda: true,
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
         ),
         selectionDecoration: BoxDecoration(
-          color: Colors.green,
+          color: Colors.green.withOpacity(0.2),
           border: Border.all(color: Colors.transparent, width: 0),
         ),
         onViewChanged: (ViewChangedDetails details) {
-          print("onViewChanged: ${details.visibleDates}");
+          debugPrint('onViewChanged: ${details.visibleDates}');
         },
         onTap: (CalendarTapDetails details) {
-          print("onTap: ${details.date}");
+          final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
+          final meeting = isEdit ? details.appointments!.first as Meeting : null;
+          final eventName = meeting?.eventName ?? '';
+          final startTime = meeting?.from ?? details.date!;
+          final endTime = meeting?.to ?? details.date!.add(const Duration(hours: 1));
+
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true, // Make the modal full height
+            builder: (BuildContext context) {
+              return GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      // Close button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isEdit ? 'Edit Reservation' : 'Add Reservation',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                      // Event form for editing
+                      Expanded(
+                        child: _EventForm(
+                          eventName: eventName,
+                          startTime: startTime,
+                          endTime: endTime,
+                          onAdd: (mtg) {
+                            if (!isEdit) {
+                              meetingsState.value = [...meetingsState.value, mtg];
+                              return;
+                            }
+
+                            meetingsState.value = meetingsState.value.map((elm) {
+                              return elm.eventName == eventName ? mtg : elm;
+                            }).toList();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+
+          debugPrint('onTap: ${details.date}');
         },
         // resourceViewSettings: ResourceViewSettings(showAvatar: true),
       ),
-      //
-      // body: MyCustomForm(),
     );
-  }
-
-  List<Meeting> _getDataSource() {
-    final meetings = <Meeting>[];
-    final today = DateTime.now();
-    final startTime = DateTime(today.year, today.month, today.day, 9);
-    final endTime = startTime.add(const Duration(hours: 2));
-
-    meetings.add(
-      Meeting(
-        eventName: 'Conference',
-        from: startTime,
-        to: endTime,
-        background: const Color(0xFF0F8644),
-        isAllDay: false,
-      ),
-    );
-
-    return meetings;
   }
 }
 
-class MeetingDataSource extends CalendarDataSource {
+class _EventForm extends HookConsumerWidget {
+  const _EventForm({
+    required this.eventName,
+    required this.startTime,
+    required this.endTime,
+    required this.onAdd,
+  });
+
+  final String eventName;
+  final DateTime startTime;
+  final DateTime endTime;
+  final void Function(Meeting) onAdd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eventNameController = useTextEditingController(text: eventName);
+    final sTime = useState(startTime);
+    final eTime = useState(endTime);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: eventNameController,
+            decoration: const InputDecoration(labelText: 'Event Name'),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            readOnly: true,
+            initialValue: sTime.value.toString(),
+            decoration: const InputDecoration(labelText: 'Start Time'),
+            onTap: () async {
+              final selectedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(sTime.value));
+              if (selectedTime != null) {
+                sTime.value = DateTime(sTime.value.year, sTime.value.month, sTime.value.day, selectedTime.hour, selectedTime.minute);
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            readOnly: true,
+            initialValue: eTime.value.toString(),
+            decoration: const InputDecoration(labelText: 'End Time'),
+            onTap: () async {
+              final selectedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.fromDateTime(eTime.value),
+              );
+              if (selectedTime != null) {
+                eTime.value = DateTime(eTime.value.year, eTime.value.month, eTime.value.day, selectedTime.hour, selectedTime.minute);
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              if (eventNameController.text.isNotEmpty) {
+                final newMeeting = Meeting(
+                  eventName: eventNameController.text,
+                  from: sTime.value,
+                  to: eTime.value,
+                  background: const Color(0xFF0F8644),
+                  isAllDay: false,
+                );
+                onAdd(newMeeting);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MeetingDataSource extends CalendarDataSource<Meeting> {
   MeetingDataSource(List<Meeting> source) {
     appointments = source;
+    debugPrint('Appointments initialized: ${appointments?.length}');
   }
 
   @override
@@ -122,6 +271,20 @@ class MeetingDataSource extends CalendarDataSource {
     return _getMeetingData(index).isAllDay;
   }
 
+  @override
+  Meeting convertAppointmentToObject(
+    Meeting? meeting,
+    Appointment appointment,
+  ) {
+    return Meeting(
+      eventName: appointment.subject,
+      from: appointment.startTime,
+      to: appointment.endTime,
+      background: appointment.color,
+      isAllDay: appointment.isAllDay,
+    );
+  }
+
   Meeting _getMeetingData(int index) {
     final dynamic meeting = appointments![index];
     late final Meeting meetingData;
@@ -142,74 +305,9 @@ class Meeting {
     required this.isAllDay,
   });
 
-  final String eventName;
-  final DateTime from;
-  final DateTime to;
-  final Color background;
-  final bool isAllDay;
+  String eventName;
+  DateTime from;
+  DateTime to;
+  Color background;
+  bool isAllDay;
 }
-
-// class MyCustomForm extends HookConsumerWidget {
-//   const MyCustomForm({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final formKey = useMemoized(GlobalKey<FormBuilderState>.new);
-//
-//     return FormBuilder(
-//       key: formKey,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           FormBuilderTextField(
-//             name: 'title',
-//             decoration: InputDecoration(labelText: t.title),
-//             validator: FormBuilderValidators.compose([
-//               FormBuilderValidators.required(),
-//               FormBuilderValidators.maxWordsCount(255),
-//             ]),
-//           ),
-//           FormBuilderTextField(
-//             name: 'summary',
-//             decoration: InputDecoration(labelText: t.summary),
-//             validator: FormBuilderValidators.compose([
-//               FormBuilderValidators.required(),
-//               FormBuilderValidators.maxWordsCount(255),
-//             ]),
-//           ),
-//           FormBuilderTextField(
-//             name: 'content',
-//             decoration: InputDecoration(labelText: t.content),
-//             minLines: 3,
-//             maxLines: 10,
-//             // validator: FormBuilderValidators.compose([]),
-//           ),
-//           // FormBuilderTextField(
-//           //   name: 'status',
-//           //   decoration: InputDecoration(labelText: t.status),
-//           //   validator: FormBuilderValidators.compose([
-//           //     FormBuilderValidators.required(),
-//           //     FormBuilderValidators.maxWordsCount(255),
-//           //   ]),
-//           // ),
-//           Padding(
-//             padding: const EdgeInsets.symmetric(vertical: 16),
-//             child: ElevatedButton(
-//               onPressed: () {
-//                 // Validate and save the form values
-//                 if (formKey.currentState?.saveAndValidate() ?? false) {
-//                   debugPrint(formKey.currentState?.value.toString());
-//                 }
-//
-//                 // On another side, can access all field values
-//                 // without saving form with instantValues
-//                 debugPrint(formKey.currentState?.instantValue.toString());
-//               },
-//               child: const Text('Submit'),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
