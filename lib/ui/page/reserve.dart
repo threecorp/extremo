@@ -9,9 +9,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/page/user.dart';
+import 'package:extremo/ui/page/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -50,6 +52,7 @@ class ReservePage extends HookConsumerWidget {
                 return Reserve(
                   id: value.id,
                   user: value.user,
+                  menu: value.menu,
                   subject: value.subject,
                   startTime: details.startTime!,
                   endTime: details.endTime!,
@@ -132,6 +135,7 @@ class ReservePage extends HookConsumerWidget {
                         child: _ReserveForm(
                           id: reserve?.id,
                           user: reserve?.user,
+                          menu: reserve?.menu,
                           subject: reserve?.subject ?? '',
                           startTime: reserve?.startTime ?? details.date!,
                           endTime: reserve?.endTime ?? details.date!.add(const Duration(hours: 1)),
@@ -165,6 +169,31 @@ class ReservePage extends HookConsumerWidget {
         },
         // resourceViewSettings: ResourceViewSettings(showAvatar: true),
       ),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        // activeForegroundColor: Colors.white,
+        // animatedIcon: AnimatedIcons.add_event,
+        // animatedIconTheme: const IconThemeData(size: 22),
+        activeBackgroundColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor ?? Colors.blueGrey,
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor ?? Colors.grey,
+        foregroundColor: Colors.white,
+        curve: Curves.bounceIn,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.assignment_add),
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.blueAccent,
+            label: t.service,
+            onTap: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (context) => const MenuPage(isModal: true),
+            ),
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -173,6 +202,7 @@ class _ReserveForm extends HookConsumerWidget {
   const _ReserveForm({
     this.id,
     this.user,
+    this.menu,
     required this.subject,
     required this.startTime,
     required this.endTime,
@@ -181,6 +211,7 @@ class _ReserveForm extends HookConsumerWidget {
 
   final String? id;
   final User? user;
+  final Menu? menu;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;
@@ -189,11 +220,10 @@ class _ReserveForm extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subjectController = useTextEditingController(text: subject);
-    final sTimeState = useState(startTime);
     final eTimeState = useState(endTime);
+    final sTimeState = useState(startTime);
     final userState = useState<User?>(user);
-
-    debugPrint('id: $id, subject: $subject, startTime: $startTime, endTime: $endTime, user: ${user?.name}');
+    final menuState = useState<Menu?>(menu);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -245,26 +275,42 @@ class _ReserveForm extends HookConsumerWidget {
             },
           ),
           const SizedBox(height: 16),
+          // menu selection
+          ElevatedButton(
+            onPressed: () async {
+              final menu = await MenuRoute($extra: (Menu menu) => Navigator.pop(context, menu)).push<Menu>(context);
+              if (menu != null) {
+                menuState.value = menu;
+              }
+            },
+            child: Text(
+              menuState.value != null ? 'Selected: ${menuState.value!.name}' : 'Select Menu',
+            ),
+          ),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              if (subjectController.text.isNotEmpty && userState.value != null) {
-                final reserve = Reserve.create(
+              if (userState.value == null || menuState.value == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill all fields')),
+                );
+                return;
+              }
+
+              onAdd(
+                Reserve.create(
                   id: id,
                   user: userState.value,
+                  menu: menuState.value,
                   subject: subjectController.text,
                   startTime: sTimeState.value,
                   endTime: eTimeState.value,
                   background: const Color(0xFF0F8644),
                   isAllDay: false,
-                );
-                onAdd(reserve); // TODO(impl): callback
-                Navigator.pop(context); // TODO(impl): callback
-                return;
-              }
+                ),
+              ); // TODO(impl): callback
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please fill all fields')),
-              );
+              Navigator.pop(context); // TODO(impl): callback
             },
             child: const Text('Save'),
           ),
@@ -313,6 +359,7 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
     return Reserve.create(
       id: customData?.id,
       user: customData?.user,
+      menu: customData?.menu,
       subject: appointment.subject,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
@@ -337,6 +384,7 @@ class Reserve {
   Reserve({
     this.id,
     this.user,
+    this.menu,
     required this.subject,
     required this.startTime,
     required this.endTime,
@@ -347,6 +395,7 @@ class Reserve {
   factory Reserve.create({
     String? id,
     User? user,
+    Menu? menu,
     required String subject,
     required DateTime startTime,
     required DateTime endTime,
@@ -355,17 +404,19 @@ class Reserve {
   }) {
     return Reserve(
       id: id ?? const Uuid().v7(),
+      user: user,
+      menu: menu,
       subject: subject,
       startTime: startTime,
       endTime: endTime,
       background: background,
       isAllDay: isAllDay,
-      user: user,
     );
   }
 
   final String? id;
   final User? user;
+  final Menu? menu;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;

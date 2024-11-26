@@ -4,6 +4,7 @@
 import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/login.dart';
+import 'package:extremo/ui/page/menu.dart';
 import 'package:extremo/ui/page/message.dart';
 import 'package:extremo/ui/page/message_detail.dart';
 import 'package:extremo/ui/page/reserve.dart';
@@ -20,10 +21,11 @@ part 'route.g.dart';
 //
 class Routes {
   static const rootPage = '/';
-  static const userPage = '/users';
   static const artifactPage = '/artifacts';
   static const loginPage = '/login';
+  static const menuPage = '/menus';
   static const messagePage = '/messages';
+  static const userPage = '/users';
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";
 }
@@ -75,6 +77,28 @@ class UserRoute extends GoRouteData {
 //         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
 //       );
 // }
+
+@TypedGoRoute<MenuRoute>(
+  path: Routes.menuPage,
+  // routes: [TypedGoRoute<MenuDetailRoute>(path: ':id')],
+)
+@immutable
+class MenuRoute extends GoRouteData {
+  const MenuRoute({
+    this.$extra,
+  });
+
+  final void Function(Menu)? $extra;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: MenuPage(onTapAction: $extra),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+    );
+  }
+}
 
 @TypedGoRoute<ArtifactRoute>(
   path: Routes.artifactPage,
