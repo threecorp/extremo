@@ -7,6 +7,7 @@
 // import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/route/route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -54,7 +55,11 @@ class UserPage extends HookConsumerWidget {
 
     final filteredUsers = useMemoized(
       () {
-        return users.where((user) => user.name.toLowerCase().contains(searchQuery.value.toLowerCase())).toList();
+        return users
+            .where(
+              (user) => user.name.toLowerCase().contains(searchQuery.value.toLowerCase()),
+            )
+            .toList();
       },
       [searchQuery.value],
     );
@@ -114,15 +119,8 @@ class UserPage extends HookConsumerWidget {
                       return onTapAction!(user);
                     }
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${user.name} selected')),
-                    );
+                    const UserDetailRoute(id: 1).go(context);
                   },
-                  // onTap: () {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(content: Text('${user.name} selected')),
-                  //   );
-                  // },
                 );
               },
             ),
