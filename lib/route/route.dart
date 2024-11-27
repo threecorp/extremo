@@ -9,6 +9,7 @@ import 'package:extremo/ui/page/message.dart';
 import 'package:extremo/ui/page/message_detail.dart';
 import 'package:extremo/ui/page/reserve.dart';
 import 'package:extremo/ui/page/user.dart';
+import 'package:extremo/ui/page/user_detail.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +46,7 @@ class LoginRoute extends GoRouteData {
 
 @TypedGoRoute<UserRoute>(
   path: Routes.userPage,
-  // routes: [TypedGoRoute<UserDetailRoute>(path: ':id')],
+  routes: [TypedGoRoute<UserDetailRoute>(path: ':id')],
 )
 @immutable
 class UserRoute extends GoRouteData {
@@ -65,18 +66,18 @@ class UserRoute extends GoRouteData {
   }
 }
 
-// @immutable
-// class UserDetailRoute extends GoRouteData {
-//   const UserDetailRoute({required this.id});
-//   final int id;
-//
-//   @override
-//   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
-//         key: state.pageKey,
-//         child: UserDetailPage(id: id),
-//         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
-//       );
-// }
+@immutable
+class UserDetailRoute extends GoRouteData {
+  const UserDetailRoute({required this.id});
+  final int id;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: UserDetailPage(id: id),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+      );
+}
 
 @TypedGoRoute<MenuRoute>(
   path: Routes.menuPage,
