@@ -38,10 +38,10 @@ class UserDetailPage extends HookConsumerWidget {
     return DefaultTabController(
       length: tabBars.tabs.length, // tab count
       child: Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('User Detail'),
-        //   centerTitle: true,
-        // ),
+        appBar: AppBar(
+          title: const Text('User Name'),
+          centerTitle: true,
+        ),
         body: Column(
           children: [
             // top profile section
@@ -58,14 +58,6 @@ class UserDetailPage extends HookConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'User Name',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
                         Text(
                           'Bio or description goes here. It can span multiple lines.',
                           style: TextStyle(

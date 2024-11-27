@@ -8,6 +8,7 @@ import 'package:extremo/ui/page/menu.dart';
 import 'package:extremo/ui/page/message.dart';
 import 'package:extremo/ui/page/message_detail.dart';
 import 'package:extremo/ui/page/reserve.dart';
+import 'package:extremo/ui/page/tenant.dart';
 import 'package:extremo/ui/page/user.dart';
 import 'package:extremo/ui/page/user_detail.dart';
 
@@ -27,6 +28,7 @@ class Routes {
   static const menuPage = '/menus';
   static const messagePage = '/messages';
   static const userPage = '/users';
+  static const tenantPage = '/tenants';
   // static const splashPage = "/splash";
   // static const userPage = "users/:uid";
 }
@@ -77,28 +79,6 @@ class UserDetailRoute extends GoRouteData {
         child: UserDetailPage(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
-}
-
-@TypedGoRoute<MenuRoute>(
-  path: Routes.menuPage,
-  // routes: [TypedGoRoute<MenuDetailRoute>(path: ':id')],
-)
-@immutable
-class MenuRoute extends GoRouteData {
-  const MenuRoute({
-    this.$extra,
-  });
-
-  final void Function(Menu)? $extra;
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return CustomTransitionPage(
-      key: state.pageKey,
-      child: MenuPage(onTapAction: $extra),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
-    );
-  }
 }
 
 @TypedGoRoute<MenuRoute>(
@@ -189,3 +169,31 @@ class MessageDetailRoute extends GoRouteData {
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
+
+@TypedGoRoute<TenantRoute>(
+  path: Routes.tenantPage,
+  // routes: [TypedGoRoute<TenantDetailRoute>(path: ':id')],
+)
+@immutable
+class TenantRoute extends GoRouteData {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: const TenantPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+    );
+  }
+}
+// @immutable
+// class TenantDetailRoute extends GoRouteData {
+//   const TenantDetailRoute({required this.id});
+//   final int id;
+//
+//   @override
+//   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
+//         key: state.pageKey,
+//         child: TenantDetailPage(id: id),
+//         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+//       );
+// }

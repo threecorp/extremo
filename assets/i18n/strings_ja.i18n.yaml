@@ -1,21 +1,22 @@
 appName: エクステレモ
-retry: リトライ
-networkError: ネットワークエラーが発生しました
-emptyError: データが取得できませんでした
-height: "高さ: $height"
-weight: "重さ: $weight"
 calendar: カレンダー
 content: 内容
+emptyError: データが取得できませんでした
 favorite: お気に入り
+height: "高さ: $height"
 index: インデックス
 login: ログイン
 logout: ログアウト
 message: メッセージ
+networkError: ネットワークエラーが発生しました
 newReserve: 新規予約
 reserve: 予約
+retry: リトライ
 service: サービス
+settings: 設定
 status: ステータス
 summary: 概要
 title: タイトル
 user: ユーザー
+weight: "重さ: $weight"
 

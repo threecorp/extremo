@@ -13,9 +13,10 @@ class ScaffoldNavbar extends StatelessWidget {
 
   final routes = () {
     final reserveRoute = ReserveRoute();
-    final userRoute = UserRoute();
+    const userRoute = UserRoute();
     final artifactRoute = ArtifactRoute();
     final messageRoute = MessageRoute();
+    final tenantRoute = TenantRoute();
 
     return [
       _NavigationItem(
@@ -50,14 +51,14 @@ class ScaffoldNavbar extends StatelessWidget {
           label: t.message,
         ),
       ),
-      // _NavigationItem(
-      //   go: extremoRoute.go,
-      //   location: extremoRoute.location,
-      //   item: BottomNavigationBarItem(
-      //     icon: const Icon(Icons.list),
-      //     label: t.index,
-      //   ),
-      // ),
+      _NavigationItem(
+        go: tenantRoute.go,
+        location: tenantRoute.location,
+        item: BottomNavigationBarItem(
+          icon: const Icon(Icons.settings),
+          label: t.settings,
+        ),
+      ),
       // _NavigationItem(
       //   go: favoriteRoute.go,
       //   location: favoriteRoute.location,
