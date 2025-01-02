@@ -1,4 +1,4 @@
-// import 'package:extremo/misc/logger.dart';
+import 'package:extremo/misc/logger.dart';
 // import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart' as extremo_entity;
@@ -40,13 +40,22 @@ class MyApp extends HookConsumerWidget {
     final router = GoRouter(
       redirect: (context, state) {
         final notifier = ref.watch(accountProvider.notifier);
-        final loggingIn = state.path == Routes.loginPage;
+        final publicPages = [Routes.loginPage, Routes.registerPage];
+        final isPublic = publicPages.contains(state.matchedLocation);
 
         // logger.d('StateValue: ${notifier.stateValue()}');
-        if (!notifier.isLoggedIn() && !loggingIn) {
+        // logger.d('path: ${state.path}');
+        // logger.d('name: ${state.name}');
+        // logger.d('uri: ${state.uri}');
+        // logger.d('loc: ${state.matchedLocation}');
+
+        if (isPublic) {
+          return state.matchedLocation;
+        }
+        if (!notifier.isLoggedIn()) {
           return Routes.loginPage;
         }
-        if (notifier.isLoggedIn() && loggingIn) {
+        if (notifier.isLoggedIn()) {
           return Routes.rootPage;
         }
 

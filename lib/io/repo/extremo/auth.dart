@@ -46,6 +46,31 @@ Future<Result<AccountToken, Exception>> repoLogin(
 }
 
 @riverpod
+Future<Result<AccountToken, Exception>> repoRegister(
+  RepoRegisterRef ref,
+  RegisterRequest request,
+) async {
+  final rpc = ref.read(authAccountServiceClientProvider);
+
+  try {
+    // TODO(offline): Use DBCache when offlined or error
+    final entity = await rpc.register(request).then((r) => r.element); // TODO(Refactoring): Transform & Cache?
+
+    return Success(entity);
+  } on GrpcError catch (ex, _) {
+    if ([
+      StatusCode.invalidArgument,
+      StatusCode.unauthenticated,
+    ].contains(ex.code)) {
+      return Failure(GrpcException(ex));
+    }
+
+    debugPrint(ex.message);
+    rethrow;
+  }
+}
+
+@riverpod
 Future<Result<Account, Exception>> repoGetAccountByToken(
   RepoGetAccountByTokenRef ref,
   String token,

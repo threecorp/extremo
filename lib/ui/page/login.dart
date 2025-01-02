@@ -25,6 +25,7 @@ class LoginPage extends HookConsumerWidget {
     final notifier = ref.watch(accountProvider.notifier);
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
+    /// Submit the login form
     Future<void> submit(LoginRequest model) async {
       // TODO(Refactoring): Use to ref.watch.
       // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
@@ -32,9 +33,9 @@ class LoginPage extends HookConsumerWidget {
         loginTokenCaseProvider(model).future,
       );
 
-      loggedAccount.onSuccess<AccountToken>((model) {
-        notifier.login(model); // TODO(Refactoring): Use await
-        ReserveRoute().go(context);
+      loggedAccount.onSuccess<AccountToken>((token) {
+        notifier.login(token); // TODO(Refactoring): Use await
+        ReserveRoute().go(context); // TODO(Refactoring): Use await
       }).onFailure<Exception>((error) {
         final sb = SnackBar(content: Text(error.toString()));
         ScaffoldMessenger.of(context).showSnackBar(sb);
@@ -172,6 +173,7 @@ class FormContent extends HookConsumerWidget {
             //   contentPadding: EdgeInsets.zero,
             // ),
             const Gap(12),
+            // signin button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -204,6 +206,20 @@ class FormContent extends HookConsumerWidget {
                     'Sign in',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
+                ),
+              ),
+            ),
+            // signup
+            const Gap(12),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () async {
+                  await RegisterRoute().push<void>(context);
+                },
+                child: const Text(
+                  'Sign up',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),

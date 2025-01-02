@@ -6,6 +6,7 @@ import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/chat.dart';
 import 'package:extremo/ui/page/chat_message.dart';
 import 'package:extremo/ui/page/login.dart';
+import 'package:extremo/ui/page/register.dart';
 import 'package:extremo/ui/page/menu.dart';
 import 'package:extremo/ui/page/reserve.dart';
 import 'package:extremo/ui/page/tenant.dart';
@@ -24,6 +25,7 @@ class Routes {
   static const rootPage = '/';
   static const artifactPage = '/artifacts';
   static const loginPage = '/login';
+  static const registerPage = '/register';
   static const menuPage = '/menus';
   static const messagePage = '/messages';
   static const userPage = '/users';
@@ -41,6 +43,19 @@ class LoginRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
         child: const LoginPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+      );
+}
+
+@TypedGoRoute<RegisterRoute>(
+  path: Routes.registerPage,
+)
+@immutable
+class RegisterRoute extends GoRouteData {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const RegisterPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }

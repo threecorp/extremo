@@ -32,6 +32,22 @@ Future<Result<Account, Exception>> loginAccountCase(
 }
 
 @riverpod
+Future<Result<AccountToken, Exception>> registerAccountCase(
+  RegisterAccountCaseRef ref,
+  RegisterRequest request,
+) async {
+  final result = ref.read(
+    repoRegisterProvider(request).future,
+  );
+  // return result.flatMap(
+  //   (AccountToken e) async => await ref.read(
+  //     repoGetAccountByTokenProvider(e.token).future,
+  //   ),
+  // );
+  return result;
+}
+
+@riverpod
 Future<Result<AccountToken, Exception>> loginTokenCase(
   LoginTokenCaseRef ref,
   LoginRequest request,
