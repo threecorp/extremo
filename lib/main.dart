@@ -52,10 +52,10 @@ class MyApp extends HookConsumerWidget {
         if (isPublic) {
           return state.matchedLocation;
         }
-        if (!notifier.isLoggedIn()) {
+        if (!notifier.isLoggedIn() && !isPublic) {
           return Routes.loginPage;
         }
-        if (notifier.isLoggedIn()) {
+        if (notifier.isLoggedIn() && isPublic) {
           return Routes.rootPage;
         }
 

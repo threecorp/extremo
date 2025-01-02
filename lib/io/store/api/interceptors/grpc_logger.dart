@@ -10,10 +10,13 @@ class GrpcLoggerInterceptor extends ClientInterceptor {
   static GrpcLoggerInterceptor get instance => _instance;
 
   final maskptn1 = RegExp(r'password: \s*\S+');
-  final maskptn2 = RegExp(r'token: \s*\S+');
+  final maskptn2 = RegExp(r'(.*?)Password:\s*\S+', caseSensitive: false);
+  final maskptn3 = RegExp(r'token: \s*\S+');
+
   String sanitize(String log) {
-    final s = log.replaceAll(maskptn1, 'password: ********').replaceAll('\n', ', ');
-    return s.replaceAll(maskptn2, 'token: ********').replaceAll('\n', ', ');
+    var s = log.replaceAll(maskptn1, 'password: ********').replaceAll('\n', ' ');
+    s = s.replaceAllMapped(maskptn2, (match) => '${match.group(1)}Password: ********').replaceAll('\n', ' ');
+    return s.replaceAll(maskptn3, 'token: ********').replaceAll('\n', ' ');
   }
 
   @override

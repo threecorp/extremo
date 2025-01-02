@@ -6,6 +6,7 @@ favorite: お気に入り
 height: "高さ: $height"
 index: インデックス
 login: ログイン
+register: アカウント作成
 logout: ログアウト
 chat: メッセージ
 networkError: ネットワークエラーが発生しました
