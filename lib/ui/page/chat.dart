@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:extremo/domain/model/extremo.dart';
-import 'package:extremo/domain/usecase/message.dart';
+import 'package:extremo/domain/usecase/chat.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/misc/logger.dart';
@@ -21,18 +21,18 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class MessagePage extends HookConsumerWidget {
-  const MessagePage({super.key});
+class ChatPage extends HookConsumerWidget {
+  const ChatPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProvider = ref.watch(listPagerMessageUsersCaseProvider);
-    final userNotifier = ref.watch(listPagerMessageUsersCaseProvider.notifier);
+    final userProvider = ref.watch(listPagerChatUsersCaseProvider);
+    final userNotifier = ref.watch(listPagerChatUsersCaseProvider.notifier);
     // final accountNotifier = ref.watch(accountProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: Text(t.appName)),
-      body: MessageView(
+      body: ChatView(
         list: userProvider.valueOrNull,
         isLast: userNotifier.isLast,
         error: userProvider.error,
@@ -50,24 +50,24 @@ class MessagePage extends HookConsumerWidget {
             );
             return;
           }
-          MessageDetailRoute(id: id).go(context);
+          ChatMessageRoute(id: id).go(context);
         },
-        refresh: () => ref.refresh(listPagerMessagesCaseProvider),
-        emptyErrorMessage: t.emptyError,
+        refresh: () => ref.refresh(listPagerChatsCaseProvider),
+        emptyErrorChat: t.emptyError,
       ),
     );
   }
 }
 
-class MessageView extends HookConsumerWidget {
-  const MessageView({
+class ChatView extends HookConsumerWidget {
+  const ChatView({
     required this.list,
     required this.isLast,
     required this.error,
     required this.loadMore,
     required this.onTapListItem,
     required this.refresh,
-    required this.emptyErrorMessage,
+    required this.emptyErrorChat,
     this.enableRetryButton = true,
     super.key,
   });
@@ -78,7 +78,7 @@ class MessageView extends HookConsumerWidget {
   final void Function() loadMore;
   final void Function(UserModel item) onTapListItem;
   final void Function() refresh;
-  final String emptyErrorMessage;
+  final String emptyErrorChat;
   final bool enableRetryButton;
 
   @override
@@ -98,7 +98,7 @@ class MessageView extends HookConsumerWidget {
         pagingController: pagingController,
         separatorBuilder: (context, index) => const Divider(),
         builderDelegate: PagedChildBuilderDelegate<UserModel>(
-          itemBuilder: (context, item, index) => MessageItemView(
+          itemBuilder: (context, item, index) => ChatItemView(
             data: item,
             onTapListItem: onTapListItem,
           ),
@@ -109,7 +109,7 @@ class MessageView extends HookConsumerWidget {
           ),
           newPageProgressIndicatorBuilder: (context) => const ProgressView(),
           noItemsFoundIndicatorBuilder: (context) => ErrorView(
-            text: emptyErrorMessage,
+            text: emptyErrorChat,
             retry: refresh,
             enableRetryButton: enableRetryButton,
           ),
@@ -119,8 +119,8 @@ class MessageView extends HookConsumerWidget {
   }
 }
 
-class MessageItemView extends StatelessWidget {
-  const MessageItemView({
+class ChatItemView extends StatelessWidget {
+  const ChatItemView({
     required this.data,
     required this.onTapListItem,
     super.key,
@@ -146,7 +146,7 @@ class MessageItemView extends StatelessWidget {
               children: [
                 Expanded(
                   // flex: 1,
-                  child: _MessageItemInfo(data: data),
+                  child: _ChatItemInfo(data: data),
                 ),
                 const Gap(4),
                 CachedNetworkImage(
@@ -175,14 +175,14 @@ class MessageItemView extends StatelessWidget {
   }
 }
 
-class _MessageItemInfo extends StatelessWidget {
-  const _MessageItemInfo({required this.data});
+class _ChatItemInfo extends StatelessWidget {
+  const _ChatItemInfo({required this.data});
 
   final UserModel data;
 
   @override
   Widget build(BuildContext context) {
-    // logger.d('MessageItemInfo: $data');
+    // logger.d('ChatItemInfo: $data');
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -192,7 +192,7 @@ class _MessageItemInfo extends StatelessWidget {
           data.profile?.name ?? '',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        // MessageTypeChips(types: data.types),
+        // ChatTypeChips(types: data.types),
       ],
     );
   }

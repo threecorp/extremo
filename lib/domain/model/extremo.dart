@@ -216,8 +216,68 @@ extension ArtifactModelX on ArtifactModel {
 // }
 
 @freezed
-class MessageModel with _$MessageModel {
-  const factory MessageModel({
+class ChatModel with _$ChatModel {
+  const factory ChatModel({
+    int? id,
+    required int tenantFk,
+    required int senderFk,
+    required int recipientFk,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    UserModel? senderUser,
+    UserModel? recipientUser,
+  }) = _ChatModel;
+
+  factory ChatModel.fromEntity({
+    required ChatEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<ChatModel>(entity.id);
+    if (model != null) {
+      return model;
+    }
+
+    model = ChatModel(
+      id: entity.id,
+      tenantFk: entity.tenantFk,
+      senderFk: entity.senderFk,
+      recipientFk: entity.recipientFk,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      // Relationships
+      // senderUser: senderUser,
+      // recipientUser: recipientUser,
+    );
+    context.putE(entity.id, model);
+
+    return model.copyWith(
+      senderUser: context.getE<UserModel>(entity.senderFk) ?? (entity.senderUser != null ? UserModel.fromEntity(entity: entity.senderUser!, context: context) : null),
+      recipientUser: context.getE<UserModel>(entity.recipientFk) ?? (entity.recipientUser != null ? UserModel.fromEntity(entity: entity.recipientUser!, context: context) : null),
+    );
+  }
+}
+
+extension ChatModelX on ChatModel {
+  ChatEntity toEntity() {
+    return ChatEntity(
+      id: id ?? 0,
+      tenantFk: tenantFk,
+      senderFk: senderFk,
+      recipientFk: recipientFk,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      senderUser: senderUser?.toEntity(),
+      recipientUser: recipientUser?.toEntity(),
+    );
+  }
+}
+
+@freezed
+class ChatMessageModel with _$ChatMessageModel {
+  const factory ChatMessageModel({
     int? id,
     required int fromFk,
     required int toFk,
@@ -231,20 +291,20 @@ class MessageModel with _$MessageModel {
     // Relationships
     UserModel? fromUser,
     UserModel? toUser,
-  }) = _MessageModel;
+  }) = _ChatMessageModel;
 
-  factory MessageModel.fromEntity({
-    required MessageEntity entity,
+  factory ChatMessageModel.fromEntity({
+    required ChatMessageEntity entity,
     XContext? context,
   }) {
     context ??= XContext.of();
 
-    var model = context.getE<MessageModel>(entity.id);
+    var model = context.getE<ChatMessageModel>(entity.id);
     if (model != null) {
       return model;
     }
 
-    model = MessageModel(
+    model = ChatMessageModel(
       id: entity.id,
       fromFk: entity.fromFk,
       toFk: entity.toFk,
@@ -267,10 +327,10 @@ class MessageModel with _$MessageModel {
     );
   }
 
-  factory MessageModel.fromChatMessage({
+  factory ChatMessageModel.fromChatMessage({
     required chat_types.Message chat,
   }) {
-    return MessageModel(
+    return ChatMessageModel(
       id: 0,
       fromFk: 0,
       toFk: 0,
@@ -288,9 +348,9 @@ class MessageModel with _$MessageModel {
   }
 }
 
-extension MessageModelX on MessageModel {
-  MessageEntity toEntity() {
-    return MessageEntity(
+extension ChatMessageModelX on ChatMessageModel {
+  ChatMessageEntity toEntity() {
+    return ChatMessageEntity(
       id: id ?? 0,
       fromFk: fromFk,
       toFk: toFk,

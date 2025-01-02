@@ -7,7 +7,7 @@ height: "高さ: $height"
 index: インデックス
 login: ログイン
 logout: ログアウト
-message: メッセージ
+chat: メッセージ
 networkError: ネットワークエラーが発生しました
 newReserve: 新規予約
 reserve: 予約

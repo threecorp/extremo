@@ -3,7 +3,7 @@
 // import 'package:protobuf/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pbgrpc.dart';
-import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pbgrpc.dart';
+import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -29,8 +29,8 @@ ArtifactServiceClient mypageArtifactServiceClient(
 }
 
 @riverpod
-MessageServiceClient mypageMessageServiceClient(
-  MypageMessageServiceClientRef ref,
+ChatServiceClient mypageChatServiceClient(
+  MypageChatServiceClientRef ref,
 ) {
   final channel = ClientChannel(
     'localhost', // TODO(Environment): Change a value for each an environment.
@@ -38,7 +38,7 @@ MessageServiceClient mypageMessageServiceClient(
     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
   );
 
-  return MessageServiceClient(
+  return ChatServiceClient(
     channel,
     interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );

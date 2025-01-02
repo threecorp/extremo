@@ -1,17 +1,16 @@
-// import 'package:extremo/ui/page/favorite.dart';
 // import 'package:extremo/ui/page/extremo.dart';
 // import 'package:extremo/ui/page/extremo_detail.dart';
+// import 'package:extremo/ui/page/favorite.dart';
 import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
+import 'package:extremo/ui/page/chat.dart';
+import 'package:extremo/ui/page/chat_message.dart';
 import 'package:extremo/ui/page/login.dart';
 import 'package:extremo/ui/page/menu.dart';
-import 'package:extremo/ui/page/message.dart';
-import 'package:extremo/ui/page/message_detail.dart';
 import 'package:extremo/ui/page/reserve.dart';
 import 'package:extremo/ui/page/tenant.dart';
 import 'package:extremo/ui/page/user.dart';
 import 'package:extremo/ui/page/user_detail.dart';
-
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -143,29 +142,29 @@ class ReserveRoute extends GoRouteData {
       );
 }
 
-@TypedGoRoute<MessageRoute>(
+@TypedGoRoute<ChatRoute>(
   path: Routes.messagePage,
-  routes: [TypedGoRoute<MessageDetailRoute>(path: ':id')],
+  routes: [TypedGoRoute<ChatMessageRoute>(path: ':id')],
 )
 @immutable
-class MessageRoute extends GoRouteData {
+class ChatRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const MessagePage(),
+        child: const ChatPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }
 
 @immutable
-class MessageDetailRoute extends GoRouteData {
-  const MessageDetailRoute({required this.id});
+class ChatMessageRoute extends GoRouteData {
+  const ChatMessageRoute({required this.id});
   final int id;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
-        child: MessageDetailPage(id: id),
+        child: ChatMessagePage(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }

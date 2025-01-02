@@ -110,7 +110,7 @@ class UserEntity {
   List<ArtifactEntity> artifacts;
 }
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 2)
 class UserProfileEntity {
   UserProfileEntity({
     required this.id,
@@ -291,31 +291,27 @@ class ArtifactEntity {
 }
 
 @HiveType(typeId: 3)
-class MessageEntity {
-  MessageEntity({
+class ChatEntity {
+  ChatEntity({
     required this.id,
-    required this.fromFk,
-    required this.toFk,
-    this.message = '',
-    required this.isRead,
-    this.readAt,
-    required this.isDeleted,
-    this.deletedAt,
+    required this.tenantFk,
+    required this.senderFk,
+    required this.recipientFk,
     this.createdAt,
     this.updatedAt,
     // Relationships
-    this.fromUser,
-    this.toUser,
+    this.senderUser,
+    this.recipientUser,
   });
 
-  // factory MessageEntity.fromResponse({
-  //   required MessageResponse element,
+  // factory ChatEntity.fromResponse({
+  //   required ChatMessageResponse element,
   // }) {
   //   final user = element.user != null
   //       ? UserEntity.fromResponse(element: element.user!)
   //       : null;
   //
-  //   return MessageEntity(
+  //   return ChatEntity(
   //     id: element.pk,
   //     userFk: element.userFk,
   //     title: element.title,
@@ -331,17 +327,111 @@ class MessageEntity {
   //   );
   // }
 
-  factory MessageEntity.fromRpc({
-    required pbdb.Message element,
+  factory ChatEntity.fromRpc({
+    required pbdb.Chat element,
     XContext? context,
   }) {
     context ??= XContext.of();
 
-    var entity = context.getE<MessageEntity>(element.pk);
+    var entity = context.getE<ChatEntity>(element.pk);
     if (entity != null) {
       return entity;
     }
-    entity = MessageEntity(
+    entity = ChatEntity(
+      id: element.pk,
+      tenantFk: element.tenantFk,
+      senderFk: element.senderFk,
+      recipientFk: element.recipientFk,
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+      // Relationships
+      // senderUser: senderUser,
+      // recipientUser: recipientUser,
+    );
+    context.putE(entity.id, entity);
+
+    entity
+      ..senderUser = (context.getE<UserEntity>(element.senderFk)) ?? (element.hasSender() ? UserEntity.fromRpc(element: element.sender, context: context) : null)
+      ..recipientUser = (context.getE<UserEntity>(element.recipientFk)) ?? (element.hasRecipient() ? UserEntity.fromRpc(element: element.recipient, context: context) : null);
+
+    return entity;
+  }
+
+  @HiveField(0)
+  int id;
+
+  @HiveField(1)
+  int tenantFk;
+
+  @HiveField(2)
+  int senderFk;
+
+  @HiveField(3)
+  int recipientFk;
+
+  @HiveField(10)
+  DateTime? createdAt;
+
+  @HiveField(11)
+  DateTime? updatedAt;
+
+  // Relationships
+  UserEntity? senderUser;
+  UserEntity? recipientUser;
+}
+
+@HiveType(typeId: 4)
+class ChatMessageEntity {
+  ChatMessageEntity({
+    required this.id,
+    required this.fromFk,
+    required this.toFk,
+    this.message = '',
+    required this.isRead,
+    this.readAt,
+    required this.isDeleted,
+    this.deletedAt,
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.fromUser,
+    this.toUser,
+  });
+
+  // factory ChatMessageEntity.fromResponse({
+  //   required ChatMessageResponse element,
+  // }) {
+  //   final user = element.user != null
+  //       ? UserEntity.fromResponse(element: element.user!)
+  //       : null;
+  //
+  //   return ChatMessageEntity(
+  //     id: element.pk,
+  //     userFk: element.userFk,
+  //     title: element.title,
+  //     content: element.content,
+  //     summary: element.summary,
+  //     status: element.status,
+  //     publishFrom: element.publishFrom,
+  //     publishUntil: element.publishUntil,
+  //     createdAt: element.createdAt,
+  //     updatedAt: element.updatedAt,
+  //     // Relationships
+  //     user: user,
+  //   );
+  // }
+
+  factory ChatMessageEntity.fromRpc({
+    required pbdb.ChatMessage element,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var entity = context.getE<ChatMessageEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+    entity = ChatMessageEntity(
       id: element.pk,
       fromFk: element.fromFk,
       toFk: element.toFk,

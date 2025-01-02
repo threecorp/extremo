@@ -9,9 +9,11 @@ class GrpcLoggerInterceptor extends ClientInterceptor {
   static final GrpcLoggerInterceptor _instance = GrpcLoggerInterceptor._();
   static GrpcLoggerInterceptor get instance => _instance;
 
-  final maskptn = RegExp(r'password: \s*\S+');
+  final maskptn1 = RegExp(r'password: \s*\S+');
+  final maskptn2 = RegExp(r'token: \s*\S+');
   String sanitize(String log) {
-    return log.replaceAll(maskptn, 'password: ********').replaceAll('\n', ', ');
+    final s = log.replaceAll(maskptn1, 'password: ********').replaceAll('\n', ', ');
+    return s.replaceAll(maskptn2, 'token: ********').replaceAll('\n', ', ');
   }
 
   @override

@@ -63,58 +63,58 @@ Future<ArtifactEntity> xFormRpcArtifactEntity(
 }
 
 // Cache save & return
-Future<MessageEntity> xFormRpcMessageEntity(
+Future<ChatEntity> xFormRpcChatEntity(
   Ref ref,
-  pbdb.Message element,
+  pbdb.Chat element,
 ) async {
-  final messageBox = await ref.read(messageBoxProvider.future);
+  final chatBox = await ref.read(chatBoxProvider.future);
   final userBox = await ref.read(userBoxProvider.future);
 
-  final entity = MessageEntity.fromRpc(element: element);
-  if (messageBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+  final entity = ChatEntity.fromRpc(element: element);
+  if (chatBox.get(element.pk)?.updatedAt == entity.updatedAt) {
     return entity;
   }
 
   //
   // TODO(Backgrounder): Background process to put data to DB
   //
-  // Message
-  await messageBox.put(element.pk, entity);
+  // Chat
+  await chatBox.put(element.pk, entity);
   // User
-  if (entity.fromUser != null) {
-    await userBox.put(entity.fromFk, entity.fromUser!);
+  if (entity.senderUser != null) {
+    await userBox.put(entity.senderFk, entity.senderUser!);
   }
-  if (entity.toUser != null) {
-    await userBox.put(entity.toFk, entity.toUser!);
+  if (entity.recipientUser != null) {
+    await userBox.put(entity.recipientFk, entity.recipientUser!);
   }
 
   return entity;
 }
 
 // Cache save & return
-Future<UserEntity> xFormRpcMessageUserEntity(
+Future<UserEntity> xFormRpcChatUserEntity(
   Ref ref,
   pbdb.User element,
 ) async {
-  // final messageBox = await ref.read(messageBoxProvider.future);
+  // final chatBox = await ref.read(chatBoxProvider.future);
   // final userBox = await ref.read(userBoxProvider.future);
   //
   final entity = UserEntity.fromRpc(element: element);
-  // if (messageBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+  // if (chatBox.get(element.pk)?.updatedAt == entity.updatedAt) {
   //   return entity;
   // }
   //
   // //
   // // TODO(Backgrounder): Background process to put data to DB
   // //
-  // // Message
-  // await messageBox.put(element.pk, entity);
+  // // Chat
+  // await chatBox.put(element.pk, entity);
   // // User
-  // if (entity.fromUser != null) {
-  //   await userBox.put(entity.fromFk, entity.fromUser!);
+  // if (entity.senderUser != null) {
+  //   await userBox.put(entity.senderFk, entity.senderUser!);
   // }
-  // if (entity.toUser != null) {
-  //   await userBox.put(entity.toFk, entity.toUser!);
+  // if (entity.recipientUser != null) {
+  //   await userBox.put(entity.recipientFk, entity.recipientUser!);
   // }
 
   return entity;

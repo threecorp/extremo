@@ -7,10 +7,10 @@ import 'package:extremo/io/repo/extremo/mypage.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'message.g.dart';
+part 'chat.g.dart';
 
 @riverpod
-class ListPagerMessagesCase extends _$ListPagerMessagesCase {
+class ListPagerChatsCase extends _$ListPagerChatsCase {
   int _page = 1; // TODO(refactoring): Remove build by using state
   int _pageSize = 25;
   bool _isLast = false;
@@ -29,13 +29,13 @@ class ListPagerMessagesCase extends _$ListPagerMessagesCase {
   }
 
   @override
-  Future<List<MessageModel>> build() async {
+  Future<List<ChatModel>> build() async {
     final pager = await ref.read(
-      repoListPagerMessagesProvider(_page, _pageSize).future,
+      repoListPagerChatsProvider(_page, _pageSize).future,
     );
 
     final models = pager.elements.map(
-      (entity) => MessageModel.fromEntity(entity: entity),
+      (entity) => ChatModel.fromEntity(entity: entity),
     );
 
     _isLast = pager.elements.length < _pageSize;
@@ -45,22 +45,22 @@ class ListPagerMessagesCase extends _$ListPagerMessagesCase {
     return rr;
   }
 
-  Future<Result<MessageModel, Exception>> createMessage(
-    MessageModel message,
+  Future<Result<ChatModel, Exception>> createChat(
+    ChatModel message,
   ) async {
     final result = await ref.read(
-      repoCreateMessageProvider(message.toEntity()).future,
+      repoCreateChatProvider(message.toEntity()).future,
     );
 
     return result.map((e) {
       state = AsyncValue.data([message, ...state.value ?? []]);
-      return MessageModel.fromEntity(entity: e);
+      return ChatModel.fromEntity(entity: e);
     });
   }
 }
 
 @riverpod
-class ListPagerMessageUsersCase extends _$ListPagerMessageUsersCase {
+class ListPagerChatUsersCase extends _$ListPagerChatUsersCase {
   int _page = 1; // TODO(refactoring): Remove build by using state
   int _pageSize = 25;
   bool _isLast = false;
@@ -81,7 +81,7 @@ class ListPagerMessageUsersCase extends _$ListPagerMessageUsersCase {
   @override
   Future<List<UserModel>> build() async {
     final pager = await ref.read(
-      repoListPagerMessageUsersProvider(_page, _pageSize).future,
+      repoListPagerChatUsersProvider(_page, _pageSize).future,
     );
 
     final models = pager.elements.map(

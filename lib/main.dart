@@ -20,7 +20,8 @@ void main() async {
   await Hive.initFlutter();
   Hive
     ..registerAdapter(extremo_entity.ArtifactEntityAdapter())
-    ..registerAdapter(extremo_entity.MessageEntityAdapter())
+    ..registerAdapter(extremo_entity.ChatEntityAdapter())
+    ..registerAdapter(extremo_entity.ChatMessageEntityAdapter())
     ..registerAdapter(extremo_entity.UserEntityAdapter());
 
   WidgetsFlutterBinding.ensureInitialized();

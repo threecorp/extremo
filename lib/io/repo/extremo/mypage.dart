@@ -12,7 +12,7 @@ import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart' as artifactpb;
-import 'package:extremodart/extremo/api/mypage/messages/v1/message_service.pb.dart' as messagepb;
+import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pb.dart' as chatpb;
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -101,23 +101,23 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
 }
 
 @riverpod
-Future<PagingEntity<UserEntity>> repoListPagerMessageUsers(
-  RepoListPagerMessageUsersRef ref,
+Future<PagingEntity<UserEntity>> repoListPagerChatUsers(
+  RepoListPagerChatUsersRef ref,
   int page,
   int pageSize,
 ) async {
-  final rpc = ref.read(mypageMessageServiceClientProvider);
+  final rpc = ref.read(mypageChatServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.listUsers(
-    messagepb.ListUsersRequest(
+    chatpb.ListUsersRequest(
       page: page,
       pageSize: pageSize,
     ),
   );
   final elements = await Future.wait(
     response.elements.map(
-      (element) => xFormRpcMessageUserEntity(ref, element),
+      (element) => xFormRpcChatUserEntity(ref, element),
     ),
   );
 
@@ -128,50 +128,50 @@ Future<PagingEntity<UserEntity>> repoListPagerMessageUsers(
 }
 
 @riverpod
-Future<PagingEntity<MessageEntity>> repoListPagerMessages(
-  RepoListPagerMessagesRef ref,
+Future<PagingEntity<ChatEntity>> repoListPagerChats(
+  RepoListPagerChatsRef ref,
   int page,
   int pageSize,
 ) async {
-  final rpc = ref.read(mypageMessageServiceClientProvider);
+  final rpc = ref.read(mypageChatServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    messagepb.ListRequest(
+    chatpb.ListRequest(
       page: page,
       pageSize: pageSize,
     ),
   );
   final elements = await Future.wait(
     response.elements.map(
-      (element) => xFormRpcMessageEntity(ref, element),
+      (element) => xFormRpcChatEntity(ref, element),
     ),
   );
 
-  return PagingEntity<MessageEntity>(
+  return PagingEntity<ChatEntity>(
     elements: elements.toList(),
     totalSize: response.totalSize,
   );
 }
 
 @riverpod
-Future<Result<MessageEntity, Exception>> repoCreateMessage(
-  RepoCreateMessageRef ref,
-  MessageEntity request,
+Future<Result<ChatEntity, Exception>> repoCreateChat(
+  RepoCreateChatRef ref,
+  ChatEntity request,
 ) async {
-  final rpc = ref.read(mypageMessageServiceClientProvider);
+  final rpc = ref.read(mypageChatServiceClientProvider);
 
   try {
     final entity = await rpc
         .create(
-          messagepb.CreateRequest(
-            fromFk: request.fromFk,
-            toFk: request.toFk,
-            message: request.message,
+          chatpb.CreateRequest(
+            senderFk: request.senderFk,
+            recipientFk: request.recipientFk,
+            // message: request.message,
           ),
         )
         .then(
-          (r) => xFormRpcMessageEntity(ref, r.element),
+          (r) => xFormRpcChatEntity(ref, r.element),
         );
 
     return Success(entity);
