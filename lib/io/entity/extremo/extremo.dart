@@ -4,7 +4,8 @@ import 'package:equatable/equatable.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 import 'package:extremo/misc/logger.dart';
 import 'package:extremo/misc/xcontext.dart';
-import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
+import 'package:extremodart/extremo/msg/db/v1/db.pb.dart';
+import 'package:extremodart/extremo/msg/db/v1/enum.pbenum.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -22,12 +23,12 @@ class TenantEntity {
     this.users = const [],
     this.chats = const [],
     this.services = const [],
-    // this.teams = const [],
-    // this.books = const [],
+    this.teams = const [],
+    this.books = const [],
   });
 
   factory TenantEntity.fromRpc({
-    required pbdb.Tenant element,
+    required Tenant element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -47,9 +48,11 @@ class TenantEntity {
     // Reverse Relationships
     entity
       ..profile = element.hasProfile() ? TenantProfileEntity.fromRpc(element: element.profile, context: context) : null
-      ..users = element.users.map((e) => context!.getE<UserEntity>(e.pk) ?? UserEntity.fromRpc(element: e, context: context)).toList()
+      ..books = element.books.map((e) => context!.getE<BookEntity>(e.pk) ?? BookEntity.fromRpc(element: e, context: context)).toList()
       ..chats = element.chats.map((e) => context!.getE<ChatEntity>(e.pk) ?? ChatEntity.fromRpc(element: e, context: context)).toList()
-      ..services = element.services.map((e) => context!.getE<ServiceEntity>(e.pk) ?? ServiceEntity.fromRpc(element: e, context: context)).toList();
+      ..services = element.services.map((e) => context!.getE<ServiceEntity>(e.pk) ?? ServiceEntity.fromRpc(element: e, context: context)).toList()
+      ..users = element.users.map((e) => context!.getE<UserEntity>(e.pk) ?? UserEntity.fromRpc(element: e, context: context)).toList()
+      ..teams = element.teams.map((e) => context!.getE<TeamEntity>(e.pk) ?? TeamEntity.fromRpc(element: e, context: context)).toList();
     return entity;
   }
 
@@ -64,11 +67,11 @@ class TenantEntity {
 
   // Reverse Relationships
   TenantProfileEntity? profile;
-  List<UserEntity> users;
+  List<BookEntity> books;
   List<ChatEntity> chats;
   List<ServiceEntity> services;
-  // List<TeamEntity> teams;
-  // List<BookEntity> books;
+  List<TeamEntity> teams;
+  List<UserEntity> users;
 }
 
 @HiveType(typeId: 2)
@@ -84,7 +87,7 @@ class TenantProfileEntity {
   });
 
   factory TenantProfileEntity.fromRpc({
-    required pbdb.TenantProfile element,
+    required TenantProfile element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -146,7 +149,7 @@ class UserEntity {
   });
 
   factory UserEntity.fromRpc({
-    required pbdb.User element,
+    required User element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -222,7 +225,7 @@ class UserProfileEntity {
   });
 
   factory UserProfileEntity.fromRpc({
-    required pbdb.UserProfile element,
+    required UserProfile element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -284,7 +287,7 @@ class ArtifactEntity {
   });
 
   factory ArtifactEntity.fromRpc({
-    required pbdb.Artifact element,
+    required Artifact element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -363,7 +366,7 @@ class ChatEntity {
   });
 
   factory ChatEntity.fromRpc({
-    required pbdb.Chat element,
+    required Chat element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -434,7 +437,7 @@ class ChatMessageEntity {
   });
 
   factory ChatMessageEntity.fromRpc({
-    required pbdb.ChatMessage element,
+    required ChatMessage element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -520,7 +523,7 @@ class ServiceEntity {
   });
 
   factory ServiceEntity.fromRpc({
-    required pbdb.Service element,
+    required Service element,
     XContext? context,
   }) {
     context ??= XContext.of();
@@ -580,4 +583,162 @@ class ServiceEntity {
   TenantEntity? tenant; // TODO(impl): OneToOne is required
   // Nullable relationships
   ServiceEntity? parent;
+}
+
+class BookEnumStatusAdapter extends TypeAdapter<BookEnum_Status> {
+  @override
+  final int typeId = 999;
+
+  @override
+  BookEnum_Status read(BinaryReader reader) {
+    final value = reader.readInt();
+    return BookEnum_Status.valueOf(value) ?? BookEnum_Status.STATUS_UNSPECIFIED;
+  }
+
+  @override
+  void write(BinaryWriter writer, BookEnum_Status obj) {
+    writer.writeInt(obj.value);
+  }
+}
+
+@HiveType(typeId: 9)
+class BookEntity {
+  BookEntity({
+    required this.pk,
+    required this.tenantFk,
+    required this.name,
+    this.desc = '',
+    this.status = BookEnum_Status.STATUS_DRAFT,
+    required this.openedAt,
+    required this.closedAt,
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.tenant,
+    this.clients = const [],
+    this.teams = const [],
+  });
+
+  factory BookEntity.fromRpc({
+    required Book element,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var entity = context.getE<BookEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+    entity = BookEntity(
+      pk: element.pk,
+      tenantFk: element.tenantFk,
+      name: element.name,
+      desc: element.desc,
+      status: element.status,
+      openedAt: element.openedAt.toDateTime(),
+      closedAt: element.closedAt.toDateTime(),
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+    );
+    context.putE(entity.pk, entity);
+
+    // Relationships
+    entity
+      ..tenant = (context.getE<TenantEntity>(element.tenantFk)) ?? (element.hasTenant() ? TenantEntity.fromRpc(element: element.tenant, context: context) : null)
+      ..clients = element.clients.map((e) => context!.getE<UserEntity>(e.pk) ?? UserEntity.fromRpc(element: e, context: context)).toList()
+      ..teams = element.teams.map((e) => context!.getE<TeamEntity>(e.pk) ?? TeamEntity.fromRpc(element: e, context: context)).toList();
+
+    return entity;
+  }
+
+  @HiveField(0)
+  int pk;
+
+  @HiveField(1)
+  int tenantFk;
+
+  @HiveField(2)
+  String name;
+
+  @HiveField(3)
+  String desc;
+
+  @HiveField(4)
+  BookEnum_Status status;
+
+  @HiveField(5)
+  DateTime openedAt;
+
+  @HiveField(6)
+  DateTime closedAt;
+
+  @HiveField(10)
+  DateTime? createdAt;
+
+  @HiveField(11)
+  DateTime? updatedAt;
+
+  // Relationships
+  TenantEntity? tenant; // TODO(impl): OneToOne is required
+  List<UserEntity> clients;
+  List<TeamEntity> teams;
+}
+
+@HiveType(typeId: 10)
+class TeamEntity {
+  TeamEntity({
+    required this.pk,
+    required this.tenantFk,
+    required this.name,
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.tenant,
+    this.users = const [],
+  });
+
+  factory TeamEntity.fromRpc({
+    required Team element,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var entity = context.getE<TeamEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+    entity = TeamEntity(
+      pk: element.pk,
+      tenantFk: element.tenantFk,
+      name: element.name,
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+    );
+    context.putE(entity.pk, entity);
+
+    // Relationships
+    entity.tenant = (context.getE<TenantEntity>(element.tenantFk)) ?? (element.hasTenant() ? TenantEntity.fromRpc(element: element.tenant, context: context) : null);
+    // TODO(impl): ..users = element.users.map((e) => context!.getE<UserEntity>(e.pk) ?? UserEntity.fromRpc(element: e, context: context)).toList();
+
+    return entity;
+  }
+
+  @HiveField(0)
+  int pk;
+
+  @HiveField(1)
+  int tenantFk;
+
+  @HiveField(2)
+  String name;
+
+  @HiveField(3)
+  DateTime? createdAt;
+
+  @HiveField(4)
+  DateTime? updatedAt;
+
+  // Relationships
+  TenantEntity? tenant; // TODO(impl): OneToOne is required
+  List<UserEntity> users;
 }

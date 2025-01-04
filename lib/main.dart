@@ -1,8 +1,8 @@
-import 'package:extremo/misc/logger.dart';
 // import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:extremo/io/auth/account.dart';
-import 'package:extremo/io/entity/extremo/extremo.dart' as extremo_entity;
+import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/misc/logger.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/scaffold_navbar.dart';
 import 'package:flutter/material.dart';
@@ -19,14 +19,17 @@ void main() async {
 
   await Hive.initFlutter();
   Hive
-    ..registerAdapter(extremo_entity.ArtifactEntityAdapter())
-    ..registerAdapter(extremo_entity.ChatEntityAdapter())
-    ..registerAdapter(extremo_entity.ChatMessageEntityAdapter())
-    ..registerAdapter(extremo_entity.ServiceEntityAdapter())
-    ..registerAdapter(extremo_entity.TenantEntityAdapter())
-    ..registerAdapter(extremo_entity.TenantProfileEntityAdapter())
-    ..registerAdapter(extremo_entity.UserEntityAdapter())
-    ..registerAdapter(extremo_entity.UserProfileEntityAdapter());
+    ..registerAdapter(ArtifactEntityAdapter())
+    ..registerAdapter(BookEntityAdapter())
+    ..registerAdapter(BookEnumStatusAdapter())
+    ..registerAdapter(ChatEntityAdapter())
+    ..registerAdapter(ChatMessageEntityAdapter())
+    ..registerAdapter(ServiceEntityAdapter())
+    ..registerAdapter(TeamEntityAdapter())
+    ..registerAdapter(TenantEntityAdapter())
+    ..registerAdapter(TenantProfileEntityAdapter())
+    ..registerAdapter(UserEntityAdapter())
+    ..registerAdapter(UserProfileEntityAdapter());
 
   WidgetsFlutterBinding.ensureInitialized();
 

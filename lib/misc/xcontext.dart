@@ -1,4 +1,8 @@
 class XContext {
+  static XContext of() {
+    return XContext();
+  }
+
   final Map<String, dynamic> _context = {};
 
   String _generateKey(Type type, int id) {
@@ -11,10 +15,6 @@ class XContext {
 
   void putE<T>(int id, T entity) {
     _context[_generateKey(T, id)] = entity;
-  }
-
-  static XContext of() {
-    return XContext();
   }
 
   @override

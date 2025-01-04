@@ -58,3 +58,15 @@ Future<Box<ServiceEntity>> serviceBox(
   ServiceBoxRef ref,
 ) async =>
     Hive.openBox<ServiceEntity>('extremoServiceBox:1');
+
+@riverpod
+Future<Box<BookEntity>> bookBox(
+  BookBoxRef ref,
+) async =>
+    Hive.openBox<BookEntity>('extremoBookBox:1');
+
+@riverpod
+Future<Box<TeamEntity>> teamBox(
+  TeamBoxRef ref,
+) async =>
+    Hive.openBox<TeamEntity>('extremoTeamBox:1');

@@ -180,3 +180,53 @@ Future<TenantEntity> xFormRpcTenantEntity(
 
   return entity;
 }
+
+// Cache save & return
+Future<TeamEntity> xFormRpcTeamEntity(
+  Ref ref,
+  pbdb.Team element,
+) async {
+  final teamBox = await ref.read(teamBoxProvider.future);
+  // final teamProfileBox = await ref.read(teamProfileBoxProvider.future);
+
+  final entity = TeamEntity.fromRpc(element: element);
+  if (teamBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+    return entity;
+  }
+
+  //
+  // XXX(Caution): unawaited, Background process to put data to DB
+  //
+  unawaited(teamBox.put(element.pk, entity));
+
+  // if (entity.profile != null) {
+  //   unawaited(teamProfileBox.put(entity.profile?.pk, entity.profile!));
+  // }
+
+  return entity;
+}
+
+// Cache save & return
+Future<BookEntity> xFormRpcBookEntity(
+  Ref ref,
+  pbdb.Book element,
+) async {
+  final bookBox = await ref.read(bookBoxProvider.future);
+  // final bookProfileBox = await ref.read(bookProfileBoxProvider.future);
+
+  final entity = BookEntity.fromRpc(element: element);
+  if (bookBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+    return entity;
+  }
+
+  //
+  // XXX(Caution): unawaited, Background process to put data to DB
+  //
+  unawaited(bookBox.put(element.pk, entity));
+
+  // if (entity.profile != null) {
+  //   unawaited(bookProfileBox.put(entity.profile?.pk, entity.profile!));
+  // }
+
+  return entity;
+}

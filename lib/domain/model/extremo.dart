@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/misc/logger.dart';
 import 'package:extremo/misc/xcontext.dart';
+import 'package:extremodart/extremo/msg/db/v1/enum.pbenum.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as chat_types;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -19,8 +20,8 @@ class TenantModel with _$TenantModel {
     @Default([]) List<UserModel> users,
     @Default([]) List<ChatModel> chats,
     @Default([]) List<ServiceModel> services,
-    // @Default([]) List<TeamModel> teams,
-    // @Default([]) List<BookModel> books,
+    @Default([]) List<TeamModel> teams,
+    @Default([]) List<BookModel> books,
   }) = _TenantModel;
 
   factory TenantModel.fromEntity({
@@ -46,8 +47,8 @@ class TenantModel with _$TenantModel {
       users: entity.users.map((e) => context!.getE<UserModel>(e.pk) ?? UserModel.fromEntity(entity: e, context: context)).toList(),
       chats: entity.chats.map((e) => context!.getE<ChatModel>(e.pk) ?? ChatModel.fromEntity(entity: e, context: context)).toList(),
       services: entity.services.map((e) => context!.getE<ServiceModel>(e.pk) ?? ServiceModel.fromEntity(entity: e, context: context)).toList(),
-      // books:
-      // teams:
+      books: entity.books.map((e) => context!.getE<BookModel>(e.pk) ?? BookModel.fromEntity(entity: e, context: context)).toList(),
+      teams: entity.teams.map((e) => context!.getE<TeamModel>(e.pk) ?? TeamModel.fromEntity(entity: e, context: context)).toList(),
     );
   }
 }
@@ -59,6 +60,11 @@ extension TenantModelX on TenantModel {
       createdAt: createdAt,
       updatedAt: updatedAt,
       profile: profile?.toEntity(),
+      teams: teams.map((e) => e.toEntity()).toList(),
+      books: books.map((e) => e.toEntity()).toList(),
+      chats: chats.map((e) => e.toEntity()).toList(),
+      services: services.map((e) => e.toEntity()).toList(),
+      users: users.map((e) => e.toEntity()).toList(),
     );
   }
 }
@@ -270,11 +276,10 @@ class ArtifactModel with _$ArtifactModel {
       publishUntil: entity.publishUntil,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Relationships
-      // user: user
     );
     context.putE(entity.pk, model);
 
+    // Relationships
     return model.copyWith(
       user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
     );
@@ -535,5 +540,130 @@ extension ChatMessageModelX on ChatMessageModel {
     }
 
     return decoded;
+  }
+}
+
+@freezed
+class BookModel with _$BookModel {
+  const factory BookModel({
+    int? pk,
+    required int tenantFk,
+    int? parentFk,
+    @Default('') String name,
+    @Default('') String desc,
+    @Default(BookEnum_Status.STATUS_DRAFT) BookEnum_Status status,
+    required DateTime openedAt,
+    required DateTime closedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    TenantModel? tenant,
+    @Default([]) List<UserModel> clients,
+    @Default([]) List<TeamModel> teams,
+  }) = _BookModel;
+
+  factory BookModel.fromEntity({
+    required BookEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<BookModel>(entity.pk);
+    if (model != null) {
+      return model;
+    }
+    model = BookModel(
+      pk: entity.pk,
+      tenantFk: entity.tenantFk,
+      name: entity.name,
+      desc: entity.desc,
+      status: entity.status,
+      openedAt: entity.openedAt,
+      closedAt: entity.closedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+    context.putE(entity.pk, model);
+
+    // Relationships
+    return model.copyWith(
+      tenant: context.getE<TenantModel>(entity.tenantFk) ?? (entity.tenant != null ? TenantModel.fromEntity(entity: entity.tenant!, context: context) : null),
+      clients: entity.clients.map((e) => context!.getE<UserModel>(e.pk) ?? UserModel.fromEntity(entity: e, context: context)).toList(),
+      teams: entity.teams.map((e) => context!.getE<TeamModel>(e.pk) ?? TeamModel.fromEntity(entity: e, context: context)).toList(),
+    );
+  }
+}
+
+extension BookModelX on BookModel {
+  BookEntity toEntity() {
+    return BookEntity(
+      pk: pk ?? 0,
+      tenantFk: tenantFk,
+      name: name,
+      desc: desc,
+      status: status,
+      openedAt: openedAt,
+      closedAt: closedAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      tenant: tenant?.toEntity(),
+      clients: clients.map((e) => e.toEntity()).toList(),
+      teams: teams.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
+@freezed
+class TeamModel with _$TeamModel {
+  const factory TeamModel({
+    int? pk,
+    required int tenantFk,
+    int? parentFk,
+    @Default('') String name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    TenantModel? tenant,
+    @Default([]) List<UserModel> users,
+  }) = _TeamModel;
+
+  factory TeamModel.fromEntity({
+    required TeamEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<TeamModel>(entity.pk);
+    if (model != null) {
+      return model;
+    }
+    model = TeamModel(
+      pk: entity.pk,
+      tenantFk: entity.tenantFk,
+      name: entity.name,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+    context.putE(entity.pk, model);
+
+    // Relationships
+    return model.copyWith(
+      tenant: context.getE<TenantModel>(entity.tenantFk) ?? (entity.tenant != null ? TenantModel.fromEntity(entity: entity.tenant!, context: context) : null),
+      users: entity.users.map((e) => context!.getE<UserModel>(e.pk) ?? UserModel.fromEntity(entity: e, context: context)).toList(),
+    );
+  }
+}
+
+extension TeamModelX on TeamModel {
+  TeamEntity toEntity() {
+    return TeamEntity(
+      pk: pk ?? 0,
+      tenantFk: tenantFk,
+      name: name,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      tenant: tenant?.toEntity(),
+      users: users.map((e) => e.toEntity()).toList(),
+    );
   }
 }
