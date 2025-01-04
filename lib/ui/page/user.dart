@@ -68,7 +68,8 @@ class UserPage extends HookConsumerWidget {
 
             final state = ref.read(listPagerUsersCaseProvider).asData?.value;
             if (state == null) {
-              throw Exception('No data loaded yet');
+              logger.d('effect: No data loaded yet');
+              return;
             }
 
             // Extract only the part corresponding to pageKey

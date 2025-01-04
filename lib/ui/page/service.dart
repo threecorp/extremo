@@ -15,35 +15,35 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-class MenuPage extends HookConsumerWidget {
-  const MenuPage({
+class ServicePage extends HookConsumerWidget {
+  const ServicePage({
     super.key,
     this.isModal = false,
     this.onTapAction,
   });
 
   final bool isModal;
-  final void Function(Menu)? onTapAction;
+  final void Function(Service)? onTapAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // dummy data
-    final menus = [
-      Menu(
+    final services = [
+      Service(
         name: 'M1',
         status: 'Hello!',
         avatarUrl: 'https://via.placeholder.com/150',
         isOnline: true,
         unreadMessages: 2,
       ),
-      Menu(
+      Service(
         name: 'M2',
         status: 'Busy now',
         avatarUrl: 'https://via.placeholder.com/150',
         isOnline: false,
         unreadMessages: 0,
       ),
-      Menu(
+      Service(
         name: 'M3',
         status: 'Available',
         avatarUrl: 'https://via.placeholder.com/150',
@@ -53,9 +53,9 @@ class MenuPage extends HookConsumerWidget {
     ];
     final searchQuery = useState('');
 
-    final filteredMenus = useMemoized(
+    final filteredServices = useMemoized(
       () {
-        return menus.where((menu) => menu.name.toLowerCase().contains(searchQuery.value.toLowerCase())).toList();
+        return services.where((service) => service.name.toLowerCase().contains(searchQuery.value.toLowerCase())).toList();
       },
       [searchQuery.value],
     );
@@ -63,7 +63,7 @@ class MenuPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Menu Page'),
+        title: const Text('Service Page'),
         leading: isModal
             ? null
             : IconButton(
@@ -100,16 +100,16 @@ class MenuPage extends HookConsumerWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: filteredMenus.length,
+              itemCount: filteredServices.length,
               itemBuilder: (context, index) {
-                final menu = filteredMenus[index];
+                final service = filteredServices[index];
                 return ListTile(
                   leading: Stack(
                     children: [
                       CircleAvatar(
-                        backgroundImage: NetworkImage(menu.avatarUrl),
+                        backgroundImage: NetworkImage(service.avatarUrl),
                       ),
-                      if (menu.unreadMessages > 0)
+                      if (service.unreadMessages > 0)
                         Positioned(
                           right: 0,
                           child: Container(
@@ -119,7 +119,7 @@ class MenuPage extends HookConsumerWidget {
                               shape: BoxShape.circle,
                             ),
                             child: Text(
-                              '${menu.unreadMessages}',
+                              '${service.unreadMessages}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -129,21 +129,21 @@ class MenuPage extends HookConsumerWidget {
                         ),
                     ],
                   ),
-                  title: Text(menu.name),
-                  subtitle: Text(menu.status),
-                  trailing: menu.isOnline ? const Icon(Icons.circle, color: Colors.green, size: 12) : null,
+                  title: Text(service.name),
+                  subtitle: Text(service.status),
+                  trailing: service.isOnline ? const Icon(Icons.circle, color: Colors.green, size: 12) : null,
                   onTap: () {
                     if (onTapAction != null) {
-                      return onTapAction!(menu);
+                      return onTapAction!(service);
                     }
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${menu.name} selected')),
+                      SnackBar(content: Text('${service.name} selected')),
                     );
                   },
                   // onTap: () {
                   //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(content: Text('${menu.name} selected')),
+                  //     SnackBar(content: Text('${service.name} selected')),
                   //   );
                   // },
                 );
@@ -156,8 +156,8 @@ class MenuPage extends HookConsumerWidget {
   }
 }
 
-class Menu {
-  Menu({
+class Service {
+  Service({
     required this.name,
     required this.status,
     required this.avatarUrl,

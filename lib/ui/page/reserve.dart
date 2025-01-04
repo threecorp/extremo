@@ -9,7 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
-import 'package:extremo/ui/page/menu.dart';
+import 'package:extremo/ui/page/service.dart';
 import 'package:extremo/ui/page/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -53,7 +53,7 @@ class ReservePage extends HookConsumerWidget {
                 return Reserve(
                   id: value.id,
                   user: value.user,
-                  menu: value.menu,
+                  service: value.service,
                   subject: value.subject,
                   startTime: details.startTime!,
                   endTime: details.endTime!,
@@ -136,7 +136,7 @@ class ReservePage extends HookConsumerWidget {
                         child: _ReserveForm(
                           id: reserve?.id,
                           user: reserve?.user,
-                          menu: reserve?.menu,
+                          service: reserve?.service,
                           subject: reserve?.subject ?? '',
                           startTime: reserve?.startTime ?? details.date!,
                           endTime: reserve?.endTime ?? details.date!.add(const Duration(hours: 1)),
@@ -189,7 +189,7 @@ class ReservePage extends HookConsumerWidget {
             onTap: () => showModalBottomSheet<void>(
               context: context,
               isScrollControlled: true,
-              builder: (context) => const MenuPage(isModal: true),
+              builder: (context) => const ServicePage(isModal: true),
             ),
             labelStyle: const TextStyle(fontWeight: FontWeight.w500),
           ),
@@ -203,7 +203,7 @@ class _ReserveForm extends HookConsumerWidget {
   const _ReserveForm({
     this.id,
     this.user,
-    this.menu,
+    this.service,
     required this.subject,
     required this.startTime,
     required this.endTime,
@@ -212,7 +212,7 @@ class _ReserveForm extends HookConsumerWidget {
 
   final String? id;
   final UserModel? user;
-  final Menu? menu;
+  final Service? service;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;
@@ -224,7 +224,7 @@ class _ReserveForm extends HookConsumerWidget {
     final eTimeState = useState(endTime);
     final sTimeState = useState(startTime);
     final userState = useState<UserModel?>(user);
-    final menuState = useState<Menu?>(menu);
+    final serviceState = useState<Service?>(service);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -276,22 +276,22 @@ class _ReserveForm extends HookConsumerWidget {
             },
           ),
           const SizedBox(height: 16),
-          // menu selection
+          // service selection
           ElevatedButton(
             onPressed: () async {
-              final menu = await MenuRoute($extra: (Menu menu) => Navigator.pop(context, menu)).push<Menu>(context);
-              if (menu != null) {
-                menuState.value = menu;
+              final service = await ServiceRoute($extra: (Service service) => Navigator.pop(context, service)).push<Service>(context);
+              if (service != null) {
+                serviceState.value = service;
               }
             },
             child: Text(
-              menuState.value != null ? 'Selected: ${menuState.value!.name}' : 'Select Menu',
+              serviceState.value != null ? 'Selected: ${serviceState.value!.name}' : 'Select Service',
             ),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              if (userState.value == null || menuState.value == null) {
+              if (userState.value == null || serviceState.value == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Please fill all fields')),
                 );
@@ -302,7 +302,7 @@ class _ReserveForm extends HookConsumerWidget {
                 Reserve.create(
                   id: id,
                   user: userState.value,
-                  menu: menuState.value,
+                  service: serviceState.value,
                   subject: subjectController.text,
                   startTime: sTimeState.value,
                   endTime: eTimeState.value,
@@ -360,7 +360,7 @@ class ReserveDataSource extends CalendarDataSource<Reserve> {
     return Reserve.create(
       id: customData?.id,
       user: customData?.user,
-      menu: customData?.menu,
+      service: customData?.service,
       subject: appointment.subject,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
@@ -385,7 +385,7 @@ class Reserve {
   Reserve({
     this.id,
     this.user,
-    this.menu,
+    this.service,
     required this.subject,
     required this.startTime,
     required this.endTime,
@@ -396,7 +396,7 @@ class Reserve {
   factory Reserve.create({
     String? id,
     UserModel? user,
-    Menu? menu,
+    Service? service,
     required String subject,
     required DateTime startTime,
     required DateTime endTime,
@@ -406,7 +406,7 @@ class Reserve {
     return Reserve(
       id: id ?? const Uuid().v7(),
       user: user,
-      menu: menu,
+      service: service,
       subject: subject,
       startTime: startTime,
       endTime: endTime,
@@ -417,7 +417,7 @@ class Reserve {
 
   final String? id;
   final UserModel? user;
-  final Menu? menu;
+  final Service? service;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;
