@@ -4,6 +4,7 @@
 import 'package:collection/collection.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pbgrpc.dart';
 import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pbgrpc.dart';
+import 'package:extremodart/extremo/api/mypage/users/v1/user_service.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -23,6 +24,22 @@ ArtifactServiceClient mypageArtifactServiceClient(
   );
 
   return ArtifactServiceClient(
+    channel,
+    interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
+  );
+}
+
+@riverpod
+UserServiceClient mypageUserServiceClient(
+  MypageUserServiceClientRef ref,
+) {
+  final channel = ClientChannel(
+    'localhost', // TODO(Environment): Change a value for each an environment.
+    port: 50100,
+    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  );
+
+  return UserServiceClient(
     channel,
     interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );

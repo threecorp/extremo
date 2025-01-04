@@ -6,10 +6,11 @@
 // import 'package:extremo/ui/layout/paging_controller.dart';
 // import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/route/route.dart';
-import 'package:extremo/ui/page/user.dart';
 import 'package:extremo/ui/page/menu.dart';
+import 'package:extremo/ui/page/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -210,7 +211,7 @@ class _ReserveForm extends HookConsumerWidget {
   });
 
   final String? id;
-  final User? user;
+  final UserModel? user;
   final Menu? menu;
   final String subject;
   final DateTime startTime;
@@ -222,7 +223,7 @@ class _ReserveForm extends HookConsumerWidget {
     final subjectController = useTextEditingController(text: subject);
     final eTimeState = useState(endTime);
     final sTimeState = useState(startTime);
-    final userState = useState<User?>(user);
+    final userState = useState<UserModel?>(user);
     final menuState = useState<Menu?>(menu);
 
     return Padding(
@@ -233,13 +234,13 @@ class _ReserveForm extends HookConsumerWidget {
           // user selection
           ElevatedButton(
             onPressed: () async {
-              final user = await UserRoute($extra: (User user) => Navigator.pop(context, user)).push<User>(context);
+              final user = await UserRoute($extra: (UserModel user) => Navigator.pop(context, user)).push<UserModel>(context);
               if (user != null) {
                 userState.value = user;
               }
             },
             child: Text(
-              userState.value != null ? 'Selected: ${userState.value!.name}' : 'Select User',
+              userState.value != null ? 'Selected: ${userState.value?.profile?.name ?? ''}' : 'Select User',
             ),
           ),
           const SizedBox(height: 16),
@@ -394,7 +395,7 @@ class Reserve {
 
   factory Reserve.create({
     String? id,
-    User? user,
+    UserModel? user,
     Menu? menu,
     required String subject,
     required DateTime startTime,
@@ -415,7 +416,7 @@ class Reserve {
   }
 
   final String? id;
-  final User? user;
+  final UserModel? user;
   final Menu? menu;
   final String subject;
   final DateTime startTime;

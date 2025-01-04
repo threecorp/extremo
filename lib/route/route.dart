@@ -1,13 +1,14 @@
 // import 'package:extremo/ui/page/extremo.dart';
 // import 'package:extremo/ui/page/extremo_detail.dart';
 // import 'package:extremo/ui/page/favorite.dart';
+import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/ui/page/artifact.dart';
 import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/chat.dart';
 import 'package:extremo/ui/page/chat_message.dart';
 import 'package:extremo/ui/page/login.dart';
-import 'package:extremo/ui/page/register.dart';
 import 'package:extremo/ui/page/menu.dart';
+import 'package:extremo/ui/page/register.dart';
 import 'package:extremo/ui/page/reserve.dart';
 import 'package:extremo/ui/page/tenant.dart';
 import 'package:extremo/ui/page/user.dart';
@@ -70,7 +71,7 @@ class UserRoute extends GoRouteData {
     this.$extra,
   });
 
-  final void Function(User)? $extra;
+  final void Function(UserModel)? $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {

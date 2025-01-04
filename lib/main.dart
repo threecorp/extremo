@@ -22,6 +22,7 @@ void main() async {
     ..registerAdapter(extremo_entity.ArtifactEntityAdapter())
     ..registerAdapter(extremo_entity.ChatEntityAdapter())
     ..registerAdapter(extremo_entity.ChatMessageEntityAdapter())
+    ..registerAdapter(extremo_entity.UserProfileEntityAdapter())
     ..registerAdapter(extremo_entity.UserEntityAdapter());
 
   WidgetsFlutterBinding.ensureInitialized();

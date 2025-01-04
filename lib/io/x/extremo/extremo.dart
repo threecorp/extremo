@@ -2,6 +2,7 @@
 // import 'package:extremo/io/store/api/extremo/extremo.dart';
 // import 'package:extremo/io/store/api/extremo/extremo_request.dart';
 // import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:extremo/misc/logger.dart';
 import 'package:collection/collection.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/store/api/extremo/extremo_response.dart';
@@ -120,6 +121,29 @@ Future<UserEntity> xFormRpcChatUserEntity(
   return entity;
 }
 
-//
-//
-//
+// Cache save & return
+Future<UserEntity> xFormRpcUserEntity(
+  Ref ref,
+  pbdb.User element,
+) async {
+  final userBox = await ref.read(userBoxProvider.future);
+  final userProfileBox = await ref.read(userProfileBoxProvider.future);
+
+  final entity = UserEntity.fromRpc(element: element);
+  if (userBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+    return entity;
+  }
+
+  //
+  // TODO(Backgrounder): Background process to put data to DB
+  //
+  // User
+  await userBox.put(element.pk, entity);
+  // Profile
+  if (entity.profile != null) {
+    // TODO(compaction): compare to both of updatedAt
+    await userProfileBox.put(entity.profile!.id, entity.profile!);
+  }
+
+  return entity;
+}

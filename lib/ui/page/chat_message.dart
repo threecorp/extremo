@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/chat.dart';
 import 'package:extremo/io/auth/account.dart';
-import 'package:extremo/io/repo/extremo/mypage.dart';
+import 'package:extremo/io/repo/extremo/mypage/chat.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;

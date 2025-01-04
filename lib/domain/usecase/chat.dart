@@ -3,7 +3,7 @@
 // import 'package:result_dart/functions.dart';
 // import 'package:riverpod/riverpod.dart';
 import 'package:extremo/domain/model/extremo.dart';
-import 'package:extremo/io/repo/extremo/mypage.dart';
+import 'package:extremo/io/repo/extremo/mypage/chat.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/extremo.dart';
-import 'package:extremo/io/repo/extremo/mypage.dart';
+import 'package:extremo/io/repo/extremo/mypage/artifact.dart';
 import 'package:extremo/misc/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:result_dart/functions.dart';

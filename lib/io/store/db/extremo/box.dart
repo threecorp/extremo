@@ -18,6 +18,12 @@ Future<Box<UserEntity>> userBox(
     Hive.openBox<UserEntity>('extremoUserBox');
 
 @riverpod
+Future<Box<UserProfileEntity>> userProfileBox(
+  UserProfileBoxRef ref,
+) async =>
+    Hive.openBox<UserProfileEntity>('extremoUserProfileBox');
+
+@riverpod
 Future<Box<ChatEntity>> ChatBox(
   ChatBoxRef ref,
 ) async =>
