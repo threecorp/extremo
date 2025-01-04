@@ -9,34 +9,46 @@ part 'box.g.dart';
 Future<Box<ArtifactEntity>> artifactBox(
   ArtifactBoxRef ref,
 ) async =>
-    Hive.openBox<ArtifactEntity>('extremoArtifactBox');
+    Hive.openBox<ArtifactEntity>('extremoArtifactBox:1');
+
+@riverpod
+Future<Box<TenantEntity>> tenantBox(
+  TenantBoxRef ref,
+) async =>
+    Hive.openBox<TenantEntity>('extremoTenantBox:1');
+
+@riverpod
+Future<Box<TenantProfileEntity>> tenantProfileBox(
+  TenantProfileBoxRef ref,
+) async =>
+    Hive.openBox<TenantProfileEntity>('extremoTenantProfileBox:1');
 
 @riverpod
 Future<Box<UserEntity>> userBox(
   UserBoxRef ref,
 ) async =>
-    Hive.openBox<UserEntity>('extremoUserBox');
+    Hive.openBox<UserEntity>('extremoUserBox:1');
 
 @riverpod
 Future<Box<UserProfileEntity>> userProfileBox(
   UserProfileBoxRef ref,
 ) async =>
-    Hive.openBox<UserProfileEntity>('extremoUserProfileBox');
+    Hive.openBox<UserProfileEntity>('extremoUserProfileBox:1');
 
 @riverpod
-Future<Box<ChatEntity>> ChatBox(
+Future<Box<ChatEntity>> chatBox(
   ChatBoxRef ref,
 ) async =>
-    Hive.openBox<ChatEntity>('extremoChatBox');
+    Hive.openBox<ChatEntity>('extremoChatBox:1');
 
 @riverpod
 Future<Box<ChatMessageEntity>> chatMessageBox(
   ChatMessageBoxRef ref,
 ) async =>
-    Hive.openBox<ChatMessageEntity>('extremoChatMessageBox');
+    Hive.openBox<ChatMessageEntity>('extremoChatMessageBox:1');
 
 @riverpod
 Future<Box<UserEntity>> chatMessageUserBox(
   ChatMessageUserBoxRef ref,
 ) async =>
-    Hive.openBox<UserEntity>('extremoChatMessageUserBox');
+    Hive.openBox<UserEntity>('extremoChatMessageUserBox:1');
