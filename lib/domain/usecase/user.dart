@@ -11,11 +11,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'user.g.dart';
 
-/// ページング状態をまとめたクラス。
-/// - `page`: 現在のページ番号
-/// - `pageSize`: 1ページあたりの要素数
-/// - `isLast`: 最終ページかどうか
-/// - `items`: 取得済みのユーザ一覧
+/// Class that summarizes the paging state.
+/// - `page`: The current page number.
+/// - `pageSize`: Number of elements per page.
+/// - `isLast`: last page or not.
+/// - `items`: list of retrieved users
 class UserPaginationState {
   final int page;
   final int pageSize;
@@ -29,7 +29,7 @@ class UserPaginationState {
     required this.items,
   });
 
-  /// 空の初期状態（ページ = 1, isLast = false, items = []など）
+  /// Empty initial state (page = 1, isLast = false, items = [], etc.)
   factory UserPaginationState.initial({int pageSize = 25}) {
     return UserPaginationState(
       page: 1,
@@ -39,7 +39,7 @@ class UserPaginationState {
     );
   }
 
-  /// 次のページへ進む。
+  /// Advance to the next page.
   UserPaginationState copyWithNextPage() {
     return UserPaginationState(
       page: page + 1,
@@ -49,7 +49,7 @@ class UserPaginationState {
     );
   }
 
-  /// 新たなリストをマージして `isLast` も更新。
+  /// Merge the new listing and update `isLast` as well.
   UserPaginationState copyWithMergedItems({
     required List<UserModel> newItems,
     required bool isLast,
@@ -65,20 +65,18 @@ class UserPaginationState {
 
 @riverpod
 class ListPagerUsersCase extends _$ListPagerUsersCase {
-  /// 初期値として1ページ目を読み込む(またはまだ読み込んでいない状態にする)。
+  /// Returns an “empty state (initial)” as the initial value here,
+  /// The actual fetching of the first page is left to `refreshFirstPage()` and so on.
+  /// If you want to get the page automatically the first time, you can await _fetchPage(UserPaginationState.initial()) and return it.
   @override
   FutureOr<UserPaginationState> build() async {
-    // ここで1ページ目を取得して返す or 空状態を返して
-    // 初回読み込みを別メソッドに任せる…などいろいろパターンがあります。
-    // 例: build時に即fetchする
+    // return UserPaginationState.initial();
     return _fetchPage(UserPaginationState.initial());
   }
 
-  /// 内部用のページ取得メソッド。
-  /// [stateBeforeFetch] の page / pageSize などを参照してAPIを叩き、結果を合成して返す。
-  Future<UserPaginationState> _fetchPage(
-    UserPaginationState stateBeforeFetch,
-  ) async {
+  /// Page fetch method for internal use.
+  /// Refer to page / pageSize, etc. in [stateBeforeFetch], hit API, and return composite results.
+  Future<UserPaginationState> _fetchPage(UserPaginationState stateBeforeFetch) async {
     final account = ref.read(accountProvider.notifier).account();
     final tenantFk = account?.tenantFk;
     if (tenantFk == null) {
@@ -91,12 +89,12 @@ class ListPagerUsersCase extends _$ListPagerUsersCase {
       repoListPagerUsersProvider(tenantFk, stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
     );
 
-    // APIの取得結果を UserModel に変換
+    // Convert API results to UserModel
     final newItems = pager.elements.map((entity) => UserModel.fromEntity(entity: entity)).toList();
-
+    // Determine if this is the last page
     final isLast = newItems.length < stateBeforeFetch.pageSize;
 
-    // 既存のリストに追加して返す
+    // Add to existing list and return
     final newState = stateBeforeFetch.copyWithMergedItems(
       newItems: newItems,
       isLast: isLast,
@@ -106,33 +104,32 @@ class ListPagerUsersCase extends _$ListPagerUsersCase {
     return newState;
   }
 
-  /// ページングで次のページを読み込む
+  /// Paging to load the next page
   Future<void> loadNextPage() async {
-    // 現在の state がまだ読み込み途中なら待つ（AsyncValue.guard などでもOK）
-    final currentState = await _ensureLoadedState(); // 下のヘルパーメソッド
+    // Wait if the current state is still being read (AsyncValue.guard, etc. is OK)
+    final currentState = await _ensureLoadedState();
 
-    // すでに最後のページなら何もしない
     if (currentState.isLast) {
       logger.d('Already isLast, no more pages to load');
       return;
     }
 
-    // 次ページを取得して state 更新
-    state = const AsyncValue.loading(); // ローディング状態にしてもいいし、そのままでも良い
+    // Get next page and update state
+    state = const AsyncValue.loading();
     final newState = await _fetchPage(currentState.copyWithNextPage());
     state = AsyncValue.data(newState);
   }
 
-  /// 一番最初のページを再読み込みする。
+  /// Reload the very first page.
   Future<void> refreshFirstPage() async {
     state = const AsyncValue.loading();
     final newState = await _fetchPage(UserPaginationState.initial());
     state = AsyncValue.data(newState);
   }
 
-  /// 現在の [state] を `Future<UserPaginationState>` で安全に取得するためのヘルパー。
+  /// Helper to safely retrieve the current [state] with `Future<UserPaginationState>`.
   Future<UserPaginationState> _ensureLoadedState() async {
-    // もし state がまだ未読み込みやエラーの場合は `build()` し直してロード。
+    // If state is still unloaded or in error, `build()` and load it again.
     final value = state.valueOrNull ?? await future;
     return value;
   }

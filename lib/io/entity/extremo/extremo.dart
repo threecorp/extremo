@@ -184,7 +184,7 @@ class UserProfileEntity {
   UserEntity? user;
 }
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 3)
 class ArtifactEntity {
   ArtifactEntity({
     required this.id,
@@ -290,7 +290,7 @@ class ArtifactEntity {
   UserEntity? user;
 }
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 4)
 class ChatEntity {
   ChatEntity({
     required this.id,
@@ -380,7 +380,7 @@ class ChatEntity {
   UserEntity? recipientUser;
 }
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 5)
 class ChatMessageEntity {
   ChatMessageEntity({
     required this.id,
