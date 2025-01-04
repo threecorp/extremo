@@ -52,3 +52,9 @@ Future<Box<UserEntity>> chatMessageUserBox(
   ChatMessageUserBoxRef ref,
 ) async =>
     Hive.openBox<UserEntity>('extremoChatMessageUserBox:1');
+
+@riverpod
+Future<Box<ServiceEntity>> serviceBox(
+  ServiceBoxRef ref,
+) async =>
+    Hive.openBox<ServiceEntity>('extremoServiceBox:1');

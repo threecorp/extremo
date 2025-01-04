@@ -106,7 +106,7 @@ class ServiceRoute extends GoRouteData {
     this.$extra,
   });
 
-  final void Function(Service)? $extra;
+  final void Function(ServiceModel)? $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {

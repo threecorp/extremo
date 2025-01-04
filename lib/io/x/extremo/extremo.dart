@@ -2,6 +2,7 @@
 // import 'package:extremo/io/store/api/extremo/extremo.dart';
 // import 'package:extremo/io/store/api/extremo/extremo_request.dart';
 // import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'dart:async';
 import 'package:extremo/misc/logger.dart';
 import 'package:collection/collection.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
@@ -12,38 +13,12 @@ import 'package:extremodart/extremo/msg/db/v1/db.pb.dart' as pbdb;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Cache save & return
-// Future<ArtifactEntity> xFormResponseArtifactEntity(
-//   Ref ref,
-//   ArtifactResponse element,
-// ) async {
-//   final artifactBox = await ref.read(artifactBoxProvider.future);
-//   final userBox = await ref.read(userBoxProvider.future);
-//
-//   final entity = ArtifactEntity.fromResponse(element: element);
-//   if (artifactBox.get(element.pk)?.updatedAt == entity.updatedAt) {
-//     return entity;
-//   }
-//
-//   //
-//   // TODO(Backgrounder): Background process to put data to DB
-//   //
-//   // Artifact
-//   await artifactBox.put(element.pk, entity);
-//   // User
-//   if (entity.user != null) {
-//     await userBox.put(entity.userFk, entity.user!);
-//   }
-//
-//   return entity;
-// }
-
-// Cache save & return
 Future<ArtifactEntity> xFormRpcArtifactEntity(
   Ref ref,
   pbdb.Artifact element,
 ) async {
   final artifactBox = await ref.read(artifactBoxProvider.future);
-  final userBox = await ref.read(userBoxProvider.future);
+  // final userBox = await ref.read(userBoxProvider.future);
 
   final entity = ArtifactEntity.fromRpc(element: element);
   if (artifactBox.get(element.pk)?.updatedAt == entity.updatedAt) {
@@ -51,14 +26,14 @@ Future<ArtifactEntity> xFormRpcArtifactEntity(
   }
 
   //
-  // TODO(Backgrounder): Background process to put data to DB
+  // XXX(Caution): unawaited, Background process to put data to DB
+  // TODO(compaction): compare to both of updatedAt
   //
-  // Artifact
-  await artifactBox.put(element.pk, entity);
-  // User
-  if (entity.user != null) {
-    await userBox.put(entity.userFk, entity.user!);
-  }
+  unawaited(artifactBox.put(element.pk, entity));
+
+  // if (entity.user != null) {
+  //   unawaited(userBox.put(entity.userFk, entity.user!));
+  // }
 
   return entity;
 }
@@ -68,8 +43,9 @@ Future<ChatEntity> xFormRpcChatEntity(
   Ref ref,
   pbdb.Chat element,
 ) async {
+  // final tenantBox = await ref.read(tenantBoxProvider.future);
+  // final userBox = await ref.read(userBoxProvider.future);
   final chatBox = await ref.read(chatBoxProvider.future);
-  final userBox = await ref.read(userBoxProvider.future);
 
   final entity = ChatEntity.fromRpc(element: element);
   if (chatBox.get(element.pk)?.updatedAt == entity.updatedAt) {
@@ -77,17 +53,20 @@ Future<ChatEntity> xFormRpcChatEntity(
   }
 
   //
-  // TODO(Backgrounder): Background process to put data to DB
+  // XXX(Caution): unawaited, Background process to put data to DB
+  // TODO(compaction): compare to both of updatedAt
   //
-  // Chat
-  await chatBox.put(element.pk, entity);
-  // User
-  if (entity.senderUser != null) {
-    await userBox.put(entity.senderFk, entity.senderUser!);
-  }
-  if (entity.recipientUser != null) {
-    await userBox.put(entity.recipientFk, entity.recipientUser!);
-  }
+  unawaited(chatBox.put(element.pk, entity));
+
+  // if (entity.senderUser != null) {
+  //   unawaited(userBox.put(entity.senderFk, entity.senderUser!));
+  // }
+  // if (entity.recipientUser != null) {
+  //   unawaited(userBox.put(entity.recipientFk, entity.recipientUser!));
+  // }
+  // if (entity.tenant != null) {
+  //   unawaited(tenantBox.put(entity.tenantFk, entity.tenant!));
+  // }
 
   return entity;
 }
@@ -99,15 +78,16 @@ Future<UserEntity> xFormRpcChatUserEntity(
 ) async {
   // final chatBox = await ref.read(chatBoxProvider.future);
   // final userBox = await ref.read(userBoxProvider.future);
-  //
+
   final entity = UserEntity.fromRpc(element: element);
   // if (chatBox.get(element.pk)?.updatedAt == entity.updatedAt) {
   //   return entity;
   // }
   //
-  // //
-  // // TODO(Backgrounder): Background process to put data to DB
-  // //
+  //
+  // XXX(Caution): unawaited, Background process to put data to DB
+  // TODO(compaction): compare to both of updatedAt
+  //
   // // Chat
   // await chatBox.put(element.pk, entity);
   // // User
@@ -126,8 +106,9 @@ Future<UserEntity> xFormRpcUserEntity(
   Ref ref,
   pbdb.User element,
 ) async {
+  // final tenantBox = await ref.read(tenantBoxProvider.future);
   final userBox = await ref.read(userBoxProvider.future);
-  final userProfileBox = await ref.read(userProfileBoxProvider.future);
+  // final userProfileBox = await ref.read(userProfileBoxProvider.future);
 
   final entity = UserEntity.fromRpc(element: element);
   if (userBox.get(element.pk)?.updatedAt == entity.updatedAt) {
@@ -135,15 +116,67 @@ Future<UserEntity> xFormRpcUserEntity(
   }
 
   //
-  // TODO(Backgrounder): Background process to put data to DB
+  // XXX(Caution): unawaited, Background process to put data to DB
+  // TODO(compaction): compare to both of updatedAt
   //
-  // User
-  await userBox.put(element.pk, entity);
-  // Profile
-  if (entity.profile != null) {
-    // TODO(compaction): compare to both of updatedAt
-    await userProfileBox.put(entity.profile!.pk, entity.profile!);
+  unawaited(userBox.put(element.pk, entity));
+
+  // if (entity.profile != null) {
+  //   unawaited(userProfileBox.put(entity.profile!.pk, entity.profile!));
+  // }
+  // if (entity.tenant != null) {
+  //   unawaited(tenantBox.put(entity.tenantFk, entity.tenant!));
+  // }
+
+  return entity;
+}
+
+// Cache save & return
+Future<ServiceEntity> xFormRpcServiceEntity(
+  Ref ref,
+  pbdb.Service element,
+) async {
+  // final tenantBox = await ref.read(tenantBoxProvider.future);
+  final serviceBox = await ref.read(serviceBoxProvider.future);
+
+  final entity = ServiceEntity.fromRpc(element: element);
+  if (serviceBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+    return entity;
   }
+
+  //
+  // XXX(Caution): unawaited, Background process to put data to DB
+  //
+  unawaited(serviceBox.put(element.pk, entity));
+
+  // if (entity.tenant != null) {
+  //   unawaited(tenantBox.put(entity.tenantFk, entity.tenant!));
+  // }
+
+  return entity;
+}
+
+// Cache save & return
+Future<TenantEntity> xFormRpcTenantEntity(
+  Ref ref,
+  pbdb.Tenant element,
+) async {
+  final tenantBox = await ref.read(tenantBoxProvider.future);
+  // final tenantProfileBox = await ref.read(tenantProfileBoxProvider.future);
+
+  final entity = TenantEntity.fromRpc(element: element);
+  if (tenantBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+    return entity;
+  }
+
+  //
+  // XXX(Caution): unawaited, Background process to put data to DB
+  //
+  unawaited(tenantBox.put(element.pk, entity));
+
+  // if (entity.profile != null) {
+  //   unawaited(tenantProfileBox.put(entity.profile?.pk, entity.profile!));
+  // }
 
   return entity;
 }

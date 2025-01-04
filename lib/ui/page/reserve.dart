@@ -212,7 +212,7 @@ class _ReserveForm extends HookConsumerWidget {
 
   final String? id;
   final UserModel? user;
-  final Service? service;
+  final ServiceModel? service;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;
@@ -224,7 +224,7 @@ class _ReserveForm extends HookConsumerWidget {
     final eTimeState = useState(endTime);
     final sTimeState = useState(startTime);
     final userState = useState<UserModel?>(user);
-    final serviceState = useState<Service?>(service);
+    final serviceState = useState<ServiceModel?>(service);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -279,7 +279,7 @@ class _ReserveForm extends HookConsumerWidget {
           // service selection
           ElevatedButton(
             onPressed: () async {
-              final service = await ServiceRoute($extra: (Service service) => Navigator.pop(context, service)).push<Service>(context);
+              final service = await ServiceRoute($extra: (ServiceModel service) => Navigator.pop(context, service)).push<ServiceModel>(context);
               if (service != null) {
                 serviceState.value = service;
               }
@@ -396,7 +396,7 @@ class Reserve {
   factory Reserve.create({
     String? id,
     UserModel? user,
-    Service? service,
+    ServiceModel? service,
     required String subject,
     required DateTime startTime,
     required DateTime endTime,
@@ -417,7 +417,7 @@ class Reserve {
 
   final String? id;
   final UserModel? user;
-  final Service? service;
+  final ServiceModel? service;
   final String subject;
   final DateTime startTime;
   final DateTime endTime;

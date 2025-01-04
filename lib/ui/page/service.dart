@@ -7,7 +7,7 @@
 // import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/domain/model/extremo.dart';
-import 'package:extremo/domain/usecase/user.dart';
+import 'package:extremo/domain/usecase/service.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
 import 'package:extremo/misc/logger.dart';
@@ -33,43 +33,72 @@ class ServicePage extends HookConsumerWidget {
     this.isModal = false,
   });
 
-  final void Function(Service)? onTapAction;
+  final void Function(ServiceModel)? onTapAction;
   final bool isModal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // dummy data
-    final services = [
-      Service(
-        name: 'M1',
-        status: 'Hello!',
-        avatarUrl: 'https://via.placeholder.com/150',
-        isOnline: true,
-        unreadMessages: 2,
-      ),
-      Service(
-        name: 'M2',
-        status: 'Busy now',
-        avatarUrl: 'https://via.placeholder.com/150',
-        isOnline: false,
-        unreadMessages: 0,
-      ),
-      Service(
-        name: 'M3',
-        status: 'Available',
-        avatarUrl: 'https://via.placeholder.com/150',
-        isOnline: true,
-        unreadMessages: 5,
-      ),
-    ];
-    final searchQuery = useState('');
+    // Monitor current “asynchronous status of paged service list
+    final pagerStateAsync = ref.watch(listPagerServicesCaseProvider);
 
-    final filteredServices = useMemoized(
-      () {
-        return services.where((service) => service.name.toLowerCase().contains(searchQuery.value.toLowerCase())).toList();
-      },
-      [searchQuery.value],
+    // Controller for infinite_scroll_pagination
+    final pagingController = useState(
+      PagingController<int, ServiceModel>(firstPageKey: 1),
     );
+
+    // [Point] Because updating the provider during build will cause an error,
+    // call refreshFirstPage “after the first frame is drawn” with addPostFrameCallback.
+    useEffect(
+      () {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Initial refresh if data not already available.
+          final data = ref.read(listPagerServicesCaseProvider).asData?.value;
+          if (data == null || data.items.isEmpty) {
+            ref.read(listPagerServicesCaseProvider.notifier).refreshFirstPage();
+          }
+        });
+        return null;
+      },
+      [],
+    );
+
+    // Processing when PagingController requests “load next page
+    useEffect(
+      () {
+        pagingController.value.addPageRequestListener((pageKey) async {
+          try {
+            if (pageKey > 1) {
+              await ref.read(listPagerServicesCaseProvider.notifier).loadNextPage();
+            }
+
+            final state = ref.read(listPagerServicesCaseProvider).asData?.value;
+            if (state == null) {
+              logger.d('effect: No data loaded yet');
+              return;
+            }
+
+            // Extract only the part corresponding to pageKey
+            final startIdx = (pageKey - 1) * state.pageSize;
+            final endIdx = startIdx + state.pageSize;
+            final newItems = state.items.sublist(startIdx, endIdx.clamp(0, state.items.length));
+
+            if (state.isLast && pageKey >= state.page) {
+              pagingController.value.appendLastPage(newItems);
+            } else {
+              pagingController.value.appendPage(newItems, pageKey + 1);
+            }
+          } catch (error, st) {
+            pagingController.value.error = error;
+          }
+        });
+
+        return pagingController.value.dispose;
+      },
+      [pagingController.value],
+    );
+
+    // PagingController can be updated as needed when the state of Riverpod changes, etc.
+    // * For example, refreshing the PagingController when a service logs in again, etc.
 
     return Scaffold(
       appBar: AppBar(
@@ -97,88 +126,39 @@ class ServicePage extends HookConsumerWidget {
               ]
             : null,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextField(
-              decoration: const InputDecoration(
-                labelText: 'メニュー検索',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) => searchQuery.value = value,
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredServices.length,
-              itemBuilder: (context, index) {
-                final service = filteredServices[index];
+      body: pagerStateAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (state) {
+          // If items is empty, noItemsFoundIndicator is issued, etc.
+          return PagedListView<int, ServiceModel>(
+            pagingController: pagingController.value,
+            builderDelegate: PagedChildBuilderDelegate<ServiceModel>(
+              itemBuilder: (context, service, index) {
                 return ListTile(
-                  leading: Stack(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(service.avatarUrl),
-                      ),
-                      if (service.unreadMessages > 0)
-                        Positioned(
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '${service.unreadMessages}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                  leading: const CircleAvatar(
+                    backgroundImage: NetworkImage('https://placehold.co/300x200/png'),
                   ),
-                  title: Text(service.name),
-                  subtitle: Text(service.status),
-                  trailing: service.isOnline ? const Icon(Icons.circle, color: Colors.green, size: 12) : null,
+                  title: Text('${service.pk}: ${service.name}'),
+                  subtitle: const Text('status'),
                   onTap: () {
                     if (onTapAction != null) {
-                      return onTapAction!(service);
+                      onTapAction!(service);
+                    } else {
+                      // TODO(impl): jump to detail page, etc.
+                      // Sample: jump to detail page, etc.
+                      // const ServiceDetailRoute(id: 1).go(context);
                     }
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${service.name} selected')),
-                    );
                   },
-                  // onTap: () {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(content: Text('${service.name} selected')),
-                  //   );
-                  // },
                 );
               },
+              firstPageErrorIndicatorBuilder: (context) => const Center(child: Text('Error loading data.')),
+              newPageErrorIndicatorBuilder: (context) => const Center(child: Text('Error loading more data.')),
+              noItemsFoundIndicatorBuilder: (context) => const Center(child: Text('No services found.')),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
-}
-
-class Service {
-  Service({
-    required this.name,
-    required this.status,
-    required this.avatarUrl,
-    required this.isOnline,
-    required this.unreadMessages,
-  });
-
-  final String name;
-  final String status;
-  final String avatarUrl;
-  final bool isOnline;
-  final int unreadMessages;
 }
