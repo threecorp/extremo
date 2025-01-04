@@ -42,13 +42,13 @@ class ArtifactPage extends HookConsumerWidget {
           );
         },
         onTapListItem: (item) {
-          final id = item.id;
-          if (id == null) {
+          final pk = item.pk;
+          if (pk == null) {
             return;
           }
-          ArtifactDetailRoute(id: id).go(context);
+          ArtifactDetailRoute(id: pk).go(context);
         },
-        onPressedFavorite: (item) => null, // ref.read(toggleFavoriteArtifactByIdCaseProvider(item.id)),
+        onPressedFavorite: (item) => null, // ref.read(toggleFavoriteArtifactByIdCaseProvider(item.pk)),
         refresh: () => ref.refresh(listPagerArtifactsCaseProvider),
         emptyErrorMessage: t.emptyError,
       ),

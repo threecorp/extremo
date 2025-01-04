@@ -142,7 +142,7 @@ Future<UserEntity> xFormRpcUserEntity(
   // Profile
   if (entity.profile != null) {
     // TODO(compaction): compare to both of updatedAt
-    await userProfileBox.put(entity.profile!.id, entity.profile!);
+    await userProfileBox.put(entity.profile!.pk, entity.profile!);
   }
 
   return entity;

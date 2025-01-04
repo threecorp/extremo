@@ -112,7 +112,7 @@ class UserPage extends HookConsumerWidget {
                   leading: const CircleAvatar(
                     backgroundImage: NetworkImage('https://placehold.co/300x200/png'),
                   ),
-                  title: Text('${user.id}: ${user.profile?.name ?? ''}'),
+                  title: Text('${user.pk}: ${user.profile?.name ?? ''}'),
                   subtitle: const Text('status'),
                   onTap: () {
                     if (onTapAction != null) {

@@ -42,15 +42,15 @@ class ChatPage extends HookConsumerWidget {
           );
         },
         onTapListItem: (item) {
-          final id = item.id;
-          if (id == null) {
+          final pk = item.pk;
+          if (pk == null) {
             const s = 'ID is not found';
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text(s)),
             );
             return;
           }
-          ChatMessageRoute(id: id).go(context);
+          ChatMessageRoute(id: pk).go(context);
         },
         refresh: () => ref.refresh(listPagerChatsCaseProvider),
         emptyErrorChat: t.emptyError,

@@ -9,10 +9,118 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'extremo.freezed.dart';
 
 @freezed
+class TenantModel with _$TenantModel {
+  const factory TenantModel({
+    int? pk,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    TenantProfileModel? profile,
+    @Default([]) List<UserModel> users,
+    @Default([]) List<ChatModel> chats,
+    @Default([]) List<ServiceModel> services,
+    // @Default([]) List<TeamModel> teams,
+    // @Default([]) List<BookModel> books,
+  }) = _TenantModel;
+
+  factory TenantModel.fromEntity({
+    required TenantEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<TenantModel>(entity.pk);
+    if (model != null) {
+      return model;
+    }
+    model = TenantModel(
+      pk: entity.pk,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+    context.putE(entity.pk, model);
+
+    // Relationships
+    return model.copyWith(
+      profile: entity.profile != null ? TenantProfileModel.fromEntity(entity: entity.profile!, context: context) : null,
+      users: entity.users.map((e) => context!.getE<UserModel>(e.pk) ?? UserModel.fromEntity(entity: e, context: context)).toList(),
+      chats: entity.chats.map((e) => context!.getE<ChatModel>(e.pk) ?? ChatModel.fromEntity(entity: e, context: context)).toList(),
+      services: entity.services.map((e) => context!.getE<ServiceModel>(e.pk) ?? ServiceModel.fromEntity(entity: e, context: context)).toList(),
+      // books:
+      // teams:
+    );
+  }
+}
+
+extension TenantModelX on TenantModel {
+  TenantEntity toEntity() {
+    return TenantEntity(
+      pk: pk ?? 0,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      profile: profile?.toEntity(),
+    );
+  }
+}
+
+@freezed
+class TenantProfileModel with _$TenantProfileModel {
+  const factory TenantProfileModel({
+    int? pk,
+    int? tenantFk,
+    @Default('') String name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    TenantModel? tenant,
+  }) = _TenantProfileModel;
+
+  factory TenantProfileModel.fromEntity({
+    required TenantProfileEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<TenantProfileModel>(entity.pk);
+    if (model != null) {
+      return model;
+    }
+
+    model = TenantProfileModel(
+      pk: entity.pk,
+      tenantFk: entity.tenantFk,
+      name: entity.name,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+    context.putE(entity.pk, model);
+
+    // Relationships
+    return model.copyWith(
+      tenant: context.getE<TenantModel>(entity.tenantFk) ?? (entity.tenant != null ? TenantModel.fromEntity(entity: entity.tenant!, context: context) : null),
+    );
+  }
+}
+
+extension TenantProfileModelX on TenantProfileModel {
+  TenantProfileEntity toEntity() {
+    return TenantProfileEntity(
+      pk: pk ?? 0,
+      tenantFk: tenantFk ?? 0,
+      name: name,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      tenant: tenant?.toEntity(),
+    );
+  }
+}
+
+@freezed
 class UserModel with _$UserModel {
   const factory UserModel({
-    int? id,
-    required String email,
+    int? pk,
+    int? tenantFk,
+    @Default('') String email,
     DateTime? dateJoined,
     DateTime? deletedAt,
     required bool isDeleted,
@@ -29,30 +137,27 @@ class UserModel with _$UserModel {
   }) {
     context ??= XContext.of();
 
-    var model = context.getE<UserModel>(entity.id);
+    var model = context.getE<UserModel>(entity.pk);
     if (model != null) {
       return model;
     }
 
     model = UserModel(
-      id: entity.id,
+      pk: entity.pk,
+      tenantFk: entity.tenantFk,
       email: entity.email,
       dateJoined: entity.dateJoined,
       isDeleted: entity.isDeleted,
       deletedAt: entity.deletedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Relationships
-      // profile: profile,
-      // artifacts: artifacts,
     );
-    context.putE(entity.id, model);
+    context.putE(entity.pk, model);
 
+    // Relationships
     return model.copyWith(
       profile: entity.profile != null ? UserProfileModel.fromEntity(entity: entity.profile!, context: context) : null,
-      artifacts: entity.artifacts.map((e) {
-        return context!.getE<ArtifactModel>(e.id) ?? ArtifactModel.fromEntity(entity: e, context: context);
-      }).toList(),
+      artifacts: entity.artifacts.map((e) => context!.getE<ArtifactModel>(e.pk) ?? ArtifactModel.fromEntity(entity: e, context: context)).toList(),
     );
   }
 }
@@ -60,7 +165,8 @@ class UserModel with _$UserModel {
 extension UserModelX on UserModel {
   UserEntity toEntity() {
     return UserEntity(
-      id: id ?? 0,
+      pk: pk ?? 0,
+      tenantFk: tenantFk ?? 0,
       email: email,
       dateJoined: dateJoined,
       isDeleted: isDeleted,
@@ -76,9 +182,9 @@ extension UserModelX on UserModel {
 @freezed
 class UserProfileModel with _$UserProfileModel {
   const factory UserProfileModel({
-    int? id,
+    int? pk,
     int? userFk,
-    String? name,
+    @Default('') String name,
     DateTime? createdAt,
     DateTime? updatedAt,
     // Relationships
@@ -91,22 +197,21 @@ class UserProfileModel with _$UserProfileModel {
   }) {
     context ??= XContext.of();
 
-    var model = context.getE<UserProfileModel>(entity.id);
+    var model = context.getE<UserProfileModel>(entity.pk);
     if (model != null) {
       return model;
     }
 
     model = UserProfileModel(
-      id: entity.id,
+      pk: entity.pk,
       userFk: entity.userFk,
       name: entity.name,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Relationships
-      // user: user,
     );
-    context.putE(entity.id, model);
+    context.putE(entity.pk, model);
 
+    // Relationships
     return model.copyWith(
       user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
     );
@@ -116,9 +221,9 @@ class UserProfileModel with _$UserProfileModel {
 extension UserProfileModelX on UserProfileModel {
   UserProfileEntity toEntity() {
     return UserProfileEntity(
-      id: id ?? 0,
+      pk: pk ?? 0,
       userFk: userFk ?? 0,
-      name: name ?? '',
+      name: name,
       createdAt: createdAt,
       updatedAt: updatedAt,
       user: user?.toEntity(),
@@ -129,11 +234,11 @@ extension UserProfileModelX on UserProfileModel {
 @freezed
 class ArtifactModel with _$ArtifactModel {
   const factory ArtifactModel({
-    int? id,
+    int? pk,
     required int userFk,
-    required String title,
-    required String content,
-    required String summary,
+    @Default('') String title,
+    @Default('') String content,
+    @Default('') String summary,
     required String status, // XXX: required ArtifactType status,
     DateTime? publishFrom,
     DateTime? publishUntil,
@@ -149,13 +254,13 @@ class ArtifactModel with _$ArtifactModel {
   }) {
     context ??= XContext.of();
 
-    var model = context.getE<ArtifactModel>(entity.id);
+    var model = context.getE<ArtifactModel>(entity.pk);
     if (model != null) {
       return model;
     }
 
     model = ArtifactModel(
-      id: entity.id,
+      pk: entity.pk,
       userFk: entity.userFk,
       title: entity.title,
       content: entity.content,
@@ -168,7 +273,7 @@ class ArtifactModel with _$ArtifactModel {
       // Relationships
       // user: user
     );
-    context.putE(entity.id, model);
+    context.putE(entity.pk, model);
 
     return model.copyWith(
       user: context.getE<UserModel>(entity.userFk) ?? (entity.user != null ? UserModel.fromEntity(entity: entity.user!, context: context) : null),
@@ -179,7 +284,7 @@ class ArtifactModel with _$ArtifactModel {
 extension ArtifactModelX on ArtifactModel {
   ArtifactEntity toEntity() {
     return ArtifactEntity(
-      id: id ?? 0,
+      pk: pk ?? 0,
       userFk: userFk,
       title: title,
       content: content,
@@ -194,31 +299,83 @@ extension ArtifactModelX on ArtifactModel {
   }
 }
 
-// enum MessageType {
-//   normal(nameJp: "ノーマル", color: 0xffaea886),
-//   medium(nameJp: "ミディアム", color: 0xfff45c19),
-//   large(nameJp: "ラージ", color: 0xff4a96d6),
-//   huge(nameJp: "巨大", color: 0xff28b25c),
-//   ;
-//
-//   final String nameJp;
-//
-//   final int color;
-//   const MessageType({required this.nameJp, required this.color});
-//
-//   static MessageType? getOrNull(String name) {
-//     const List<MessageType?> types = MessageType.values;
-//     for (var element in types) {
-//       if (element?.name == name) return element;
-//     }
-//     return null;
-//   }
-// }
+@freezed
+class ServiceModel with _$ServiceModel {
+  const factory ServiceModel({
+    int? pk,
+    required int tenantFk,
+    int? parentFk,
+    @Default('') String name,
+    @Default('') String desc,
+    int? price,
+    @Default(0) int sort,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    TenantModel? tenant,
+    ServiceModel? parent,
+  }) = _ServiceModel;
+
+  factory ServiceModel.fromEntity({
+    required ServiceEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<ServiceModel>(entity.pk);
+    if (model != null) {
+      return model;
+    }
+    model = ServiceModel(
+      pk: entity.pk,
+      tenantFk: entity.tenantFk,
+      parentFk: entity.parentFk,
+      name: entity.name,
+      desc: entity.desc,
+      price: entity.price,
+      sort: entity.sort,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+    context.putE(entity.pk, model);
+
+    // Relationships
+
+    return model.copyWith(
+      tenant: context.getE<TenantModel>(entity.tenantFk) ?? (entity.tenant != null ? TenantModel.fromEntity(entity: entity.tenant!, context: context) : null),
+      parent: (() {
+        if (entity.parentFk == null) {
+          return null;
+        }
+
+        return context!.getE<ServiceModel>(entity.parentFk!) ?? (entity.parent != null ? ServiceModel.fromEntity(entity: entity.parent!, context: context) : null);
+      })(),
+    );
+  }
+}
+
+extension ServiceModelX on ServiceModel {
+  ServiceEntity toEntity() {
+    return ServiceEntity(
+      pk: pk ?? 0,
+      tenantFk: tenantFk,
+      parentFk: parentFk,
+      name: name,
+      desc: desc,
+      price: price,
+      sort: sort,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      tenant: tenant?.toEntity(),
+      parent: parent?.toEntity(),
+    );
+  }
+}
 
 @freezed
 class ChatModel with _$ChatModel {
   const factory ChatModel({
-    int? id,
+    int? pk,
     required int tenantFk,
     required int senderFk,
     required int recipientFk,
@@ -235,24 +392,22 @@ class ChatModel with _$ChatModel {
   }) {
     context ??= XContext.of();
 
-    var model = context.getE<ChatModel>(entity.id);
+    var model = context.getE<ChatModel>(entity.pk);
     if (model != null) {
       return model;
     }
 
     model = ChatModel(
-      id: entity.id,
+      pk: entity.pk,
       tenantFk: entity.tenantFk,
       senderFk: entity.senderFk,
       recipientFk: entity.recipientFk,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Relationships
-      // senderUser: senderUser,
-      // recipientUser: recipientUser,
     );
-    context.putE(entity.id, model);
+    context.putE(entity.pk, model);
 
+    // Relationships
     return model.copyWith(
       senderUser: context.getE<UserModel>(entity.senderFk) ?? (entity.senderUser != null ? UserModel.fromEntity(entity: entity.senderUser!, context: context) : null),
       recipientUser: context.getE<UserModel>(entity.recipientFk) ?? (entity.recipientUser != null ? UserModel.fromEntity(entity: entity.recipientUser!, context: context) : null),
@@ -263,7 +418,7 @@ class ChatModel with _$ChatModel {
 extension ChatModelX on ChatModel {
   ChatEntity toEntity() {
     return ChatEntity(
-      id: id ?? 0,
+      pk: pk ?? 0,
       tenantFk: tenantFk,
       senderFk: senderFk,
       recipientFk: recipientFk,
@@ -278,10 +433,10 @@ extension ChatModelX on ChatModel {
 @freezed
 class ChatMessageModel with _$ChatMessageModel {
   const factory ChatMessageModel({
-    int? id,
+    int? pk,
     required int fromFk,
     required int toFk,
-    required String message,
+    @Default('') String message,
     required bool isRead,
     DateTime? readAt,
     required bool isDeleted,
@@ -299,13 +454,13 @@ class ChatMessageModel with _$ChatMessageModel {
   }) {
     context ??= XContext.of();
 
-    var model = context.getE<ChatMessageModel>(entity.id);
+    var model = context.getE<ChatMessageModel>(entity.pk);
     if (model != null) {
       return model;
     }
 
     model = ChatMessageModel(
-      id: entity.id,
+      pk: entity.pk,
       fromFk: entity.fromFk,
       toFk: entity.toFk,
       message: entity.message,
@@ -315,12 +470,10 @@ class ChatMessageModel with _$ChatMessageModel {
       deletedAt: entity.deletedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Relationships
-      // fromUser: fromUser,
-      // toUser: toUser,
     );
-    context.putE(entity.id, model);
+    context.putE(entity.pk, model);
 
+    // Relationships
     return model.copyWith(
       fromUser: context.getE<UserModel>(entity.fromFk) ?? (entity.fromUser != null ? UserModel.fromEntity(entity: entity.fromUser!, context: context) : null),
       toUser: context.getE<UserModel>(entity.toFk) ?? (entity.toUser != null ? UserModel.fromEntity(entity: entity.toUser!, context: context) : null),
@@ -331,7 +484,7 @@ class ChatMessageModel with _$ChatMessageModel {
     required chat_types.Message chat,
   }) {
     return ChatMessageModel(
-      id: 0,
+      pk: 0,
       fromFk: 0,
       toFk: 0,
       message: chat.toJson().toString(),
@@ -351,7 +504,7 @@ class ChatMessageModel with _$ChatMessageModel {
 extension ChatMessageModelX on ChatMessageModel {
   ChatMessageEntity toEntity() {
     return ChatMessageEntity(
-      id: id ?? 0,
+      pk: pk ?? 0,
       fromFk: fromFk,
       toFk: toFk,
       message: message,

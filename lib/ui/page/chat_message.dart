@@ -152,7 +152,7 @@ class _ChatMessagePage extends HookConsumerWidget {
 //
 //       if (message.uri.startsWith('http')) {
 //         try {
-//           final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.id == message.id);
+//           final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.pk == message.pk);
 //           final updatedChatMessageModel = messagesNotifier.state.value![index].copyWith(
 //             message: jsonEncode(message.copyWith(uri: localPath).toJson()),
 //           );
@@ -172,7 +172,7 @@ class _ChatMessagePage extends HookConsumerWidget {
 //             await file.writeAsBytes(bytes);
 //           }
 //         } finally {
-//           final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.id == message.id);
+//           final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.pk == message.pk);
 //           final updatedChatMessageModel = messagesNotifier.state.value![index].copyWith(
 //             message: jsonEncode(message.toJson()),
 //           );
@@ -190,7 +190,7 @@ class _ChatMessagePage extends HookConsumerWidget {
 //       types.TextMessage message,
 //       types.PreviewData previewData,
 //     ) {
-//       final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.id == message.id);
+//       final index = messagesNotifier.state.value!.indexWhere((model) => model.toChatMessage?.pk == message.pk);
 //
 //       final updatedChatMessageModel = messagesNotifier.state.value![index].copyWith(
 //         message: jsonEncode(message.copyWith(previewData: previewData).toJson()),
