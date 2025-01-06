@@ -3,6 +3,7 @@
 // import 'package:result_dart/functions.dart';
 // import 'package:riverpod/riverpod.dart';
 import 'package:extremo/domain/model/extremo.dart';
+import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/pager.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/repo/extremo/mypage/book.dart';
@@ -82,4 +83,37 @@ class ListPagerBooksCase extends _$ListPagerBooksCase {
     final value = state.valueOrNull ?? await future;
     return value;
   }
+}
+
+@riverpod
+Future<Result<BookModel, Exception>> getBookCase(
+  GetBookCaseRef ref,
+  int id,
+) async {
+  final result = await ref.read(repoGetBookProvider(id).future);
+  return result.map((e) => BookModel.fromEntity(entity: e));
+}
+
+@riverpod
+Future<Result<BookModel, Exception>> createBookCase(
+  CreateBookCaseRef ref,
+  BookModel model,
+) async {
+  final result = await ref.read(
+    repoCreateBookProvider(model.toEntity()).future,
+  );
+
+  return result.map((e) => BookModel.fromEntity(entity: e));
+}
+
+@riverpod
+Future<Result<BookModel, Exception>> updateBookCase(
+  UpdateBookCaseRef ref,
+  BookModel model,
+) async {
+  final result = await ref.read(
+    repoUpdateBookProvider(model.toEntity()).future,
+  );
+
+  return result.map((e) => BookModel.fromEntity(entity: e));
 }

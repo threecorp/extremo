@@ -98,3 +98,36 @@ Future<Result<BookEntity, Exception>> repoCreateBook(
     rethrow;
   }
 }
+
+@riverpod
+Future<Result<BookEntity, Exception>> repoUpdateBook(
+  RepoUpdateBookRef ref,
+  BookEntity request,
+) async {
+  final rpc = ref.read(mypageBookServiceClientProvider);
+
+  try {
+    final entity = await rpc
+        .create(
+          bookpb.UpdateRequest(
+            tenantFk: request.tenantFk,
+            // summary: request.summary,
+            // content: request.content,
+            // publishFrom: request.publishFrom != null ? Timestamp.fromDateTime(request.publishFrom!) : null,
+            // publishUntil: request.publishUntil != null ? Timestamp.fromDateTime(request.publishUntil!) : null,
+          ),
+        )
+        .then(
+          (r) => xFormRpcBookEntity(ref, r.element),
+        );
+
+    return Success(entity);
+  } on GrpcError catch (ex, _) {
+    if ([StatusCode.invalidArgument].contains(ex.code)) {
+      return Failure(GrpcException(ex));
+    }
+
+    debugPrint(ex.message);
+    rethrow;
+  }
+}

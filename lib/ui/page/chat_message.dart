@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'dart:io';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/chat.dart';

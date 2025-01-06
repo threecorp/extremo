@@ -7,6 +7,7 @@
 // import 'package:extremo/ui/layout/progress_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:collection/collection.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/page/service.dart';
 import 'package:extremo/ui/page/user.dart';

@@ -592,6 +592,28 @@ class BookModel with _$BookModel {
       teams: entity.teams.map((e) => context!.getE<TeamModel>(e.pk) ?? TeamModel.fromEntity(entity: e, context: context)).toList(),
     );
   }
+
+  factory BookModel.fromReserve({
+    String? pk,
+    UserModel? user,
+    ServiceModel? service,
+    required String name,
+    required DateTime openedAt,
+    required DateTime closedAt,
+    // required Color background,
+    // required bool isAllDay,
+  }) {
+    return BookModel(
+      pk: pk,
+      user: user,
+      service: service,
+      name: name,
+      openedAt: openedAt,
+      closedAt: closedAt,
+      // background: background,
+      // isAllDay: isAllDay,
+    );
+  }
 }
 
 extension BookModelX on BookModel {
