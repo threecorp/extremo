@@ -173,7 +173,7 @@ class ReservePage extends HookConsumerWidget {
           // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
           final clientFks = book.clients.map((e) => e.pk).whereType<int>().toList();
           final teamFks = book.teams.map((e) => e.pk).whereType<int>().toList();
-          List<int> serviceFks = const []; // TODO(impl): book.booksServices.map((e) => e.pk).whereType<int>().toList();
+          final serviceFks = book.booksServices.map((e) => e.serviceFk).whereType<int>().toList();
           final usecase = await ref.read(updateBookCaseProvider(book, clientFks, teamFks, serviceFks).future);
 
           usecase.onSuccess<ArtifactModel>((book) {
