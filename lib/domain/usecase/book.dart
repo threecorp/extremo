@@ -36,7 +36,7 @@ class ListPagerBooksCase extends _$ListPagerBooksCase {
     logger.d('Request: page=${stateBeforeFetch.page} pageSize=${stateBeforeFetch.pageSize}');
 
     final pager = await ref.read(
-      repoListPagerBooksProvider(tenantFk, stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
+      repoListPagerBooksProvider(stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
     );
 
     // Convert API results to BookModel
@@ -98,9 +98,12 @@ Future<Result<BookModel, Exception>> getBookCase(
 Future<Result<BookModel, Exception>> createBookCase(
   CreateBookCaseRef ref,
   BookModel model,
+  List<int> clientFks,
+  List<int> teamFks,
+  List<int> serviceFks,
 ) async {
   final result = await ref.read(
-    repoCreateBookProvider(model.toEntity()).future,
+    repoCreateBookProvider(model.toEntity(), clientFks, teamFks, serviceFks).future,
   );
 
   return result.map((e) => BookModel.fromEntity(entity: e));
@@ -110,9 +113,12 @@ Future<Result<BookModel, Exception>> createBookCase(
 Future<Result<BookModel, Exception>> updateBookCase(
   UpdateBookCaseRef ref,
   BookModel model,
+  List<int> clientFks,
+  List<int> teamFks,
+  List<int> serviceFks,
 ) async {
   final result = await ref.read(
-    repoUpdateBookProvider(model.toEntity()).future,
+    repoUpdateBookProvider(model.toEntity(), clientFks, teamFks, serviceFks).future,
   );
 
   return result.map((e) => BookModel.fromEntity(entity: e));

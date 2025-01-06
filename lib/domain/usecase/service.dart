@@ -27,16 +27,10 @@ class ListPagerServicesCase extends _$ListPagerServicesCase {
   /// Page fetch method for internal use.
   /// Refer to page / pageSize, etc. in [stateBeforeFetch], hit API, and return composite results.
   Future<PaginationState<ServiceModel>> _fetchPage(PaginationState<ServiceModel> stateBeforeFetch) async {
-    final account = ref.read(accountProvider.notifier).account();
-    final tenantFk = account?.tenantFk;
-    if (tenantFk == null) {
-      throw Exception('Tenant is required but not available');
-    }
-
     logger.d('Request: page=${stateBeforeFetch.page} pageSize=${stateBeforeFetch.pageSize}');
 
     final pager = await ref.read(
-      repoListPagerServicesProvider(tenantFk, stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
+      repoListPagerServicesProvider(stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
     );
 
     // Convert API results to ServiceModel

@@ -44,72 +44,17 @@ class ReservePage extends HookConsumerWidget {
           CalendarView.timelineWeek,
           CalendarView.timelineWorkWeek,
         ],
+        // resourceViewSettings: ResourceViewSettings(showAvatar: true),
         allowAppointmentResize: true,
-        // onAppointmentResizeStart: resizeStart,
-        // onAppointmentResizeUpdate: resizeUpdate,
-        onAppointmentResizeEnd: (AppointmentResizeEndDetails details) async {
-          final appointment = details.appointment;
-          final startTime = details.startTime;
-          final endTime = details.endTime;
-
-          if (appointment == null || appointment is! BookModel) {
-            return;
-          }
-          if (startTime == null) {
-            return;
-          }
-          if (endTime == null) {
-            return;
-          }
-          var book = booksState.value.firstWhereOrNull((value) => value.pk == appointment.pk);
-          if (book == null) {
-            return;
-          }
-
-          // Update the reserve time
-          book = book.copyWith(
-            openedAt: startTime,
-            closedAt: endTime,
-            // TODO(impl): background: value.background,
-            // TODO(impl): isAllDay: value.isAllDay,
-          );
-
-          // TODO(Refactoring): Use to ref.watch.
-          // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
-          final usecase = await ref.read(updateBookCaseProvider(book).future);
-
-          usecase.onSuccess<ArtifactModel>((book) {
-            booksState.value = booksState.value.map((value) => value.pk == appointment.pk ? book : value).toList();
-
-            // Show a Snackbar notification
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('time updated!'),
-                duration: Duration(seconds: 5),
-              ),
-            );
-          }).onFailure<Exception>((error) {
-            final sb = SnackBar(content: Text(error.toString()));
-            ScaffoldMessenger.of(context).showSnackBar(sb);
-          });
-        },
         allowDragAndDrop: true,
         dataSource: ReserveDataSource(booksState.value),
         firstDayOfWeek: 1, // Monday
+        monthViewSettings: const MonthViewSettings(showAgenda: true, appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
+        selectionDecoration: BoxDecoration(color: Colors.green.withOpacity(0.2), border: Border.all(color: Colors.transparent, width: 0)),
         showNavigationArrow: true,
         timeZone: 'Tokyo Standard Time',
         todayHighlightColor: Colors.red,
-        monthViewSettings: const MonthViewSettings(
-          showAgenda: true,
-          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-        ),
-        selectionDecoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.2),
-          border: Border.all(color: Colors.transparent, width: 0),
-        ),
-        onViewChanged: (ViewChangedDetails details) {
-          debugPrint('onViewChanged: ${details.visibleDates}');
-        },
+        // on
         onTap: (CalendarTapDetails details) {
           final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
           final book = isEdit ? details.appointments!.first as BookModel : null;
@@ -152,18 +97,20 @@ class ReservePage extends HookConsumerWidget {
                       Expanded(
                         child: _ReserveForm(
                           pk: book?.pk,
-                          user: book?.user,
-                          service: book?.service,
+                          clients: book?.clients ?? [],
+                          teams: book?.teams ?? [],
+                          services: book?.booksServices.map((e) => e.service).whereType<ServiceModel>().toList() ?? [],
                           name: book?.name ?? '',
                           openedAt: book?.openedAt ?? details.date!,
                           closedAt: book?.closedAt ?? details.date!.add(const Duration(hours: 1)),
-                          onAdd: (book) async {
+                          // on
+                          onAdd: (book, clientFks, teamFks, serviceFks) async {
                             // TODO(Refactoring): Use to ref.watch.
                             // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
-                            final provider = isEdit ? updateBookCaseProvider(book) : createBookCaseProvider(book);
+                            final provider = isEdit ? updateBookCaseProvider(book, clientFks, teamFks, serviceFks) : createBookCaseProvider(book, clientFks, teamFks, serviceFks);
                             final usecase = await ref.read(provider.future);
 
-                            usecase.onSuccess<ArtifactModel>((model) {
+                            usecase.onSuccess<ArtifactModel>((book) {
                               if (!isEdit) {
                                 booksState.value = [...booksState.value, book];
                               } else {
@@ -192,7 +139,58 @@ class ReservePage extends HookConsumerWidget {
 
           debugPrint('onTap: ${details.date}');
         },
-        // resourceViewSettings: ResourceViewSettings(showAvatar: true),
+        onViewChanged: (ViewChangedDetails details) => debugPrint('onViewChanged: ${details.visibleDates}'),
+        // onAppointmentResizeStart: resizeStart,
+        // onAppointmentResizeUpdate: resizeUpdate,
+        onAppointmentResizeEnd: (AppointmentResizeEndDetails details) async {
+          final appointment = details.appointment;
+          final startTime = details.startTime;
+          final endTime = details.endTime;
+
+          if (appointment == null || appointment is! BookModel) {
+            return;
+          }
+          if (startTime == null) {
+            return;
+          }
+          if (endTime == null) {
+            return;
+          }
+          var book = booksState.value.firstWhereOrNull((value) => value.pk == appointment.pk);
+          if (book == null) {
+            return;
+          }
+
+          // Update the reserve time
+          book = book.copyWith(
+            openedAt: startTime,
+            closedAt: endTime,
+            // TODO(impl): background: value.background,
+            // TODO(impl): isAllDay: value.isAllDay,
+          );
+
+          // TODO(Refactoring): Use to ref.watch.
+          // XXX: https://github.com/rrousselGit/riverpod/discussions/1724#discussioncomment-3796657
+          final clientFks = book.clients.map((e) => e.pk).whereType<int>().toList();
+          final teamFks = book.teams.map((e) => e.pk).whereType<int>().toList();
+          List<int> serviceFks = const []; // TODO(impl): book.booksServices.map((e) => e.pk).whereType<int>().toList();
+          final usecase = await ref.read(updateBookCaseProvider(book, clientFks, teamFks, serviceFks).future);
+
+          usecase.onSuccess<ArtifactModel>((book) {
+            booksState.value = booksState.value.map((value) => value.pk == appointment.pk ? book : value).toList();
+
+            // Show a Snackbar notification
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('time updated!'),
+                duration: Duration(seconds: 5),
+              ),
+            );
+          }).onFailure<Exception>((error) {
+            final sb = SnackBar(content: Text(error.toString()));
+            ScaffoldMessenger.of(context).showSnackBar(sb);
+          });
+        },
       ),
       floatingActionButton: SpeedDial(
         icon: Icons.add,
@@ -226,8 +224,9 @@ class ReservePage extends HookConsumerWidget {
 class _ReserveForm extends HookConsumerWidget {
   const _ReserveForm({
     this.pk,
-    this.user,
-    this.service,
+    this.clients = const [],
+    this.teams = const [],
+    this.services = const [],
     required this.name,
     required this.openedAt,
     required this.closedAt,
@@ -235,20 +234,22 @@ class _ReserveForm extends HookConsumerWidget {
   });
 
   final int? pk;
-  final UserModel? user;
-  final ServiceModel? service;
+  final List<UserModel> clients;
+  final List<TeamModel> teams;
+  final List<ServiceModel> services;
   final String name;
   final DateTime openedAt;
   final DateTime closedAt;
-  final void Function(BookModel) onAdd;
+  final void Function(BookModel, List<int>, List<int>, List<int>) onAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subjectController = useTextEditingController(text: name);
     final openedAtState = useState(openedAt);
     final closedAtState = useState(closedAt);
-    final userState = useState<UserModel?>(user);
-    final serviceState = useState<ServiceModel?>(service);
+    final clientsState = useState<List<UserModel>>(clients);
+    final teamsState = useState<List<TeamModel>>(teams);
+    final servicesState = useState<List<ServiceModel>>(services);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -260,12 +261,10 @@ class _ReserveForm extends HookConsumerWidget {
             onPressed: () async {
               final user = await UserRoute($extra: (UserModel user) => Navigator.pop(context, user)).push<UserModel>(context);
               if (user != null) {
-                userState.value = user;
+                clientsState.value = [user]; // XXX(impl): multiple selection
               }
             },
-            child: Text(
-              userState.value != null ? 'Selected: ${userState.value?.profile?.name ?? ''}' : 'Select User',
-            ),
+            child: Text(clientsState.value.firstOrNull?.profile?.name ?? 'Select User'),
           ),
           const SizedBox(height: 16),
           TextField(
@@ -305,17 +304,17 @@ class _ReserveForm extends HookConsumerWidget {
             onPressed: () async {
               final service = await ServiceRoute($extra: (ServiceModel service) => Navigator.pop(context, service)).push<ServiceModel>(context);
               if (service != null) {
-                serviceState.value = service;
+                servicesState.value = [service]; // XXX(impl): multiple selection
               }
             },
             child: Text(
-              serviceState.value != null ? 'Selected: ${serviceState.value!.name}' : 'Select Service',
+              servicesState.value.firstOrNull?.name ?? 'Select Service',
             ),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              if (userState.value == null || serviceState.value == null) {
+              if (clientsState.value.isEmpty || servicesState.value.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Please fill all fields')),
                 );
@@ -325,14 +324,15 @@ class _ReserveForm extends HookConsumerWidget {
               onAdd(
                 BookModel(
                   pk: pk,
-                  user: userState.value,
-                  service: serviceState.value,
                   name: subjectController.text,
                   openedAt: closedAtState.value,
                   closedAt: openedAtState.value,
-                  background: const Color(0xFF0F8644),
-                  isAllDay: false,
+                  // background: const Color(0xFF0F8644),
+                  // isAllDay: false,
                 ),
+                clientsState.value.map((e) => e.pk).whereType<int>().toList(),
+                teamsState.value.map((e) => e.pk).whereType<int>().toList(),
+                servicesState.value.map((e) => e.pk).whereType<int>().toList(),
               ); // TODO(impl): callback
 
               Navigator.pop(context); // TODO(impl): callback
@@ -366,30 +366,32 @@ class ReserveDataSource extends CalendarDataSource<BookModel> {
     return _getData(index).name;
   }
 
-  @override
-  Color getColor(int index) {
-    return _getData(index).background;
-  }
-
-  @override
-  bool isAllDay(int index) {
-    return _getData(index).isAllDay;
-  }
+  // TODO(impl): Implement the following methods
+  // @override
+  // Color getColor(int index) {
+  //   return _getData(index).background;
+  // }
+  //
+  // @override
+  // bool isAllDay(int index) {
+  //   return _getData(index).isAllDay;
+  // }
 
   @override
   BookModel convertAppointmentToObject(
     BookModel? customData,
     Appointment appointment,
   ) {
+    // TODO(impl): Implement the following methods
     return BookModel(
       pk: customData?.pk,
-      user: customData?.user,
-      service: customData?.service,
+      // user: customData?.user,
+      // service: customData?.service,
       name: appointment.subject,
       openedAt: appointment.startTime,
       closedAt: appointment.endTime,
-      background: appointment.color,
-      isAllDay: appointment.isAllDay,
+      // background: appointment.color,
+      // isAllDay: appointment.isAllDay,
     );
   }
 

@@ -27,16 +27,10 @@ class ListPagerUsersCase extends _$ListPagerUsersCase {
   /// Page fetch method for internal use.
   /// Refer to page / pageSize, etc. in [stateBeforeFetch], hit API, and return composite results.
   Future<PaginationState<UserModel>> _fetchPage(PaginationState<UserModel> stateBeforeFetch) async {
-    final account = ref.read(accountProvider.notifier).account();
-    final tenantFk = account?.tenantFk;
-    if (tenantFk == null) {
-      throw Exception('Tenant is required but not available');
-    }
-
     logger.d('Request: page=${stateBeforeFetch.page} pageSize=${stateBeforeFetch.pageSize}');
 
     final pager = await ref.read(
-      repoListPagerUsersProvider(tenantFk, stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
+      repoListPagerUsersProvider(stateBeforeFetch.page, stateBeforeFetch.pageSize).future,
     );
 
     // Convert API results to UserModel

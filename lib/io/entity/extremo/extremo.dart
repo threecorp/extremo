@@ -513,7 +513,7 @@ class ServiceEntity {
     this.parentFk,
     required this.name,
     this.desc = '',
-    required this.price,
+    this.price,
     this.sort = 0,
     this.createdAt,
     this.updatedAt,
@@ -608,7 +608,7 @@ class BookEntity {
     required this.tenantFk,
     required this.name,
     this.desc = '',
-    this.status = BookEnum_Status.STATUS_DRAFT,
+    this.status = BookEnum_Status.DRAFT,
     required this.openedAt,
     required this.closedAt,
     this.createdAt,
@@ -617,6 +617,7 @@ class BookEntity {
     this.tenant,
     this.clients = const [],
     this.teams = const [],
+    this.booksServices = const [],
   });
 
   factory BookEntity.fromRpc({
@@ -646,7 +647,8 @@ class BookEntity {
     entity
       ..tenant = (context.getE<TenantEntity>(element.tenantFk)) ?? (element.hasTenant() ? TenantEntity.fromRpc(element: element.tenant, context: context) : null)
       ..clients = element.clients.map((e) => context!.getE<UserEntity>(e.pk) ?? UserEntity.fromRpc(element: e, context: context)).toList()
-      ..teams = element.teams.map((e) => context!.getE<TeamEntity>(e.pk) ?? TeamEntity.fromRpc(element: e, context: context)).toList();
+      ..teams = element.teams.map((e) => context!.getE<TeamEntity>(e.pk) ?? TeamEntity.fromRpc(element: e, context: context)).toList()
+      ..booksServices = element.booksServices.map((e) => context!.getE<BooksServiceEntity>(e.pk) ?? BooksServiceEntity.fromRpc(element: e, context: context)).toList();
 
     return entity;
   }
@@ -682,6 +684,7 @@ class BookEntity {
   TenantEntity? tenant; // TODO(impl): OneToOne is required
   List<UserEntity> clients;
   List<TeamEntity> teams;
+  List<BooksServiceEntity> booksServices;
 }
 
 @HiveType(typeId: 10)
@@ -741,4 +744,79 @@ class TeamEntity {
   // Relationships
   TenantEntity? tenant; // TODO(impl): OneToOne is required
   List<UserEntity> users;
+}
+
+@HiveType(typeId: 11)
+class BooksServiceEntity {
+  BooksServiceEntity({
+    required this.pk,
+    required this.bookFk,
+    this.serviceFk,
+    this.name = '',
+    this.desc = '',
+    this.price,
+    this.createdAt,
+    this.updatedAt,
+    // Relationships
+    this.book,
+    this.service,
+  });
+
+  factory BooksServiceEntity.fromRpc({
+    required BooksService element,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var entity = context.getE<BooksServiceEntity>(element.pk);
+    if (entity != null) {
+      return entity;
+    }
+    entity = BooksServiceEntity(
+      pk: element.pk,
+      bookFk: element.bookFk,
+      serviceFk: element.serviceFk,
+      name: element.name,
+      desc: element.desc,
+      price: element.price,
+      createdAt: element.createdAt.toDateTime(),
+      updatedAt: element.updatedAt.toDateTime(),
+    );
+    context.putE(entity.pk, entity);
+
+    // Relationships
+    entity
+      ..book = (context.getE<BookEntity>(element.bookFk)) ?? (element.hasBook() ? BookEntity.fromRpc(element: element.book, context: context) : null)
+      ..service = (context.getE<ServiceEntity>(element.serviceFk)) ?? (element.hasService() ? ServiceEntity.fromRpc(element: element.service, context: context) : null);
+
+    return entity;
+  }
+
+  @HiveField(0)
+  int pk;
+
+  @HiveField(1)
+  int bookFk;
+
+  @HiveField(2)
+  int? serviceFk;
+
+  @HiveField(3)
+  String name;
+
+  @HiveField(4)
+  String desc;
+
+  @HiveField(5)
+  int? price;
+
+  @HiveField(10)
+  DateTime? createdAt;
+
+  @HiveField(11)
+  DateTime? updatedAt;
+
+  // Relationships
+  BookEntity? book; // TODO(impl): OneToOne is required
+  ServiceEntity? service; // TODO(impl): OneToOne is required
 }

@@ -308,7 +308,7 @@ extension ArtifactModelX on ArtifactModel {
 class ServiceModel with _$ServiceModel {
   const factory ServiceModel({
     int? pk,
-    required int tenantFk,
+    int? tenantFk,
     int? parentFk,
     @Default('') String name,
     @Default('') String desc,
@@ -363,7 +363,7 @@ extension ServiceModelX on ServiceModel {
   ServiceEntity toEntity() {
     return ServiceEntity(
       pk: pk ?? 0,
-      tenantFk: tenantFk,
+      tenantFk: tenantFk ?? 0,
       parentFk: parentFk,
       name: name,
       desc: desc,
@@ -381,7 +381,7 @@ extension ServiceModelX on ServiceModel {
 class ChatModel with _$ChatModel {
   const factory ChatModel({
     int? pk,
-    required int tenantFk,
+    int? tenantFk,
     required int senderFk,
     required int recipientFk,
     DateTime? createdAt,
@@ -424,7 +424,7 @@ extension ChatModelX on ChatModel {
   ChatEntity toEntity() {
     return ChatEntity(
       pk: pk ?? 0,
-      tenantFk: tenantFk,
+      tenantFk: tenantFk ?? 0,
       senderFk: senderFk,
       recipientFk: recipientFk,
       createdAt: createdAt,
@@ -547,11 +547,10 @@ extension ChatMessageModelX on ChatMessageModel {
 class BookModel with _$BookModel {
   const factory BookModel({
     int? pk,
-    required int tenantFk,
-    int? parentFk,
+    int? tenantFk,
     @Default('') String name,
     @Default('') String desc,
-    @Default(BookEnum_Status.STATUS_DRAFT) BookEnum_Status status,
+    @Default(BookEnum_Status.DRAFT) BookEnum_Status status,
     required DateTime openedAt,
     required DateTime closedAt,
     DateTime? createdAt,
@@ -560,6 +559,7 @@ class BookModel with _$BookModel {
     TenantModel? tenant,
     @Default([]) List<UserModel> clients,
     @Default([]) List<TeamModel> teams,
+    @Default([]) List<BooksServiceModel> booksServices,
   }) = _BookModel;
 
   factory BookModel.fromEntity({
@@ -590,37 +590,38 @@ class BookModel with _$BookModel {
       tenant: context.getE<TenantModel>(entity.tenantFk) ?? (entity.tenant != null ? TenantModel.fromEntity(entity: entity.tenant!, context: context) : null),
       clients: entity.clients.map((e) => context!.getE<UserModel>(e.pk) ?? UserModel.fromEntity(entity: e, context: context)).toList(),
       teams: entity.teams.map((e) => context!.getE<TeamModel>(e.pk) ?? TeamModel.fromEntity(entity: e, context: context)).toList(),
+      booksServices: entity.booksServices.map((e) => context!.getE<BooksServiceModel>(e.pk) ?? BooksServiceModel.fromEntity(entity: e, context: context)).toList(),
     );
   }
 
-  factory BookModel.fromReserve({
-    String? pk,
-    UserModel? user,
-    ServiceModel? service,
-    required String name,
-    required DateTime openedAt,
-    required DateTime closedAt,
-    // required Color background,
-    // required bool isAllDay,
-  }) {
-    return BookModel(
-      pk: pk,
-      user: user,
-      service: service,
-      name: name,
-      openedAt: openedAt,
-      closedAt: closedAt,
-      // background: background,
-      // isAllDay: isAllDay,
-    );
-  }
+  // factory BookModel.fromReserve({
+  //   String? pk,
+  //   UserModel? user,
+  //   ServiceModel? service,
+  //   required String name,
+  //   required DateTime openedAt,
+  //   required DateTime closedAt,
+  //   // required Color background,
+  //   // required bool isAllDay,
+  // }) {
+  //   return BookModel(
+  //     pk: pk,
+  //     user: user,
+  //     service: service,
+  //     name: name,
+  //     openedAt: openedAt,
+  //     closedAt: closedAt,
+  //     // background: background,
+  //     // isAllDay: isAllDay,
+  //   );
+  // }
 }
 
 extension BookModelX on BookModel {
   BookEntity toEntity() {
     return BookEntity(
       pk: pk ?? 0,
-      tenantFk: tenantFk,
+      tenantFk: tenantFk ?? 0,
       name: name,
       desc: desc,
       status: status,
@@ -631,6 +632,7 @@ extension BookModelX on BookModel {
       tenant: tenant?.toEntity(),
       clients: clients.map((e) => e.toEntity()).toList(),
       teams: teams.map((e) => e.toEntity()).toList(),
+      booksServices: booksServices.map((e) => e.toEntity()).toList(),
     );
   }
 }
@@ -639,8 +641,7 @@ extension BookModelX on BookModel {
 class TeamModel with _$TeamModel {
   const factory TeamModel({
     int? pk,
-    required int tenantFk,
-    int? parentFk,
+    int? tenantFk,
     @Default('') String name,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -680,12 +681,81 @@ extension TeamModelX on TeamModel {
   TeamEntity toEntity() {
     return TeamEntity(
       pk: pk ?? 0,
-      tenantFk: tenantFk,
+      tenantFk: tenantFk ?? 0,
       name: name,
       createdAt: createdAt,
       updatedAt: updatedAt,
       tenant: tenant?.toEntity(),
       users: users.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
+@freezed
+class BooksServiceModel with _$BooksServiceModel {
+  const factory BooksServiceModel({
+    int? pk,
+    int? bookFk,
+    int? serviceFk,
+    @Default('') String name,
+    @Default('') String desc,
+    int? price,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    // Relationships
+    BookModel? book,
+    ServiceModel? service,
+  }) = _BooksServiceModel;
+
+  factory BooksServiceModel.fromEntity({
+    required BooksServiceEntity entity,
+    XContext? context,
+  }) {
+    context ??= XContext.of();
+
+    var model = context.getE<BooksServiceModel>(entity.pk);
+    if (model != null) {
+      return model;
+    }
+    model = BooksServiceModel(
+      pk: entity.pk,
+      bookFk: entity.bookFk,
+      serviceFk: entity.serviceFk,
+      name: entity.name,
+      desc: entity.desc,
+      price: entity.price,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+    context.putE(entity.pk, model);
+
+    // Relationships
+    return model.copyWith(
+      book: context.getE<BookModel>(entity.bookFk) ?? (entity.book != null ? BookModel.fromEntity(entity: entity.book!, context: context) : null),
+      service: (() {
+        if (entity.serviceFk == null) {
+          return null;
+        }
+
+        return context!.getE<ServiceModel>(entity.serviceFk!) ?? (entity.service != null ? ServiceModel.fromEntity(entity: entity.service!, context: context) : null);
+      })(),
+    );
+  }
+}
+
+extension BooksServiceModelX on BooksServiceModel {
+  BooksServiceEntity toEntity() {
+    return BooksServiceEntity(
+      pk: pk ?? 0,
+      bookFk: bookFk ?? 0,
+      serviceFk: serviceFk ?? 0,
+      name: name,
+      desc: desc,
+      price: price,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      book: book?.toEntity(),
+      service: service?.toEntity(),
     );
   }
 }

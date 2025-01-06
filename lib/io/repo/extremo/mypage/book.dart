@@ -3,6 +3,7 @@
 // import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
+import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/entity/paging.dart';
 import 'package:extremo/io/store/api/extremo/auth.dart';
@@ -25,10 +26,14 @@ part 'book.g.dart';
 @riverpod
 Future<PagingEntity<BookEntity>> repoListPagerBooks(
   RepoListPagerBooksRef ref,
-  int tenantFk,
   int page,
   int pageSize,
 ) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
   final rpc = ref.read(mypageBookServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
@@ -70,18 +75,29 @@ Future<Result<BookEntity, Exception>> repoGetBook(
 Future<Result<BookEntity, Exception>> repoCreateBook(
   RepoCreateBookRef ref,
   BookEntity request,
+  List<int> clientFks,
+  List<int> teamFks,
+  List<int> serviceFks,
 ) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
   final rpc = ref.read(mypageBookServiceClientProvider);
 
   try {
     final entity = await rpc
         .create(
           bookpb.CreateRequest(
-            tenantFk: request.tenantFk,
-            // summary: request.summary,
-            // content: request.content,
-            // publishFrom: request.publishFrom != null ? Timestamp.fromDateTime(request.publishFrom!) : null,
-            // publishUntil: request.publishUntil != null ? Timestamp.fromDateTime(request.publishUntil!) : null,
+            tenantFk: tenantFk,
+            name: request.name,
+            desc: request.desc,
+            openedAt: Timestamp.fromDateTime(request.openedAt),
+            closedAt: Timestamp.fromDateTime(request.closedAt),
+            clientFks: clientFks,
+            teamFks: teamFks,
+            serviceFks: serviceFks,
           ),
         )
         .then(
@@ -103,18 +119,31 @@ Future<Result<BookEntity, Exception>> repoCreateBook(
 Future<Result<BookEntity, Exception>> repoUpdateBook(
   RepoUpdateBookRef ref,
   BookEntity request,
+  List<int> clientFks,
+  List<int> teamFks,
+  List<int> serviceFks,
 ) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
   final rpc = ref.read(mypageBookServiceClientProvider);
 
   try {
     final entity = await rpc
-        .create(
+        .update(
           bookpb.UpdateRequest(
-            tenantFk: request.tenantFk,
-            // summary: request.summary,
-            // content: request.content,
-            // publishFrom: request.publishFrom != null ? Timestamp.fromDateTime(request.publishFrom!) : null,
-            // publishUntil: request.publishUntil != null ? Timestamp.fromDateTime(request.publishUntil!) : null,
+            pk: request.pk,
+            tenantFk: tenantFk,
+            name: request.name,
+            desc: request.desc,
+            status: request.status,
+            openedAt: Timestamp.fromDateTime(request.openedAt),
+            closedAt: Timestamp.fromDateTime(request.closedAt),
+            clientFks: clientFks,
+            teamFks: teamFks,
+            serviceFks: serviceFks,
           ),
         )
         .then(

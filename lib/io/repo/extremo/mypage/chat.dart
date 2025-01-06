@@ -3,6 +3,7 @@
 // import 'package:extremo/io/store/api/extremo/extremo_response.dart';
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
+import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/io/entity/extremo/extremo.dart';
 import 'package:extremo/io/entity/paging.dart';
 import 'package:extremo/io/store/api/extremo/auth.dart';
@@ -31,6 +32,11 @@ Future<PagingEntity<UserEntity>> repoListPagerChatUsers(
   int page,
   int pageSize,
 ) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
   final rpc = ref.read(mypageChatServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
@@ -58,6 +64,11 @@ Future<PagingEntity<ChatEntity>> repoListPagerChats(
   int page,
   int pageSize,
 ) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
   final rpc = ref.read(mypageChatServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
@@ -84,6 +95,11 @@ Future<Result<ChatEntity, Exception>> repoCreateChat(
   RepoCreateChatRef ref,
   ChatEntity request,
 ) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
   final rpc = ref.read(mypageChatServiceClientProvider);
 
   try {
