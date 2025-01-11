@@ -587,7 +587,7 @@ class ServiceEntity {
 
 class BookEnumStatusAdapter extends TypeAdapter<BookEnum_Status> {
   @override
-  final int typeId = 999;
+  final int typeId = 200;
 
   @override
   BookEnum_Status read(BinaryReader reader) {

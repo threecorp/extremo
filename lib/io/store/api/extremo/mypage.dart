@@ -4,6 +4,7 @@
 import 'package:collection/collection.dart';
 import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pbgrpc.dart';
 import 'package:extremodart/extremo/api/mypage/books/v1/book_service.pbgrpc.dart';
+import 'package:extremodart/extremo/api/mypage/teams/v1/team_service.pbgrpc.dart';
 import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pbgrpc.dart';
 import 'package:extremodart/extremo/api/mypage/services/v1/service_service.pbgrpc.dart';
 import 'package:extremodart/extremo/api/mypage/users/v1/user_service.pbgrpc.dart';
@@ -90,6 +91,22 @@ BookServiceClient mypageBookServiceClient(
   );
 
   return BookServiceClient(
+    channel,
+    interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
+  );
+}
+
+@riverpod
+TeamServiceClient mypageTeamServiceClient(
+  MypageTeamServiceClientRef ref,
+) {
+  final channel = ClientChannel(
+    'localhost', // TODO(Environment): Change a value for each an environment.
+    port: 50100,
+    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  );
+
+  return TeamServiceClient(
     channel,
     interceptors: [GrpcAuthInterceptor(ref), GrpcLoggerInterceptor.instance],
   );

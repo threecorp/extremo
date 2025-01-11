@@ -11,8 +11,7 @@ import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
-import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart' as artifactpb;
-import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pb.dart' as chatpb;
+import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -35,7 +34,7 @@ Future<PagingEntity<ArtifactEntity>> repoListPagerArtifacts(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    artifactpb.ListRequest(
+    ListRequest(
       page: page,
       pageSize: pageSize,
     ),
@@ -60,7 +59,7 @@ Future<Result<ArtifactEntity, Exception>> repoGetArtifact(
   final rpc = ref.read(mypageArtifactServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final entity = await rpc.get(artifactpb.GetRequest(pk: id)).then(
+  final entity = await rpc.get(GetRequest(pk: id)).then(
         (r) => xFormRpcArtifactEntity(ref, r.element),
       );
 
@@ -77,7 +76,7 @@ Future<Result<ArtifactEntity, Exception>> repoCreateArtifact(
   try {
     final entity = await rpc
         .create(
-          artifactpb.CreateRequest(
+          CreateRequest(
             title: request.title,
             summary: request.summary,
             content: request.content,

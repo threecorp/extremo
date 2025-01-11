@@ -13,7 +13,7 @@ import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
 import 'package:extremo/misc/logger.dart';
-import 'package:extremodart/extremo/api/mypage/books/v1/book_service.pb.dart' as bookpb;
+import 'package:extremodart/extremo/api/mypage/books/v1/book_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -38,7 +38,7 @@ Future<PagingEntity<BookEntity>> repoListPagerBooks(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    bookpb.ListRequest(
+    ListRequest(
       tenantFk: tenantFk,
       page: page,
       pageSize: pageSize,
@@ -64,7 +64,7 @@ Future<Result<BookEntity, Exception>> repoGetBook(
   final rpc = ref.read(mypageBookServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final entity = await rpc.get(bookpb.GetRequest(pk: id)).then(
+  final entity = await rpc.get(GetRequest(pk: id)).then(
         (r) => xFormRpcBookEntity(ref, r.element),
       );
 
@@ -89,7 +89,7 @@ Future<Result<BookEntity, Exception>> repoCreateBook(
   try {
     final entity = await rpc
         .create(
-          bookpb.CreateRequest(
+          CreateRequest(
             tenantFk: tenantFk,
             name: request.name,
             desc: request.desc,
@@ -133,7 +133,7 @@ Future<Result<BookEntity, Exception>> repoUpdateBook(
   try {
     final entity = await rpc
         .update(
-          bookpb.UpdateRequest(
+          UpdateRequest(
             pk: request.pk,
             tenantFk: tenantFk,
             name: request.name,

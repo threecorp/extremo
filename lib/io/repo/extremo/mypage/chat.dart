@@ -12,8 +12,7 @@ import 'package:extremo/io/store/api/extremo/public.dart';
 import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
-import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart' as artifactpb;
-import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pb.dart' as chatpb;
+import 'package:extremodart/extremo/api/mypage/chats/v1/chat_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -41,7 +40,7 @@ Future<PagingEntity<UserEntity>> repoListPagerChatUsers(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.listUsers(
-    chatpb.ListUsersRequest(
+    ListUsersRequest(
       page: page,
       pageSize: pageSize,
     ),
@@ -73,7 +72,7 @@ Future<PagingEntity<ChatEntity>> repoListPagerChats(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    chatpb.ListRequest(
+    ListRequest(
       page: page,
       pageSize: pageSize,
     ),
@@ -105,7 +104,7 @@ Future<Result<ChatEntity, Exception>> repoCreateChat(
   try {
     final entity = await rpc
         .create(
-          chatpb.CreateRequest(
+          CreateRequest(
             senderFk: request.senderFk,
             recipientFk: request.recipientFk,
             // message: request.message,

@@ -13,7 +13,7 @@ import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
 import 'package:extremo/misc/logger.dart';
-import 'package:extremodart/extremo/api/mypage/users/v1/user_service.pb.dart';
+import 'package:extremodart/extremo/api/mypage/teams/v1/team_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -21,11 +21,11 @@ import 'package:result_dart/functions.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'user.g.dart';
+part 'team.g.dart';
 
 @riverpod
-Future<PagingEntity<UserEntity>> repoListPagerUsers(
-  RepoListPagerUsersRef ref,
+Future<PagingEntity<TeamEntity>> repoListPagerTeams(
+  RepoListPagerTeamsRef ref,
   int page,
   int pageSize,
 ) async {
@@ -34,7 +34,7 @@ Future<PagingEntity<UserEntity>> repoListPagerUsers(
     throw Exception('Tenant is required but not available');
   }
 
-  final rpc = ref.read(mypageUserServiceClientProvider);
+  final rpc = ref.read(mypageTeamServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
@@ -46,11 +46,11 @@ Future<PagingEntity<UserEntity>> repoListPagerUsers(
   );
   final elements = await Future.wait(
     response.elements.map(
-      (element) => xFormRpcUserEntity(ref, element),
+      (element) => xFormRpcTeamEntity(ref, element),
     ),
   );
 
-  return PagingEntity<UserEntity>(
+  return PagingEntity<TeamEntity>(
     elements: elements.toList(),
     totalSize: response.totalSize,
   );

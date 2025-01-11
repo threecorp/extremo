@@ -267,6 +267,19 @@ class _ReserveForm extends HookConsumerWidget {
             child: Text(clientsState.value.firstOrNull?.profile?.name ?? 'Select User'),
           ),
           const SizedBox(height: 16),
+          // service selection
+          ElevatedButton(
+            onPressed: () async {
+              final service = await ServiceRoute($extra: (ServiceModel service) => Navigator.pop(context, service)).push<ServiceModel>(context);
+              if (service != null) {
+                servicesState.value = [service]; // XXX(impl): multiple selection
+              }
+            },
+            child: Text(
+              servicesState.value.firstOrNull?.name ?? 'Select Service',
+            ),
+          ),
+          const SizedBox(height: 16),
           TextField(
             controller: subjectController,
             decoration: const InputDecoration(labelText: 'Subject'),
@@ -297,19 +310,6 @@ class _ReserveForm extends HookConsumerWidget {
                 openedAtState.value = DateTime(openedAtState.value.year, openedAtState.value.month, openedAtState.value.day, selectedTime.hour, selectedTime.minute);
               }
             },
-          ),
-          const SizedBox(height: 16),
-          // service selection
-          ElevatedButton(
-            onPressed: () async {
-              final service = await ServiceRoute($extra: (ServiceModel service) => Navigator.pop(context, service)).push<ServiceModel>(context);
-              if (service != null) {
-                servicesState.value = [service]; // XXX(impl): multiple selection
-              }
-            },
-            child: Text(
-              servicesState.value.firstOrNull?.name ?? 'Select Service',
-            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton(

@@ -13,8 +13,7 @@ import 'package:extremo/io/store/db/extremo/box.dart';
 import 'package:extremo/io/x/extremo/extremo.dart';
 import 'package:extremo/misc/exception.dart';
 import 'package:extremo/misc/logger.dart';
-import 'package:extremodart/extremo/api/mypage/artifacts/v1/artifact_service.pb.dart' as artifactpb;
-import 'package:extremodart/extremo/api/mypage/services/v1/service_service.pb.dart' as servicepb;
+import 'package:extremodart/extremo/api/mypage/services/v1/service_service.pb.dart';
 import 'package:extremodart/google/protobuf/timestamp.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
@@ -39,7 +38,7 @@ Future<PagingEntity<ServiceEntity>> repoListPagerServices(
 
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
-    servicepb.ListRequest(
+    ListRequest(
       tenantFk: tenantFk,
       page: page,
       pageSize: pageSize,

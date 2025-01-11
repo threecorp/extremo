@@ -52,7 +52,7 @@ class UserDetailPage extends HookConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+                    backgroundImage: NetworkImage('https://placehold.jp/150x150.png'),
                   ),
                   SizedBox(width: 16),
                   Expanded(
