@@ -35,7 +35,7 @@ class UserPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Monitor current “asynchronous status of paged user list
-    final pagerStateAsync = ref.watch(listPagerUsersCaseProvider);
+    final pagerAsync = ref.watch(listPagerUsersCaseProvider);
 
     // Controller for infinite_scroll_pagination
     final pagingController = useState(
@@ -100,7 +100,7 @@ class UserPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('User Page'),
       ),
-      body: pagerStateAsync.when(
+      body: pagerAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (state) {

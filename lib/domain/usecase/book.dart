@@ -86,6 +86,14 @@ class ListPagerBooksCase extends _$ListPagerBooksCase {
 }
 
 @riverpod
+Future<List<BookModel>> filterBooksCase(
+  FilterBooksCaseRef ref,
+) async {
+  final result = await ref.read(repoFilterBooksProvider.future);
+  return result.map((e) => BookModel.fromEntity(entity: e)).toList();
+}
+
+@riverpod
 Future<Result<BookModel, Exception>> getBookCase(
   GetBookCaseRef ref,
   int id,

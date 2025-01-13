@@ -7,6 +7,7 @@ import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/chat.dart';
 import 'package:extremo/ui/page/chat_message.dart';
 import 'package:extremo/ui/page/login.dart';
+import 'package:extremo/ui/page/team.dart';
 import 'package:extremo/ui/page/service.dart';
 import 'package:extremo/ui/page/register.dart';
 import 'package:extremo/ui/page/reserve.dart';
@@ -27,6 +28,7 @@ class Routes {
   static const artifactPage = '/artifacts';
   static const loginPage = '/login';
   static const registerPage = '/register';
+  static const teamPage = '/teams';
   static const servicePage = '/services';
   static const messagePage = '/messages';
   static const userPage = '/users';
@@ -94,6 +96,28 @@ class UserDetailRoute extends GoRouteData {
         child: UserDetailPage(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
+}
+
+@TypedGoRoute<TeamRoute>(
+  path: Routes.teamPage,
+  // routes: [TypedGoRoute<TeamDetailRoute>(path: ':id')],
+)
+@immutable
+class TeamRoute extends GoRouteData {
+  const TeamRoute({
+    this.$extra,
+  });
+
+  final void Function(TeamModel)? $extra;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: TeamPage(onTapAction: $extra),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+    );
+  }
 }
 
 @TypedGoRoute<ServiceRoute>(

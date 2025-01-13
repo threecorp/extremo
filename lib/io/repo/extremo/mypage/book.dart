@@ -57,6 +57,32 @@ Future<PagingEntity<BookEntity>> repoListPagerBooks(
 }
 
 @riverpod
+Future<List<BookEntity>> repoFilterBooks(
+  RepoFilterBooksRef ref,
+) async {
+  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
+  if (tenantFk == null) {
+    throw Exception('Tenant is required but not available');
+  }
+
+  final rpc = ref.read(mypageBookServiceClientProvider);
+
+  // TODO(offline): Use DBCache when offlined or error
+  final response = await rpc.filter(
+    FilterRequest(
+      tenantFk: tenantFk,
+    ),
+  );
+  final elements = await Future.wait(
+    response.elements.map(
+      (element) => xFormRpcBookEntity(ref, element),
+    ),
+  );
+
+  return elements.toList();
+}
+
+@riverpod
 Future<Result<BookEntity, Exception>> repoGetBook(
   RepoGetBookRef ref,
   int id,
