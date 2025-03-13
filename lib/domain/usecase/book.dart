@@ -2,6 +2,7 @@
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
 // import 'package:result_dart/functions.dart';
 // import 'package:riverpod/riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/pager.dart';
@@ -88,8 +89,12 @@ class ListPagerBooksCase extends _$ListPagerBooksCase {
 @riverpod
 Future<List<BookModel>> filterBooksCase(
   FilterBooksCaseRef ref,
+  DateTime openedAt,
+  DateTime closedAt,
 ) async {
-  final result = await ref.read(repoFilterBooksProvider.future);
+  debugPrint('openedAt, closedAt: $openedAt, $closedAt');
+
+  final result = await ref.read(repoFilterBooksProvider(openedAt, closedAt).future);
   return result.map((e) => BookModel.fromEntity(entity: e)).toList();
 }
 

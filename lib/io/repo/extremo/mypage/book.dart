@@ -59,6 +59,8 @@ Future<PagingEntity<BookEntity>> repoListPagerBooks(
 @riverpod
 Future<List<BookEntity>> repoFilterBooks(
   RepoFilterBooksRef ref,
+  DateTime openedAt,
+  DateTime closedAt,
 ) async {
   final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
   if (tenantFk == null) {
@@ -71,6 +73,10 @@ Future<List<BookEntity>> repoFilterBooks(
   final response = await rpc.filter(
     FilterRequest(
       tenantFk: tenantFk,
+      openedAt: Timestamp.fromDateTime(openedAt),
+      closedAt: Timestamp.fromDateTime(closedAt),
+      page: 1, // TODO(unimpl): Fixed to 1
+      pageSize: 100, // TODO(unimpl): Fixed to 100
     ),
   );
   final elements = await Future.wait(
@@ -79,7 +85,7 @@ Future<List<BookEntity>> repoFilterBooks(
     ),
   );
 
-  return elements.toList();
+  return elements.toList(); // TODO(unimpl): Pagination
 }
 
 @riverpod
