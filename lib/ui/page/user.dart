@@ -73,7 +73,6 @@ class UserPage extends HookConsumerWidget {
       [pagingController.value],
     );
 
-    // 画面表示
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Page'),
