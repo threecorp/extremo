@@ -3,13 +3,13 @@
 // import 'package:extremo/ui/layout/favorite_button.dart';
 // import 'package:extremo/ui/layout/paging_controller.dart';
 // import 'package:extremo/ui/layout/progress_view.dart';
-import 'package:extremo/misc/logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:extremo/domain/model/extremo.dart';
 import 'package:extremo/domain/usecase/user.dart';
-import 'package:collection/collection.dart';
 import 'package:extremo/io/auth/account.dart';
 import 'package:extremo/misc/i18n/strings.g.dart';
+import 'package:extremo/misc/logger.dart';
 import 'package:extremo/route/route.dart';
 import 'package:extremo/ui/layout/error_view.dart';
 import 'package:extremo/ui/layout/paging_controller.dart';
@@ -24,6 +24,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+
 class UserPage extends HookConsumerWidget {
   const UserPage({
     super.key,
@@ -31,106 +32,101 @@ class UserPage extends HookConsumerWidget {
   });
 
   final void Function(UserModel)? onTapAction;
+  static const _pageSize = 25;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Monitor current “asynchronous status of paged user list
-    final pagerAsync = ref.watch(listPagerUsersCaseProvider);
+    final userUseCase = ref.watch(userUseCaseProvider);
 
-    // Controller for infinite_scroll_pagination
     final pagingController = useState(
       PagingController<int, UserModel>(firstPageKey: 1),
     );
 
-    // [Point] Because updating the provider during build will cause an error,
-    // call refreshFirstPage “after the first frame is drawn” with addPostFrameCallback.
-    useEffect(
-      () {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          // Initial refresh if data not already available.
-          final data = ref.read(listPagerUsersCaseProvider).asData?.value;
-          if (data == null || data.items.isEmpty) {
-            ref.read(listPagerUsersCaseProvider.notifier).refreshFirstPage();
-          }
-        });
-        return null;
-      },
-      [],
-    );
-
-    // Processing when PagingController requests “load next page
     useEffect(
       () {
         pagingController.value.addPageRequestListener((pageKey) async {
           try {
-            if (pageKey > 1) {
-              await ref.read(listPagerUsersCaseProvider.notifier).loadNextPage();
-            }
+            final users = await userUseCase.fetchUserPage(
+              pageKey: pageKey,
+              pageSize: _pageSize,
+            );
 
-            final state = ref.read(listPagerUsersCaseProvider).asData?.value;
-            if (state == null) {
-              logger.d('effect: No data loaded yet');
-              return;
-            }
-
-            // Extract only the part corresponding to pageKey
-            final startIdx = (pageKey - 1) * state.pageSize;
-            final endIdx = startIdx + state.pageSize;
-            final newItems = state.items.sublist(startIdx, endIdx.clamp(0, state.items.length));
-
-            if (state.isLast && pageKey >= state.page) {
-              pagingController.value.appendLastPage(newItems);
+            final isLastPage = users.length < _pageSize;
+            if (isLastPage) {
+              pagingController.value.appendLastPage(users);
             } else {
-              pagingController.value.appendPage(newItems, pageKey + 1);
+              final nextPageKey = pageKey + 1;
+              pagingController.value.appendPage(users, nextPageKey);
             }
-          } catch (error, st) {
+          } on Object catch (error, st) {
+            logger.e('Failed to load page: $error st $st');
+            // call newPageErrorIndicatorBuilder when error occurred
             pagingController.value.error = error;
           }
         });
 
-        return pagingController.value.dispose;
+        // discard the controller when the widget is disposed
+        return () {
+          pagingController.value.dispose();
+        };
       },
       [pagingController.value],
     );
 
-    // PagingController can be updated as needed when the state of Riverpod changes, etc.
-    // * For example, refreshing the PagingController when a user logs in again, etc.
-
+    // 画面表示
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Page'),
       ),
-      body: pagerAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-        data: (state) {
-          // If items is empty, noItemsFoundIndicator is issued, etc.
-          return PagedListView<int, UserModel>(
-            pagingController: pagingController.value,
-            builderDelegate: PagedChildBuilderDelegate<UserModel>(
-              itemBuilder: (context, user, index) {
-                return ListTile(
-                  leading: const CircleAvatar(
-                    backgroundImage: NetworkImage('https://placehold.co/300x200/png'),
-                  ),
-                  title: Text('${user.pk}: ${user.profile?.name ?? ''}'),
-                  subtitle: const Text('status'),
-                  onTap: () {
-                    if (onTapAction != null) {
-                      onTapAction!(user);
-                    } else {
-                      // Sample: jump to detail page, etc.
-                      const UserDetailRoute(id: 1).go(context);
-                    }
-                  },
-                );
+      body: PagedListView<int, UserModel>(
+        pagingController: pagingController.value,
+        builderDelegate: PagedChildBuilderDelegate<UserModel>(
+          // リストの各Itemを描画
+          itemBuilder: (context, user, index) {
+            return ListTile(
+              leading: const CircleAvatar(
+                backgroundImage: NetworkImage('https://placehold.co/300x200/png'),
+              ),
+              title: Text('${user.pk}: ${user.profile?.name ?? ''}'),
+              subtitle: const Text('status'),
+              onTap: () {
+                final action = onTapAction;
+                if (action != null) {
+                  action(user);
+                  return;
+                }
+                final pk = user.pk;
+                if (pk != null) {
+                  UserDetailRoute(id: pk).go(context);
+                  return;
+                }
+
+                const sb = SnackBar(content: Text('User ID is null'));
+                ScaffoldMessenger.of(context).showSnackBar(sb);
               },
-              firstPageErrorIndicatorBuilder: (context) => const Center(child: Text('Error loading data.')),
-              newPageErrorIndicatorBuilder: (context) => const Center(child: Text('Error loading more data.')),
-              noItemsFoundIndicatorBuilder: (context) => const Center(child: Text('No users found.')),
-            ),
-          );
-        },
+            );
+          },
+          // the first page loading indicator
+          firstPageProgressIndicatorBuilder: (context) {
+            return const Center(child: CircularProgressIndicator());
+          },
+          // the second page loading indicator
+          newPageProgressIndicatorBuilder: (context) {
+            return const Center(child: CircularProgressIndicator());
+          },
+          // when error occurred on the first page
+          firstPageErrorIndicatorBuilder: (context) {
+            return const Center(child: Text('Error loading data.'));
+          },
+          // when error occurred on the second page
+          newPageErrorIndicatorBuilder: (context) {
+            return const Center(child: Text('Error loading more data.'));
+          },
+          // when no items found
+          noItemsFoundIndicatorBuilder: (context) {
+            return const Center(child: Text('No users found.'));
+          },
+        ),
       ),
     );
   }
