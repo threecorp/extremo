@@ -132,6 +132,5 @@ class ServicePage extends HookConsumerWidget {
         ),
       ),
     );
-
   }
 }

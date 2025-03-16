@@ -24,7 +24,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-
 class UserPage extends HookConsumerWidget {
   const UserPage({
     super.key,
