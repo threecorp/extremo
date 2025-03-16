@@ -39,15 +39,16 @@ Future<PagingEntity<UserEntity>> repoListPagerChatUsers(
   final rpc = ref.read(mypageChatServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final response = await rpc.listUsers(
-    ListUsersRequest(
+  final response = await rpc.list(
+    ListRequest(
+      tenantFk: tenantFk,
       page: page,
       pageSize: pageSize,
     ),
   );
   final elements = await Future.wait(
     response.elements.map(
-      (element) => xFormRpcChatUserEntity(ref, element),
+      (element) => xFormRpcChatUserEntity(ref, element.recipient),
     ),
   );
 
@@ -73,6 +74,7 @@ Future<PagingEntity<ChatEntity>> repoListPagerChats(
   // TODO(offline): Use DBCache when offlined or error
   final response = await rpc.list(
     ListRequest(
+      tenantFk: tenantFk,
       page: page,
       pageSize: pageSize,
     ),
@@ -105,7 +107,7 @@ Future<Result<ChatEntity, Exception>> repoCreateChat(
     final entity = await rpc
         .create(
           CreateRequest(
-            senderFk: request.senderFk,
+            tenantFk: tenantFk,
             recipientFk: request.recipientFk,
             // message: request.message,
           ),

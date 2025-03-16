@@ -1,7 +1,7 @@
 appName: エクステレモ
 calendar: カレンダー
 content: 内容
-emptyError: データが取得できませんでした
+emptyError: データが存在しません
 favorite: お気に入り
 height: "高さ: $height"
 index: インデックス

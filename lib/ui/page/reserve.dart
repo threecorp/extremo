@@ -117,121 +117,121 @@ class ReservePage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(t.reserve)),
       body: SfCalendar(
-          view: CalendarView.week,
-          allowedViews: const [
-            CalendarView.day,
-            CalendarView.week,
-            CalendarView.workWeek,
-            CalendarView.month,
-            CalendarView.timelineDay,
-            CalendarView.timelineWeek,
-            CalendarView.timelineWorkWeek,
-          ],
-          // resourceViewSettings: ResourceViewSettings(showAvatar: true),
-          allowAppointmentResize: true,
-          allowDragAndDrop: true,
-          dataSource: ReserveDataSource(booksState.value),
-          firstDayOfWeek: 1, // Monday
-          monthViewSettings: const MonthViewSettings(showAgenda: true, appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
-          selectionDecoration: BoxDecoration(color: Colors.green.withOpacity(0.2), border: Border.all(color: Colors.transparent, width: 0)),
-          showNavigationArrow: true,
-          timeZone: 'Tokyo Standard Time',
-          todayHighlightColor: Colors.red,
-          // on
-          onTap: (CalendarTapDetails details) {
-            final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
-            final book = isEdit ? details.appointments!.first as BookModel : null;
+        view: CalendarView.week,
+        allowedViews: const [
+          CalendarView.day,
+          CalendarView.week,
+          CalendarView.workWeek,
+          CalendarView.month,
+          CalendarView.timelineDay,
+          CalendarView.timelineWeek,
+          CalendarView.timelineWorkWeek,
+        ],
+        // resourceViewSettings: ResourceViewSettings(showAvatar: true),
+        allowAppointmentResize: true,
+        allowDragAndDrop: true,
+        dataSource: ReserveDataSource(booksState.value),
+        firstDayOfWeek: 1, // Monday
+        monthViewSettings: const MonthViewSettings(showAgenda: true, appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
+        selectionDecoration: BoxDecoration(color: Colors.green.withOpacity(0.2), border: Border.all(color: Colors.transparent, width: 0)),
+        showNavigationArrow: true,
+        timeZone: 'Tokyo Standard Time',
+        todayHighlightColor: Colors.red,
+        // on
+        onTap: (CalendarTapDetails details) {
+          final isEdit = details.targetElement == CalendarElement.appointment && details.appointments != null;
+          final book = isEdit ? details.appointments!.first as BookModel : null;
 
-            debugPrint('clients: ${book?.clients.length} teams: ${book?.teams.length} services: ${book?.booksServices.length}');
+          debugPrint('clients: ${book?.clients.length} teams: ${book?.teams.length} services: ${book?.booksServices.length}');
 
-            showModalBottomSheet<void>(
-              context: context,
-              isScrollControlled: true, // Make the modal full height
-              builder: (BuildContext context) {
-                return GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                  },
-                  child: Container(
-                    color: Theme.of(context).bottomSheetTheme.backgroundColor ?? Colors.white,
-                    height: MediaQuery.of(context).size.height,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        // Close button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              isEdit ? 'Edit Reservation' : 'Add Reservation',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true, // Make the modal full height
+            builder: (BuildContext context) {
+              return GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: Container(
+                  color: Theme.of(context).bottomSheetTheme.backgroundColor ?? Colors.white,
+                  height: MediaQuery.of(context).size.height,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      // Close button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isEdit ? 'Edit Reservation' : 'Add Reservation',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        // BookModel form for editing
-                        Expanded(
-                          child: _ReserveForm(
-                            pk: book?.pk,
-                            clients: book?.clients ?? [],
-                            teams: book?.teams ?? [],
-                            services: book?.booksServices.map((e) => e.service).whereType<ServiceModel>().toList() ?? [],
-                            name: book?.name ?? '',
-                            openedAt: book?.openedAt ?? details.date!,
-                            closedAt: book?.closedAt ?? details.date!.add(const Duration(hours: 1)),
-                            // on
-                            onAdd: upsertBookByFks,
                           ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                      // BookModel form for editing
+                      Expanded(
+                        child: _ReserveForm(
+                          pk: book?.pk,
+                          clients: book?.clients ?? [],
+                          teams: book?.teams ?? [],
+                          services: book?.booksServices.map((e) => e.service).whereType<ServiceModel>().toList() ?? [],
+                          name: book?.name ?? '',
+                          openedAt: book?.openedAt ?? details.date!,
+                          closedAt: book?.closedAt ?? details.date!.add(const Duration(hours: 1)),
+                          // on
+                          onAdd: upsertBookByFks,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
+                ),
+              );
+            },
+          );
 
-            debugPrint('onTap: ${details.date}');
-          },
-          onViewChanged: (ViewChangedDetails details) async {
-            // カレンダーの visibleDates から fetchBooks
-            final visibleRange = details.visibleDates;
-            await fetchBooks(visibleRange.first, visibleRange.last);
-          },
-          // onAppointmentResizeStart: resizeStart,
-          // onAppointmentResizeUpdate: resizeUpdate,
-          onAppointmentResizeEnd: (AppointmentResizeEndDetails details) async {
-            await updateBookByAppointment(details.appointment, details.startTime, details.endTime);
-          },
-          onDragEnd: (AppointmentDragEndDetails details) async {
-            final appointment = details.appointment;
-            final droppingTime = details.droppingTime;
+          debugPrint('onTap: ${details.date}');
+        },
+        onViewChanged: (ViewChangedDetails details) async {
+          // カレンダーの visibleDates から fetchBooks
+          final visibleRange = details.visibleDates;
+          await fetchBooks(visibleRange.first, visibleRange.last);
+        },
+        // onAppointmentResizeStart: resizeStart,
+        // onAppointmentResizeUpdate: resizeUpdate,
+        onAppointmentResizeEnd: (AppointmentResizeEndDetails details) async {
+          await updateBookByAppointment(details.appointment, details.startTime, details.endTime);
+        },
+        onDragEnd: (AppointmentDragEndDetails details) async {
+          final appointment = details.appointment;
+          final droppingTime = details.droppingTime;
 
-            if (appointment == null || appointment is! BookModel) {
-              return;
-            }
-            if (droppingTime == null) {
-              return;
-            }
+          if (appointment == null || appointment is! BookModel) {
+            return;
+          }
+          if (droppingTime == null) {
+            return;
+          }
 
-            final oldStartTime = appointment.openedAt;
-            final oldEndTime = appointment.closedAt;
+          final oldStartTime = appointment.openedAt;
+          final oldEndTime = appointment.closedAt;
 
-            final oldDuration = oldEndTime.difference(oldStartTime);
-            final newStartTime = droppingTime;
-            final newEndTime = newStartTime.add(oldDuration);
+          final oldDuration = oldEndTime.difference(oldStartTime);
+          final newStartTime = droppingTime;
+          final newEndTime = newStartTime.add(oldDuration);
 
-            await updateBookByAppointment(appointment, newStartTime, newEndTime);
-          },
-        ),
+          await updateBookByAppointment(appointment, newStartTime, newEndTime);
+        },
+      ),
       floatingActionButton: SpeedDial(
         icon: Icons.add,
         activeIcon: Icons.close,

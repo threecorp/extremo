@@ -382,12 +382,10 @@ class ChatModel with _$ChatModel {
   const factory ChatModel({
     int? pk,
     int? tenantFk,
-    required int senderFk,
     required int recipientFk,
     DateTime? createdAt,
     DateTime? updatedAt,
     // Relationships
-    UserModel? senderUser,
     UserModel? recipientUser,
   }) = _ChatModel;
 
@@ -405,7 +403,6 @@ class ChatModel with _$ChatModel {
     model = ChatModel(
       pk: entity.pk,
       tenantFk: entity.tenantFk,
-      senderFk: entity.senderFk,
       recipientFk: entity.recipientFk,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
@@ -414,7 +411,6 @@ class ChatModel with _$ChatModel {
 
     // Relationships
     return model.copyWith(
-      senderUser: context.getE<UserModel>(entity.senderFk) ?? (entity.senderUser != null ? UserModel.fromEntity(entity: entity.senderUser!, context: context) : null),
       recipientUser: context.getE<UserModel>(entity.recipientFk) ?? (entity.recipientUser != null ? UserModel.fromEntity(entity: entity.recipientUser!, context: context) : null),
     );
   }
@@ -425,11 +421,9 @@ extension ChatModelX on ChatModel {
     return ChatEntity(
       pk: pk ?? 0,
       tenantFk: tenantFk ?? 0,
-      senderFk: senderFk,
       recipientFk: recipientFk,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      senderUser: senderUser?.toEntity(),
       recipientUser: recipientUser?.toEntity(),
     );
   }

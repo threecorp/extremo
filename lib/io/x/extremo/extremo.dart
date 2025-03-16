@@ -58,9 +58,6 @@ Future<ChatEntity> xFormRpcChatEntity(
   //
   unawaited(chatBox.put(element.pk, entity));
 
-  // if (entity.senderUser != null) {
-  //   unawaited(userBox.put(entity.senderFk, entity.senderUser!));
-  // }
   // if (entity.recipientUser != null) {
   //   unawaited(userBox.put(entity.recipientFk, entity.recipientUser!));
   // }
@@ -91,9 +88,6 @@ Future<UserEntity> xFormRpcChatUserEntity(
   // // Chat
   // await chatBox.put(element.pk, entity);
   // // User
-  // if (entity.senderUser != null) {
-  //   await userBox.put(entity.senderFk, entity.senderUser!);
-  // }
   // if (entity.recipientUser != null) {
   //   await userBox.put(entity.recipientFk, entity.recipientUser!);
   // }
