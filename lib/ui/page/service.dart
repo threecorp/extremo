@@ -50,7 +50,7 @@ class ServicePage extends HookConsumerWidget {
       () {
         pagingController.value.addPageRequestListener((pageKey) async {
           try {
-            final services = await serviceUseCase.fetchServicePage(
+            final services = await serviceUseCase.listServices(
               pageKey: pageKey,
               pageSize: _pageSize,
             );
@@ -84,7 +84,6 @@ class ServicePage extends HookConsumerWidget {
       body: PagedListView<int, ServiceModel>(
         pagingController: pagingController.value,
         builderDelegate: PagedChildBuilderDelegate<ServiceModel>(
-          // リストの各Itemを描画
           itemBuilder: (context, service, index) {
             return ListTile(
               leading: const CircleAvatar(

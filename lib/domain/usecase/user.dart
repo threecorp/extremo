@@ -17,7 +17,7 @@ class UserUseCase {
 
   final Ref ref;
 
-  Future<List<UserModel>> fetchUserPage({
+  Future<List<UserModel>> listUsers({
     required int pageKey,
     required int pageSize,
   }) async {
@@ -31,7 +31,7 @@ class UserUseCase {
         )
         .toList();
 
-    logger.d('Fetched ${newItems.length} items for page=$pageKey');
+    logger.d('listed ${newItems.length} items for page=$pageKey');
     return newItems;
   }
 }

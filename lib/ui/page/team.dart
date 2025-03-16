@@ -50,7 +50,7 @@ class TeamPage extends HookConsumerWidget {
       () {
         pagingController.value.addPageRequestListener((pageKey) async {
           try {
-            final teams = await teamUseCase.fetchTeamPage(
+            final teams = await teamUseCase.listTeams(
               pageKey: pageKey,
               pageSize: _pageSize,
             );
@@ -84,7 +84,6 @@ class TeamPage extends HookConsumerWidget {
       body: PagedListView<int, TeamModel>(
         pagingController: pagingController.value,
         builderDelegate: PagedChildBuilderDelegate<TeamModel>(
-          // リストの各Itemを描画
           itemBuilder: (context, team, index) {
             return ListTile(
               leading: const CircleAvatar(

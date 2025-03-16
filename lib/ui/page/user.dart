@@ -45,7 +45,7 @@ class UserPage extends HookConsumerWidget {
       () {
         pagingController.value.addPageRequestListener((pageKey) async {
           try {
-            final users = await userUseCase.fetchUserPage(
+            final users = await userUseCase.listUsers(
               pageKey: pageKey,
               pageSize: _pageSize,
             );
@@ -79,7 +79,6 @@ class UserPage extends HookConsumerWidget {
       body: PagedListView<int, UserModel>(
         pagingController: pagingController.value,
         builderDelegate: PagedChildBuilderDelegate<UserModel>(
-          // リストの各Itemを描画
           itemBuilder: (context, user, index) {
             return ListTile(
               leading: const CircleAvatar(

@@ -17,7 +17,7 @@ class TeamUseCase {
 
   final Ref ref;
 
-  Future<List<TeamModel>> fetchTeamPage({
+  Future<List<TeamModel>> listTeams({
     required int pageKey,
     required int pageSize,
   }) async {
@@ -31,7 +31,7 @@ class TeamUseCase {
         )
         .toList();
 
-    logger.d('Fetched ${newItems.length} items for page=$pageKey');
+    logger.d('listed ${newItems.length} items for page=$pageKey');
     return newItems;
   }
 }

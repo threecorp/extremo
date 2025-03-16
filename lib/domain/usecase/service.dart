@@ -19,7 +19,7 @@ class ServiceUseCase {
 
   final Ref ref;
 
-  Future<List<ServiceModel>> fetchServicePage({
+  Future<List<ServiceModel>> listServices({
     required int pageKey,
     required int pageSize,
   }) async {
@@ -33,7 +33,7 @@ class ServiceUseCase {
         )
         .toList();
 
-    logger.d('Fetched ${newItems.length} items for page=$pageKey');
+    logger.d('listed ${newItems.length} items for page=$pageKey');
     return newItems;
   }
 }
