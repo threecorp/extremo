@@ -58,8 +58,38 @@ Future<ChatEntity> xFormRpcChatEntity(
   //
   unawaited(chatBox.put(element.pk, entity));
 
-  // if (entity.recipientUser != null) {
-  //   unawaited(userBox.put(entity.recipientFk, entity.recipientUser!));
+  // if (entity.clientUser != null) {
+  //   unawaited(userBox.put(entity.clientFk, entity.clientUser!));
+  // }
+  // if (entity.tenant != null) {
+  //   unawaited(tenantBox.put(entity.tenantFk, entity.tenant!));
+  // }
+
+  return entity;
+}
+
+// Cache save & return
+Future<ChatMessageEntity> xFormRpcChatMessageEntity(
+  Ref ref,
+  pbdb.ChatMessage element,
+) async {
+  // final tenantBox = await ref.read(tenantBoxProvider.future);
+  // final userBox = await ref.read(userBoxProvider.future);
+  final chatMessageBox = await ref.read(chatMessageBoxProvider.future);
+
+  final entity = ChatMessageEntity.fromRpc(element: element);
+  if (chatMessageBox.get(element.pk)?.updatedAt == entity.updatedAt) {
+    return entity;
+  }
+
+  //
+  // XXX(Caution): unawaited, Background process to put data to DB
+  // TODO(compaction): compare to both of updatedAt
+  //
+  unawaited(chatMessageBox.put(element.pk, entity));
+
+  // if (entity.clientUser != null) {
+  //   unawaited(userBox.put(entity.clientFk, entity.clientUser!));
   // }
   // if (entity.tenant != null) {
   //   unawaited(tenantBox.put(entity.tenantFk, entity.tenant!));
@@ -88,8 +118,8 @@ Future<UserEntity> xFormRpcChatUserEntity(
   // // Chat
   // await chatBox.put(element.pk, entity);
   // // User
-  // if (entity.recipientUser != null) {
-  //   await userBox.put(entity.recipientFk, entity.recipientUser!);
+  // if (entity.clientUser != null) {
+  //   await userBox.put(entity.clientFk, entity.clientUser!);
   // }
 
   return entity;

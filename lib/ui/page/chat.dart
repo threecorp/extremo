@@ -23,7 +23,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -34,24 +33,24 @@ class ChatPage extends HookConsumerWidget {
     this.isModal = false,
   });
 
-  final void Function(UserModel)? onTapAction;
+  final void Function(ChatModel)? onTapAction;
   final bool isModal;
   static const _pageSize = 25;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chatUserUseCase = ref.watch(chatUserUseCaseProvider);
+    final chatUseCase = ref.watch(chatUseCaseProvider);
 
     final pagingController = useState(
-      PagingController<int, UserModel>(firstPageKey: 1),
+      PagingController<int, ChatModel>(firstPageKey: 1),
     );
 
     useEffect(
       () {
-        pagingController.value.addPageRequestListener((pageKey) async {
+        pagingController.value.addPageRequestListener((page) async {
           try {
-            final chats = await chatUserUseCase.listChatUsers(
-              pageKey: pageKey,
+            final chats = await chatUseCase.listChats(
+              page: page,
               pageSize: _pageSize,
             );
 
@@ -59,8 +58,8 @@ class ChatPage extends HookConsumerWidget {
             if (isLastPage) {
               pagingController.value.appendLastPage(chats);
             } else {
-              final nextPageKey = pageKey + 1;
-              pagingController.value.appendPage(chats, nextPageKey);
+              final nextPage = page + 1;
+              pagingController.value.appendPage(chats, nextPage);
             }
           } on Object catch (error, st) {
             logger.e('Failed to load page: $error st $st');
@@ -81,29 +80,30 @@ class ChatPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Chat Page'),
       ),
-      body: PagedListView<int, UserModel>(
+      body: PagedListView<int, ChatModel>(
         pagingController: pagingController.value,
-        builderDelegate: PagedChildBuilderDelegate<UserModel>(
-          itemBuilder: (context, user, index) {
+        builderDelegate: PagedChildBuilderDelegate<ChatModel>(
+          itemBuilder: (context, chat, index) {
             return ListTile(
               leading: const CircleAvatar(
                 backgroundImage: NetworkImage('https://placehold.co/300x200/png'),
               ),
-              title: Text('${user.pk}: ${user.profile?.name}'),
+              title: Text('${chat.clientUser?.pk}: ${chat.clientUser?.profile?.name}'),
               subtitle: const Text('status'),
               onTap: () {
                 final action = onTapAction;
                 if (action != null) {
-                  action(user);
+                  action(chat);
                   return;
                 }
-                final pk = user.pk;
+                final pk = chat.pk;
+                final clientFk = chat.clientFk;
                 if (pk != null) {
-                  // TODO(unimpl): ChatMessageRoute(id: pk).go(context);
+                  ChatMessageRoute(chatFk: pk, clientFk: clientFk).go(context);
                   return;
                 }
 
-                const sb = SnackBar(content: Text('User ID is null'));
+                const sb = SnackBar(content: Text('Chat ID is null'));
                 ScaffoldMessenger.of(context).showSnackBar(sb);
               },
             );

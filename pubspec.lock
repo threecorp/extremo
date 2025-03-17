@@ -310,7 +310,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "7aa51dc562e8eb565aca49522c1c3b49ad018e34"
+      resolved-ref: c522b3ef794746fd7197483991b3df8a73f36e57
       url: "https://github.com/threecorp/extremo-proto.git"
     source: git
     version: "0.1.0"

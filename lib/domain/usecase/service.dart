@@ -20,21 +20,21 @@ class ServiceUseCase {
   final Ref ref;
 
   Future<List<ServiceModel>> listServices({
-    required int pageKey,
+    required int page,
     required int pageSize,
   }) async {
-    logger.d('Request: page=$pageKey pageSize=$pageSize');
+    logger.d('Request: page=$page pageSize=$pageSize');
 
-    final pager = await ref.read(repoListPagerServicesProvider(pageKey, pageSize).future);
+    final pager = await ref.read(repoListPagerServicesProvider(page, pageSize).future);
 
-    final newItems = pager.elements
+    final items = pager.elements
         .map(
           (entity) => ServiceModel.fromEntity(entity: entity),
         )
         .toList();
 
-    logger.d('listed ${newItems.length} items for page=$pageKey');
-    return newItems;
+    logger.d('Fetched ${items.length} items ${pager.totalSize} total size for page=$page');
+    return items;
   }
 }
 

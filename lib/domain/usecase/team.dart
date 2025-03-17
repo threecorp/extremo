@@ -18,21 +18,21 @@ class TeamUseCase {
   final Ref ref;
 
   Future<List<TeamModel>> listTeams({
-    required int pageKey,
+    required int page,
     required int pageSize,
   }) async {
-    logger.d('Request: page=$pageKey pageSize=$pageSize');
+    logger.d('Request: page=$page pageSize=$pageSize');
 
-    final pager = await ref.read(repoListPagerTeamsProvider(pageKey, pageSize).future);
+    final pager = await ref.read(repoListPagerTeamsProvider(page, pageSize).future);
 
-    final newItems = pager.elements
+    final items = pager.elements
         .map(
           (entity) => TeamModel.fromEntity(entity: entity),
         )
         .toList();
 
-    logger.d('listed ${newItems.length} items for page=$pageKey');
-    return newItems;
+    logger.d('Fetched ${items.length} items ${pager.totalSize} total size for page=$page');
+    return items;
   }
 }
 

@@ -20,16 +20,17 @@ import 'package:result_dart/functions.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'chat.g.dart';
+part 'chat_message.g.dart';
 
 // TODO(ClassBase): Transform to Class base
 // TODO(offline): DBCache to use offline or error
 
 @riverpod
-Future<PagingEntity<UserEntity>> repoListPagerChatUsers(
-  RepoListPagerChatUsersRef ref,
-  int page,
-  int pageSize,
+Future<NextEntity<ChatMessageEntity>> repoListPagerChatMessages(
+  RepoListPagerChatMessagesRef ref,
+  int chatFk,
+  int clientFk,
+  int next,
 ) async {
   final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
   if (tenantFk == null) {
@@ -39,62 +40,30 @@ Future<PagingEntity<UserEntity>> repoListPagerChatUsers(
   final rpc = ref.read(mypageChatServiceClientProvider);
 
   // TODO(offline): Use DBCache when offlined or error
-  final response = await rpc.list(
-    ListRequest(
+  final response = await rpc.listMessages(
+    ListMessagesRequest(
       tenantFk: tenantFk,
-      page: page,
-      pageSize: pageSize,
+      chatFk: chatFk,
+      clientFk: clientFk,
+      next: next,
     ),
   );
   final elements = await Future.wait(
     response.elements.map(
-      (element) => xFormRpcChatUserEntity(ref, element.client),
+      (element) => xFormRpcChatMessageEntity(ref, element),
     ),
   );
 
-  return PagingEntity<UserEntity>(
+  return NextEntity<ChatMessageEntity>(
     elements: elements.toList(),
-    totalSize: response.totalSize,
+    next: response.next,
   );
 }
 
 @riverpod
-Future<PagingEntity<ChatEntity>> repoListPagerChats(
-  RepoListPagerChatsRef ref,
-  int page,
-  int pageSize,
-) async {
-  final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
-  if (tenantFk == null) {
-    throw Exception('Tenant is required but not available');
-  }
-
-  final rpc = ref.read(mypageChatServiceClientProvider);
-
-  // TODO(offline): Use DBCache when offlined or error
-  final response = await rpc.list(
-    ListRequest(
-      tenantFk: tenantFk,
-      page: page,
-      pageSize: pageSize,
-    ),
-  );
-  final elements = await Future.wait(
-    response.elements.map(
-      (element) => xFormRpcChatEntity(ref, element),
-    ),
-  );
-
-  return PagingEntity<ChatEntity>(
-    elements: elements.toList(),
-    totalSize: response.totalSize,
-  );
-}
-
-@riverpod
-Future<Result<ChatEntity, Exception>> repoCreateChat(
-  RepoCreateChatRef ref,
-  ChatEntity request,
+Future<Result<ChatMessageEntity, Exception>> repoReplyChatMessage(
+  RepoReplyChatMessageRef ref,
+  ChatMessageEntity request,
 ) async {
   final tenantFk = ref.read(accountProvider.notifier).account()?.tenantFk;
   if (tenantFk == null) {
@@ -105,15 +74,17 @@ Future<Result<ChatEntity, Exception>> repoCreateChat(
 
   try {
     final entity = await rpc
-        .create(
-          CreateRequest(
+        .reply(
+          ReplyRequest(
             tenantFk: tenantFk,
-            clientFk: request.clientFk,
-            // message: request.message,
+            chatFk: request.chatFk,
+            fromFk: request.fromFk,
+            toFk: request.toFk,
+            message: request.message,
           ),
         )
         .then(
-          (r) => xFormRpcChatEntity(ref, r.element),
+          (r) => xFormRpcChatMessageEntity(ref, r.element),
         );
 
     return Success(entity);

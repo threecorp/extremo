@@ -49,3 +49,10 @@ class PaginationState<T> {
     );
   }
 }
+
+class NextModel<T> {
+  NextModel({required this.elements, required this.next});
+
+  final List<T> elements;
+  final int next;
+}

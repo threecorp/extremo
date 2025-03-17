@@ -6,3 +6,10 @@ class PagingEntity<T> {
   final List<T> elements;
   final int totalSize;
 }
+
+class NextEntity<T> {
+  NextEntity({required this.elements, required this.next});
+
+  final List<T> elements;
+  final int next;
+}

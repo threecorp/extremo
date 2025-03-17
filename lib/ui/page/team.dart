@@ -48,10 +48,10 @@ class TeamPage extends HookConsumerWidget {
 
     useEffect(
       () {
-        pagingController.value.addPageRequestListener((pageKey) async {
+        pagingController.value.addPageRequestListener((page) async {
           try {
             final teams = await teamUseCase.listTeams(
-              pageKey: pageKey,
+              page: page,
               pageSize: _pageSize,
             );
 
@@ -59,8 +59,8 @@ class TeamPage extends HookConsumerWidget {
             if (isLastPage) {
               pagingController.value.appendLastPage(teams);
             } else {
-              final nextPageKey = pageKey + 1;
-              pagingController.value.appendPage(teams, nextPageKey);
+              final nextPage = page + 1;
+              pagingController.value.appendPage(teams, nextPage);
             }
           } on Object catch (error, st) {
             logger.e('Failed to load page: $error st $st');

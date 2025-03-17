@@ -18,21 +18,21 @@ class UserUseCase {
   final Ref ref;
 
   Future<List<UserModel>> listUsers({
-    required int pageKey,
+    required int page,
     required int pageSize,
   }) async {
-    logger.d('Request: page=$pageKey pageSize=$pageSize');
+    logger.d('Request: page=$page pageSize=$pageSize');
 
-    final pager = await ref.read(repoListPagerUsersProvider(pageKey, pageSize).future);
+    final pager = await ref.read(repoListPagerUsersProvider(page, pageSize).future);
 
-    final newItems = pager.elements
+    final items = pager.elements
         .map(
           (entity) => UserModel.fromEntity(entity: entity),
         )
         .toList();
 
-    logger.d('listed ${newItems.length} items for page=$pageKey');
-    return newItems;
+    logger.d('Fetched ${items.length} items ${pager.totalSize} total size for page=$page');
+    return items;
   }
 }
 

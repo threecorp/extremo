@@ -7,10 +7,10 @@ import 'package:extremo/ui/page/artifact_detail.dart';
 import 'package:extremo/ui/page/chat.dart';
 import 'package:extremo/ui/page/chat_message.dart';
 import 'package:extremo/ui/page/login.dart';
-import 'package:extremo/ui/page/team.dart';
-import 'package:extremo/ui/page/service.dart';
 import 'package:extremo/ui/page/register.dart';
 import 'package:extremo/ui/page/reserve.dart';
+import 'package:extremo/ui/page/service.dart';
+import 'package:extremo/ui/page/team.dart';
 import 'package:extremo/ui/page/tenant.dart';
 import 'package:extremo/ui/page/user.dart';
 import 'package:extremo/ui/page/user_detail.dart';
@@ -30,7 +30,7 @@ class Routes {
   static const registerPage = '/register';
   static const teamPage = '/teams';
   static const servicePage = '/services';
-  static const messagePage = '/messages';
+  static const chatPage = '/chats';
   static const userPage = '/users';
   static const tenantPage = '/tenants';
   // static const splashPage = "/splash";
@@ -183,8 +183,8 @@ class ReserveRoute extends GoRouteData {
 }
 
 @TypedGoRoute<ChatRoute>(
-  path: Routes.messagePage,
-  routes: [TypedGoRoute<ChatMessageRoute>(path: ':id')],
+  path: Routes.chatPage,
+  routes: [TypedGoRoute<ChatMessageRoute>(path: ':chatFk/:clientFk')],
 )
 @immutable
 class ChatRoute extends GoRouteData {
@@ -198,13 +198,14 @@ class ChatRoute extends GoRouteData {
 
 @immutable
 class ChatMessageRoute extends GoRouteData {
-  const ChatMessageRoute({required this.id});
-  final int id;
+  const ChatMessageRoute({required this.chatFk, required this.clientFk});
+  final int chatFk;
+  final int clientFk;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) => CustomTransitionPage(
         key: state.pageKey,
-        child: ChatMessagePage(id: id),
+        child: ChatMessagePage(chatFk: chatFk, clientFk: clientFk),
         transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
       );
 }

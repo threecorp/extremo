@@ -382,11 +382,11 @@ class ChatModel with _$ChatModel {
   const factory ChatModel({
     int? pk,
     int? tenantFk,
-    required int recipientFk,
+    required int clientFk,
     DateTime? createdAt,
     DateTime? updatedAt,
     // Relationships
-    UserModel? recipientUser,
+    UserModel? clientUser,
   }) = _ChatModel;
 
   factory ChatModel.fromEntity({
@@ -403,7 +403,7 @@ class ChatModel with _$ChatModel {
     model = ChatModel(
       pk: entity.pk,
       tenantFk: entity.tenantFk,
-      recipientFk: entity.recipientFk,
+      clientFk: entity.clientFk,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -411,7 +411,7 @@ class ChatModel with _$ChatModel {
 
     // Relationships
     return model.copyWith(
-      recipientUser: context.getE<UserModel>(entity.recipientFk) ?? (entity.recipientUser != null ? UserModel.fromEntity(entity: entity.recipientUser!, context: context) : null),
+      clientUser: context.getE<UserModel>(entity.clientFk) ?? (entity.clientUser != null ? UserModel.fromEntity(entity: entity.clientUser!, context: context) : null),
     );
   }
 }
@@ -421,10 +421,10 @@ extension ChatModelX on ChatModel {
     return ChatEntity(
       pk: pk ?? 0,
       tenantFk: tenantFk ?? 0,
-      recipientFk: recipientFk,
+      clientFk: clientFk,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      recipientUser: recipientUser?.toEntity(),
+      clientUser: clientUser?.toEntity(),
     );
   }
 }
@@ -433,6 +433,7 @@ extension ChatModelX on ChatModel {
 class ChatMessageModel with _$ChatMessageModel {
   const factory ChatMessageModel({
     int? pk,
+    required int chatFk,
     required int fromFk,
     required int toFk,
     @Default('') String message,
@@ -443,6 +444,7 @@ class ChatMessageModel with _$ChatMessageModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     // Relationships
+    ChatModel? chat,
     UserModel? fromUser,
     UserModel? toUser,
   }) = _ChatMessageModel;
@@ -460,6 +462,7 @@ class ChatMessageModel with _$ChatMessageModel {
 
     model = ChatMessageModel(
       pk: entity.pk,
+      chatFk: entity.chatFk,
       fromFk: entity.fromFk,
       toFk: entity.toFk,
       message: entity.message,
@@ -474,6 +477,7 @@ class ChatMessageModel with _$ChatMessageModel {
 
     // Relationships
     return model.copyWith(
+      chat: context.getE<ChatModel>(entity.chatFk) ?? (entity.chat != null ? ChatModel.fromEntity(entity: entity.chat!, context: context) : null),
       fromUser: context.getE<UserModel>(entity.fromFk) ?? (entity.fromUser != null ? UserModel.fromEntity(entity: entity.fromUser!, context: context) : null),
       toUser: context.getE<UserModel>(entity.toFk) ?? (entity.toUser != null ? UserModel.fromEntity(entity: entity.toUser!, context: context) : null),
     );
@@ -484,6 +488,7 @@ class ChatMessageModel with _$ChatMessageModel {
   }) {
     return ChatMessageModel(
       pk: 0,
+      chatFk: 0,
       fromFk: 0,
       toFk: 0,
       message: chat.toJson().toString(),
@@ -504,6 +509,7 @@ extension ChatMessageModelX on ChatMessageModel {
   ChatMessageEntity toEntity() {
     return ChatMessageEntity(
       pk: pk ?? 0,
+      chatFk: chatFk,
       fromFk: fromFk,
       toFk: toFk,
       message: message,
@@ -513,6 +519,7 @@ extension ChatMessageModelX on ChatMessageModel {
       deletedAt: deletedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      chat: chat?.toEntity(),
       fromUser: fromUser?.toEntity(),
       toUser: toUser?.toEntity(),
     );

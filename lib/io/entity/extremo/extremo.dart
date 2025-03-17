@@ -356,11 +356,11 @@ class ChatEntity {
   ChatEntity({
     required this.pk,
     required this.tenantFk,
-    required this.recipientFk,
+    required this.clientFk,
     this.createdAt,
     this.updatedAt,
     // Relationships
-    this.recipientUser,
+    this.clientUser,
   });
 
   factory ChatEntity.fromRpc({
@@ -376,7 +376,7 @@ class ChatEntity {
     entity = ChatEntity(
       pk: element.pk,
       tenantFk: element.tenantFk,
-      recipientFk: element.recipientFk,
+      clientFk: element.clientFk,
       createdAt: element.createdAt.toDateTime(),
       updatedAt: element.updatedAt.toDateTime(),
     );
@@ -384,7 +384,7 @@ class ChatEntity {
 
     // Relationships
     entity
-      ..recipientUser = context.getE<UserEntity>(element.recipientFk) ?? (element.hasRecipient() ? UserEntity.fromRpc(element: element.recipient, context: context) : null)
+      ..clientUser = context.getE<UserEntity>(element.clientFk) ?? (element.hasClient() ? UserEntity.fromRpc(element: element.client, context: context) : null)
       ..tenant = context.getE<TenantEntity>(element.tenantFk) ?? (element.hasTenant() ? TenantEntity.fromRpc(element: element.tenant, context: context) : null);
 
     return entity;
@@ -399,7 +399,7 @@ class ChatEntity {
   // 2
 
   @HiveField(3)
-  int recipientFk;
+  int clientFk;
 
   @HiveField(10)
   DateTime? createdAt;
@@ -408,7 +408,7 @@ class ChatEntity {
   DateTime? updatedAt;
 
   // Relationships
-  UserEntity? recipientUser; // TODO(impl): OneToOne must be required
+  UserEntity? clientUser; // TODO(impl): OneToOne must be required
   TenantEntity? tenant; // TODO(impl): OneToOne must be required
 }
 
@@ -416,6 +416,7 @@ class ChatEntity {
 class ChatMessageEntity {
   ChatMessageEntity({
     required this.pk,
+    required this.chatFk,
     required this.fromFk,
     required this.toFk,
     this.message = '',
@@ -426,6 +427,7 @@ class ChatMessageEntity {
     this.createdAt,
     this.updatedAt,
     // Relationships
+    this.chat,
     this.fromUser,
     this.toUser,
   });
@@ -442,6 +444,7 @@ class ChatMessageEntity {
     }
     entity = ChatMessageEntity(
       pk: element.pk,
+      chatFk: element.chatFk,
       fromFk: element.fromFk,
       toFk: element.toFk,
       message: element.message,
@@ -458,6 +461,7 @@ class ChatMessageEntity {
     context.putE(entity.pk, entity);
 
     entity
+      ..chat = (context.getE<ChatEntity>(element.chatFk)) ?? (element.hasChat() ? ChatEntity.fromRpc(element: element.chat, context: context) : null)
       ..fromUser = (context.getE<UserEntity>(element.fromFk)) ?? (element.hasFromUser() ? UserEntity.fromRpc(element: element.fromUser, context: context) : null)
       ..toUser = (context.getE<UserEntity>(element.toFk)) ?? (element.hasToUser() ? UserEntity.fromRpc(element: element.toUser, context: context) : null);
 
@@ -468,33 +472,37 @@ class ChatMessageEntity {
   int pk;
 
   @HiveField(1)
-  int fromFk;
+  int chatFk;
 
   @HiveField(2)
-  int toFk;
+  int fromFk;
 
   @HiveField(3)
-  String message;
+  int toFk;
 
   @HiveField(4)
-  bool isRead;
+  String message;
 
   @HiveField(5)
-  DateTime? readAt;
+  bool isRead;
 
   @HiveField(6)
-  bool isDeleted;
+  DateTime? readAt;
 
   @HiveField(7)
-  DateTime? deletedAt;
+  bool isDeleted;
 
   @HiveField(8)
-  DateTime? createdAt;
+  DateTime? deletedAt;
 
   @HiveField(9)
+  DateTime? createdAt;
+
+  @HiveField(10)
   DateTime? updatedAt;
 
   // Relationships
+  ChatEntity? chat;
   UserEntity? fromUser;
   UserEntity? toUser;
 }
