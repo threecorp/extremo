@@ -36,45 +36,31 @@ class ChatMessagePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ------------------
-    // 1) 依存リソースの取得
-    // ------------------
     final accountNotifier = ref.watch(accountProvider.notifier);
     final account = accountNotifier.account();
     if (account == null) {
-      // TODO: エラーハンドリング
+      // TODO(unimpl): error handling
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
-
-    // ChatMessageUseCase を取得
     final useCase = ref.read(chatMessageUseCaseProvider);
 
-    // flutter_chat_ui 用のユーザー
+    // for flutter_chat_ui user
     final user = types.User(
       id: 'user:${account.pk}:${account.dateJoined.seconds}',
       createdAt: account.dateJoined.seconds.toInt(),
     );
 
-    // ------------------
-    // 2) ローカルステート管理
-    // ------------------
-    // メッセージ一覧の管理
+    // local state
     final messagesState = useState<AsyncValue<List<ChatMessageModel>>>(const AsyncValue.loading());
-
-    // ページングが必要ならこちらで用意（例）
     final nextPageState = useState<int>(0);
     final hasMoreState = useState<bool>(true);
 
-    // ------------------
-    // 3) メッセージ一覧の初回取得
-    // ------------------
-    // ※ ページングしたい場合は必要に応じて再呼び出ししてください
+    // if you want to implement pagination, call this function when needed
     Future<void> fetchMessages() async {
-      // hasMore が false の場合は早期returnするなどのロジック
       if (!hasMoreState.value) {
         return;
       }
@@ -86,13 +72,14 @@ class ChatMessagePage extends HookConsumerWidget {
           clientFk: clientFk,
           next: nextPageState.value,
         );
-        // 次のページインデックスを更新
+
+        // next index
         nextPageState.value = nextModel.next;
         if (nextModel.elements.isEmpty) {
           hasMoreState.value = false;
         }
 
-        // 既存データに追加していく
+        // append to current list
         final current = messagesState.value.asData?.value ?? [];
         final merged = [...current, ...nextModel.elements];
         messagesState.value = AsyncValue.data(merged);
@@ -101,15 +88,15 @@ class ChatMessagePage extends HookConsumerWidget {
       }
     }
 
-    // 初回マウント時に1回だけ取得
-    useEffect(() {
-      fetchMessages();
-      return null;
-    }, []);
+    // only once on first build
+    useEffect(
+      () {
+        fetchMessages();
+        return null;
+      },
+      [],
+    );
 
-    // ------------------
-    // 4) メッセージの作成
-    // ------------------
     Future<void> addMessage(types.Message message) async {
       final chatMessageModel = ChatMessageModel(
         pk: 0,
@@ -125,7 +112,6 @@ class ChatMessagePage extends HookConsumerWidget {
 
       final result = await useCase.replyChatMessage(chatMessageModel);
       result.onSuccess((createdModel) {
-        // 成功時は既存一覧に追加
         final current = messagesState.value.asData?.value ?? [];
         messagesState.value = AsyncValue.data([...current, createdModel]);
       }).onFailure<Exception>((error) {
@@ -135,10 +121,7 @@ class ChatMessagePage extends HookConsumerWidget {
       });
     }
 
-    // ------------------
-    // 5) Chat UI まわり
-    // ------------------
-    // ファイル添付
+    // file attachment
     void handleAttachmentPressed() {
       showModalBottomSheet<void>(
         context: context,
@@ -182,7 +165,7 @@ class ChatMessagePage extends HookConsumerWidget {
       );
     }
 
-    // メッセージタップ（ファイルを開く）
+    // tap message on link or file
     Future<void> handleMessageTap(BuildContext _, types.Message message) async {
       if (message is! types.FileMessage) {
         return;
@@ -191,8 +174,8 @@ class ChatMessagePage extends HookConsumerWidget {
       var localPath = message.uri;
 
       if (message.uri.startsWith('http')) {
-        // ダウンロード開始
-        // ダウンロード中の表示を行いたいならここで更新してもいい
+        // Start downloading
+        // You can update here if you want to display the download in progress
         try {
           final client = http.Client();
           final request = await client.get(Uri.parse(message.uri));
@@ -205,8 +188,8 @@ class ChatMessagePage extends HookConsumerWidget {
             await file.writeAsBytes(bytes);
           }
         } finally {
-          // 最終的に localPath を message の uri にしたい場合は
-          // messagesState.value の中の該当メッセージを更新
+          // Finally, if you want localPath to be the uri of the message,
+          // update the corresponding message in messagesState.value
           final current = messagesState.value.asData?.value ?? [];
           final index = current.indexWhere((m) {
             final decoded = _decodeToTypesMessage(m.message);
@@ -224,11 +207,11 @@ class ChatMessagePage extends HookConsumerWidget {
         }
       }
 
-      // ファイルを開く
+      // open file
       await OpenFilex.open(localPath);
     }
 
-    // リンクプレビュー取得
+    // preview link
     void handlePreviewDataFetched(
       types.TextMessage message,
       types.PreviewData previewData,
@@ -252,7 +235,7 @@ class ChatMessagePage extends HookConsumerWidget {
       messagesState.value = AsyncValue.data(newList);
     }
 
-    // 送信（テキスト）
+    // send message
     void handleSendPressed(types.PartialText message) {
       final textMessage = types.TextMessage(
         author: user,
@@ -263,9 +246,6 @@ class ChatMessagePage extends HookConsumerWidget {
       addMessage(textMessage);
     }
 
-    // ------------------
-    // 6) 実際の画面描画
-    // ------------------
     return Scaffold(
       body: messagesState.value.when(
         data: (messageModels) {
@@ -280,12 +260,17 @@ class ChatMessagePage extends HookConsumerWidget {
             showUserAvatars: true,
             showUserNames: true,
             user: user,
+            // TODO(referctoring): need to implement theme cosutom
             theme: const DefaultChatTheme(
-              seenIcon: Text(
-                'read',
-                style: TextStyle(
-                  fontSize: 10,
-                ),
+              // inputPadding: EdgeInsets.all(32),
+              inputBorderRadius: BorderRadius.vertical(
+                top: Radius.circular(5),
+              ),
+              inputTextColor: Colors.black,
+              inputTextStyle: TextStyle(
+                // color: Colors.black,
+                // fontSize: 16,
+                height: 2.5,
               ),
             ),
           );
@@ -296,9 +281,6 @@ class ChatMessagePage extends HookConsumerWidget {
     );
   }
 
-  // ------------------
-  // 補助関数 (ファイル選択, 画像選択)
-  // ------------------
   Future<void> _handleFileSelection(
     void Function(types.Message) addMessage,
     types.User user,
@@ -345,11 +327,8 @@ class ChatMessagePage extends HookConsumerWidget {
     }
   }
 
-  // ------------------
-  // JSON -> types.Message 変換用の簡易ヘルパー
-  // ------------------
   types.Message _decodeToTypesMessage(String rawMessageJson) {
-    final Map<String, dynamic> json = jsonDecode(rawMessageJson) as Map<String, dynamic>;
+    final json = jsonDecode(rawMessageJson) as Map<String, dynamic>;
     return types.Message.fromJson(json);
   }
 }
