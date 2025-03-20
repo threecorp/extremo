@@ -68,7 +68,7 @@ class ReservePage extends HookConsumerWidget {
       final usecase = await ref.read(updateBookCaseProvider(book, clientFks, teamFks, serviceFks).future);
       debugPrint('clientFks: $clientFks, teamFks: $teamFks, serviceFks: $serviceFks');
 
-      usecase.onSuccess<ArtifactModel>((book) {
+      usecase.onSuccess<BookModel>((book) {
         booksState.value = booksState.value.map((value) => value.pk == appointment.pk ? book : value).toList();
 
         // Show a Snackbar notification
@@ -95,7 +95,7 @@ class ReservePage extends HookConsumerWidget {
 
       debugPrint('isEdit: $isEdit, clientFks: $clientFks, teamFks: $teamFks, serviceFks: $serviceFks');
 
-      usecase.onSuccess<ArtifactModel>((book) {
+      usecase.onSuccess<BookModel>((book) {
         if (!isEdit) {
           booksState.value = [...booksState.value, book];
         } else {
@@ -104,7 +104,7 @@ class ReservePage extends HookConsumerWidget {
         // Show a Snackbar notification
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('"${book.name}" saved!'),
+            content: Text('"${book.pk}: ${book.name}" saved!'),
             duration: const Duration(seconds: 5),
           ),
         );
@@ -202,16 +202,18 @@ class ReservePage extends HookConsumerWidget {
           debugPrint('onTap: ${details.date}');
         },
         onViewChanged: (ViewChangedDetails details) async {
-          // カレンダーの visibleDates から fetchBooks
+          debugPrint('onViewChanged');
           final visibleRange = details.visibleDates;
           await fetchBooks(visibleRange.first, visibleRange.last);
         },
         // onAppointmentResizeStart: resizeStart,
         // onAppointmentResizeUpdate: resizeUpdate,
         onAppointmentResizeEnd: (AppointmentResizeEndDetails details) async {
+          debugPrint('onAppointmentResizeEnd');
           await updateBookByAppointment(details.appointment, details.startTime, details.endTime);
         },
         onDragEnd: (AppointmentDragEndDetails details) async {
+          debugPrint('onDragEnd');
           final appointment = details.appointment;
           final droppingTime = details.droppingTime;
 
@@ -454,33 +456,4 @@ class ReserveDataSource extends CalendarDataSource<BookModel> {
 
     return book;
   }
-}
-
-class FilterBooksParam {
-  const FilterBooksParam({
-    required this.openedAt,
-    required this.closedAt,
-    // required this.view,
-  });
-  final DateTime openedAt;
-  final DateTime closedAt;
-  // final CalendarView view;
-
-  FilterBooksParam copyWith({
-    DateTime? openedAt,
-    DateTime? closedAt,
-    // CalendarView? view,
-  }) {
-    return FilterBooksParam(
-      openedAt: openedAt ?? this.openedAt,
-      closedAt: closedAt ?? this.closedAt,
-      // view: view ?? this.view,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) => identical(this, other) || (other is FilterBooksParam && openedAt == other.openedAt && closedAt == other.closedAt);
-
-  @override
-  int get hashCode => openedAt.hashCode ^ closedAt.hashCode;
 }
